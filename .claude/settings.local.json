@@ -18,7 +18,9 @@
       "Bash(npm list:*)",
       "Bash(npm install:*)",
       "Bash(grep -r import.*from.*.forge /c/dev/js/forge --include=*.ts --include=*.js)",
-      "Bash(grep -E \"\\\\.\\(forge|ts\\)$\")"
+      "Bash(grep -E \"\\\\.\\(forge|ts\\)$\")",
+      "Bash(grep -E \"\\\\.\\(forge|ts|js|scss\\)$\")",
+      "Bash(npx nx:*)"
     ]
   }
 }

@@ -8,13 +8,14 @@
     "examples/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "test": "vitest run",
+    "build": "nx run-many --target=build",
+    "test": "nx run-many --target=test",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint packages --ext .ts",
-    "typecheck": "tsc --build",
-    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules"
+    "lint": "nx run-many --target=lint",
+    "typecheck": "nx run-many --target=typecheck",
+    "clean": "nx run-many --target=clean && rm -rf node_modules",
+    "graph": "nx graph"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",
@@ -22,6 +23,7 @@
     "@vitest/coverage-v8": "^1.0.0",
     "eslint": "^8.0.0",
     "happy-dom": "^20.8.4",
+    "nx": "^22.6.1",
     "rolldown": "^0.14.0",
     "typescript": "^5.4.0",
     "vitest": "^1.0.0"

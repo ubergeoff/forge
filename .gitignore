@@ -5,3 +5,5 @@ coverage/
 .forge-cache/
 *.local
 .DS_Store
+.nx/cache
+.nx/workspace-data
