@@ -11,36 +11,9 @@ function reset() { svc.reset(); }
 </script>
 
 <template>
-  <div class="buttons">
-    <button @click={increment}>+</button>
-    <button @click={decrement} :show={canDecrement()}>-</button>
-    <button @click={reset}>Reset</button>
+  <div class="flex gap-2 justify-center mt-6">
+    <button class="text-xl px-6 py-2 cursor-pointer rounded-md border border-gray-300 bg-white hover:bg-gray-100 transition-colors" @click={increment}>+</button>
+    <button class="text-xl px-6 py-2 cursor-pointer rounded-md border border-gray-300 bg-white hover:bg-gray-100 transition-colors" @click={decrement} :show={canDecrement()}>-</button>
+    <button class="text-xl px-6 py-2 cursor-pointer rounded-md border border-gray-300 bg-white hover:bg-gray-100 transition-colors" @click={reset}>Reset</button>
   </div>
 </template>
-
-<style lang="scss" scoped>
-$color-btn-bg:     #ffffff;
-$color-btn-hover:  #f0f0f0;
-$color-btn-border: #ccc;
-$btn-radius:       6px;
-
-.buttons {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-top: 1.5rem;
-
-  button {
-    font-size: 1.25rem;
-    padding: 0.5rem 1.5rem;
-    cursor: pointer;
-    border-radius: $btn-radius;
-    border: 1px solid $color-btn-border;
-    background: $color-btn-bg;
-
-    &:hover {
-      background: $color-btn-hover;
-    }
-  }
-}
-</style>

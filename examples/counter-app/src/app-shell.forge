@@ -3,16 +3,16 @@ import { RouterLink, RouterOutlet } from '@forge/router';
 </script>
 
 <template>
-  <div class="forge-app">
-    <nav class="forge-nav">
-      <span class="forge-nav__brand">⚡ Forge</span>
-      <div class="forge-nav__links">
-        <RouterLink href="/" label="Home" class="forge-nav__link" />
-        <RouterLink href="/counter" label="Counter" class="forge-nav__link" />
-        <RouterLink href="/about" label="About" class="forge-nav__link" />
+  <div class="flex flex-col min-h-screen">
+    <nav class="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200">
+      <span class="font-bold text-lg tracking-tight text-gray-900">⚡ Forge</span>
+      <div class="flex gap-1">
+        <RouterLink href="/" label="Home" class="px-3 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" />
+        <RouterLink href="/counter" label="Counter" class="px-3 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" />
+        <RouterLink href="/about" label="About" class="px-3 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" />
       </div>
     </nav>
-    <main class="forge-main">
+    <main class="flex-1 px-4 py-16">
       <RouterOutlet />
     </main>
   </div>

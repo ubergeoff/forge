@@ -1,5 +1,6 @@
 import { defineConfig } from 'rolldown';
 import { forgePlugin } from '@forge/compiler';
+import tailwindcss from '@tailwindcss/postcss';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
@@ -13,5 +14,10 @@ export default defineConfig({
     format: 'esm',
     sourcemap: true,
   },
-  plugins: [forgePlugin()],
+  plugins: [
+    forgePlugin({
+      css: path.join(__dirname, 'src/tailwind.css'),
+      postcss: { plugins: [tailwindcss()] },
+    }),
+  ],
 });

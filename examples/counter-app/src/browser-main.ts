@@ -1,3 +1,4 @@
+import 'forge:css';
 import { bootstrapApp } from '@forge/core';
 import { createComponent, mountComponent } from '@forge/core/dom';
 import { provideRouter } from '@forge/router';

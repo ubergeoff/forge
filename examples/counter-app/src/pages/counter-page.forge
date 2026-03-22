@@ -9,32 +9,11 @@ function goHome() { router.navigate('/'); }
 </script>
 
 <template>
-  <div class="counter-page">
-    <div class="page-header">
-      <button class="btn-back" @click={goHome}>← Home</button>
-      <h2>Counter</h2>
+  <div class="max-w-lg mx-auto mt-8 px-4">
+    <div class="flex items-center gap-4 mb-6">
+      <button class="text-sm px-3 py-1.5 rounded-md bg-transparent text-gray-500 border border-gray-300 cursor-pointer hover:bg-gray-100 hover:text-gray-700 transition-colors" @click={goHome}>← Home</button>
+      <h2 class="m-0 text-xl font-semibold text-gray-700">Counter</h2>
     </div>
     <CounterComponent />
   </div>
 </template>
-
-<style lang="scss" scoped>
-.counter-page {
-  max-width: 520px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-
-  .page-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-
-    h2 {
-      margin: 0;
-      font-size: 1.25rem;
-      color: #333;
-    }
-  }
-}
-</style>

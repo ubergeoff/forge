@@ -8,27 +8,8 @@ const doubled = svc.doubled;
 </script>
 
 <template>
-  <div class="display">
-    <p class="value">{count()}</p>
-    <p class="doubled">Doubled: {doubled()}</p>
+  <div class="my-4">
+    <p class="text-6xl font-bold text-gray-900 mb-1">{count()}</p>
+    <p class="text-sm text-gray-400">Doubled: {doubled()}</p>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.display {
-  margin: 1rem 0;
-
-  .value {
-    font-size: 3rem;
-    font-weight: bold;
-    margin: 0 0 0.25rem;
-    color: #111;
-  }
-
-  .doubled {
-    color: #888;
-    font-size: 0.9rem;
-    margin: 0;
-  }
-}
-</style>

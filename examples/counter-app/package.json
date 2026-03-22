@@ -18,8 +18,11 @@
   },
   "devDependencies": {
     "@forge/compiler": "*",
+    "@tailwindcss/postcss": "^4.0.0",
+    "postcss": "^8.0.0",
     "rolldown": "*",
     "sass": "*",
+    "tailwindcss": "^4.0.0",
     "typescript": "*"
   }
 }

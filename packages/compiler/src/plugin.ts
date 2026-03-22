@@ -13,6 +13,7 @@
 
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
+import { resolve, isAbsolute } from 'node:path';
 import { parseSFC } from './parser.js';
 import { compileSFC } from './compiler.js';
 
@@ -25,10 +26,37 @@ import { compileSFC } from './compiler.js';
  */
 export interface ForgePluginOptions {
   /**
+   * Absolute or relative path to a CSS entry file (e.g. a Tailwind CSS file
+   * using `@import "tailwindcss"`). The file is processed through PostCSS
+   * when `postcss` is also configured, then injected into the page at runtime
+   * via a `<style>` element.
+   *
+   * Import the virtual module `"forge:css"` from your entry point to trigger
+   * injection:
+   *
+   * ```ts
+   * // src/main.ts
+   * import 'forge:css';
+   * ```
+   *
+   * Because Rolldown's built-in CSS extraction intercepts `.css` imports
+   * before plugin hooks can claim them, using a named virtual module avoids
+   * that pipeline entirely.
+   *
+   * @example
+   * ```ts
+   * forgePlugin({
+   *   css: './src/tailwind.css',
+   *   postcss: { plugins: [tailwindcss()] },
+   * })
+   * ```
+   */
+  css?: string;
+
+  /**
    * Optional PostCSS configuration. When provided, all CSS (including
-   * `<style>` blocks in `.forge` files and imported `.css` files) is
-   * processed through PostCSS before injection. Required for Tailwind CSS
-   * and other PostCSS plugins.
+   * `<style>` blocks in `.forge` files) is processed through PostCSS before
+   * injection. Required for Tailwind CSS and other PostCSS plugins.
    *
    * @example
    * ```ts
@@ -55,7 +83,7 @@ export interface ForgePluginOptions {
 export interface ForgePluginObject {
   name: string;
   resolveId(id: string): string | null;
-  load(id: string): { code: string } | null;
+  load(id: string): Promise<{ code: string } | null>;
   transform(
     code: string,
     id: string,
@@ -63,11 +91,21 @@ export interface ForgePluginObject {
 }
 
 // ---------------------------------------------------------------------------
-// Virtual module prefix (kept for resolveId/load of standalone .scss files)
+// Virtual module prefixes
 // ---------------------------------------------------------------------------
 
 /** Prefix that marks synthetic style modules produced per .forge file. */
 const VIRTUAL_PREFIX = '\0forge-style:';
+
+/**
+ * The public import specifier that applications use to trigger CSS entry
+ * injection. Resolved to `CSS_VIRTUAL_ID` by the plugin so it never carries
+ * a `.css` extension that Rolldown would intercept as a CSS asset.
+ */
+const CSS_IMPORT_SPECIFIER = 'forge:css';
+
+/** Internal virtual module ID for the CSS entry injection module. */
+const CSS_VIRTUAL_ID = '\0forge:css';
 
 // ---------------------------------------------------------------------------
 // SCSS compilation
@@ -242,14 +280,15 @@ export function forgePlugin(options?: ForgePluginOptions): ForgePluginObject {
 
     resolveId(id: string) {
       if (id.startsWith(VIRTUAL_PREFIX)) return id;
+      if (id === CSS_IMPORT_SPECIFIER) return CSS_VIRTUAL_ID;
       return null;
     },
 
     // -------------------------------------------------------------------------
-    // load — serve virtual style modules
+    // load — serve virtual style modules, .scss, and .css files
     // -------------------------------------------------------------------------
 
-    load(id: string) {
+    async load(id: string) {
       // Virtual style modules produced by .forge SFC compilation.
       if (id.startsWith(VIRTUAL_PREFIX)) {
         const moduleCode = virtualStyles.get(id) ?? '';
@@ -264,6 +303,20 @@ export function forgePlugin(options?: ForgePluginOptions): ForgePluginObject {
         return { code: buildStyleModule(css) };
       }
 
+      // CSS entry file — resolved from `options.css` and injected at runtime.
+      // Processed through PostCSS when configured (e.g. Tailwind CSS).
+      if (id === CSS_VIRTUAL_ID) {
+        if (!options?.css) return { code: '' };
+        const filePath = isAbsolute(options.css)
+          ? options.css
+          : resolve(options.css);
+        let css = readFileSync(filePath, 'utf-8');
+        if (options.postcss) {
+          css = await runPostCSS(css, filePath, options.postcss.plugins);
+        }
+        return { code: buildStyleModule(css) };
+      }
+
       return null;
     },
 
@@ -272,17 +325,6 @@ export function forgePlugin(options?: ForgePluginOptions): ForgePluginObject {
     // -------------------------------------------------------------------------
 
     async transform(code: string, id: string) {
-      // ---- Plain .css files ------------------------------------------------
-      // Intercept CSS imports so Tailwind (or any PostCSS plugin) can process
-      // them, then wrap the result in a runtime style-injection module.
-      if (id.endsWith('.css')) {
-        let css = code;
-        if (options?.postcss) {
-          css = await runPostCSS(css, id, options.postcss.plugins);
-        }
-        return { code: buildStyleModule(css) };
-      }
-
       // ---- .forge SFC files ------------------------------------------------
       if (!id.endsWith('.forge')) return null;
 

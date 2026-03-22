@@ -9,49 +9,16 @@ function goToAbout()   { router.navigate('/about'); }
 </script>
 
 <template>
-  <div class="home-page">
-    <h1>Forge Router Demo</h1>
-    <p class="tagline">Angular's structure. SolidJS's speed. Vue's elegance.</p>
-    <p class="description">
+  <div class="max-w-lg mx-auto mt-16 text-center px-4">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Forge Router Demo</h1>
+    <p class="italic text-gray-500 mb-6">Angular's structure. SolidJS's speed. Vue's elegance.</p>
+    <p class="text-gray-600 leading-relaxed mb-8">
       This app demonstrates <strong>@forge/router</strong> — a signal-driven
       client-side router built on the Forge reactivity core.
     </p>
-    <div class="actions">
-      <button class="btn-primary" @click={goToCounter}>Counter →</button>
-      <button class="btn-secondary" @click={goToAbout}>About →</button>
+    <div class="flex gap-3 justify-center">
+      <button class="px-5 py-2 rounded-md bg-gray-900 text-white text-sm cursor-pointer hover:bg-gray-700 transition-colors" @click={goToCounter}>Counter →</button>
+      <button class="px-5 py-2 rounded-md bg-white text-gray-700 border border-gray-300 text-sm cursor-pointer hover:bg-gray-50 transition-colors" @click={goToAbout}>About →</button>
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.home-page {
-  max-width: 520px;
-  margin: 4rem auto;
-  text-align: center;
-  padding: 0 1rem;
-
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    color: #111;
-  }
-
-  .tagline {
-    font-style: italic;
-    color: #666;
-    margin-bottom: 1.5rem;
-  }
-
-  .description {
-    color: #444;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-  }
-
-  .actions {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: center;
-  }
-}
-</style>
