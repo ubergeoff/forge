@@ -1,6 +1,6 @@
 <script>
 import { inject } from '@forge/core';
-import { CounterService } from './counter.service.js';
+import { CounterService } from '../services/counter.service.js';
 
 const svc = inject(CounterService);
 const canDecrement = svc.canDecrement;

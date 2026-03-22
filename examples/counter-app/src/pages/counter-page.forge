@@ -1,7 +1,7 @@
 <script>
 import { inject } from '@forge/core';
 import { ROUTER } from '@forge/router';
-import CounterComponent from '../counter.forge';
+import CounterComponent from '../components/counter.forge';
 
 const router = inject(ROUTER);
 
