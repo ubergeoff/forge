@@ -80,7 +80,9 @@ function stripTypeScript(
   const oxc = getOxcTransform();
   // Give oxc a .ts filename so it activates TypeScript parsing mode.
   const tsFilename = filename.replace(/\.forge$/i, '') + '.ts';
-  const result = oxc.transformSync(tsFilename, source, {});
+  const result = oxc.transformSync(tsFilename, source, {
+    typescript: { onlyRemoveTypeImports: true },
+  });
   const errors: CompileError[] = result.errors.map(e => ({ message: e.message }));
   return { code: result.code ?? source, errors };
 }
