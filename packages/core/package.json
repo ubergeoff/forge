@@ -1,0 +1,41 @@
+{
+  "name": "@forge/core",
+  "version": "0.1.0",
+  "description": "Forge core — reactivity primitives and dependency injection",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./reactivity": {
+      "import": "./dist/reactivity.js",
+      "require": "./dist/reactivity.cjs",
+      "types": "./dist/reactivity.d.ts"
+    },
+    "./di": {
+      "import": "./dist/di.js",
+      "require": "./dist/di.cjs",
+      "types": "./dist/di.d.ts"
+    },
+    "./dom": {
+      "import": "./dist/dom.js",
+      "require": "./dist/dom.cjs",
+      "types": "./dist/dom.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "rolldown -c rolldown.config.mjs",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rolldown": "*",
+    "typescript": "*",
+    "vitest": "*"
+  },
+  "sideEffects": false
+}

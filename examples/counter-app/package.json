@@ -1,0 +1,25 @@
+{
+  "name": "counter-app",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Minimal Forge example — counter app using @forge/core directly",
+  "type": "module",
+  "scripts": {
+    "dev": "node --experimental-vm-modules src/main.ts",
+    "build": "rolldown -c rolldown.browser.config.mjs",
+    "build:full": "npm run build --prefix ../.. && npm run build",
+    "preview": "node dist/main.js",
+    "serve": "npx serve .",
+    "serve:dev": "npm run build:full && npm run serve"
+  },
+  "dependencies": {
+    "@forge/core": "*",
+    "@forge/router": "*"
+  },
+  "devDependencies": {
+    "@forge/compiler": "*",
+    "rolldown": "*",
+    "sass": "*",
+    "typescript": "*"
+  }
+}

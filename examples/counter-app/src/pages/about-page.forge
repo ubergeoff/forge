@@ -1,0 +1,106 @@
+<script>
+import { inject } from '@forge/core';
+import { ROUTER } from '@forge/router';
+
+const router = inject(ROUTER);
+const params  = router.params;
+const query   = router.query;
+
+function goHome() { router.navigate('/'); }
+</script>
+
+<template>
+  <div class="about-page">
+    <div class="page-header">
+      <button class="btn-back" @click={goHome}>← Home</button>
+      <h2>About Forge</h2>
+    </div>
+
+    <div class="about-body">
+      <p>
+        <strong>Forge</strong> is a compiled, signal-first JavaScript framework
+        for large enterprise applications. It combines Angular's structure,
+        SolidJS's fine-grained reactivity, and Vue's ergonomics.
+      </p>
+
+      <h3>Core packages</h3>
+      <ul>
+        <li><code>@forge/core</code> — signals, DI, DOM runtime</li>
+        <li><code>@forge/compiler</code> — .forge SFC parser + template compiler</li>
+        <li><code>@forge/cli</code> — dev server and build tooling</li>
+        <li><code>@forge/router</code> — signal-driven client-side router</li>
+      </ul>
+
+      <div class="router-debug">
+        <h3>Live router state</h3>
+        <p>params: <code>{JSON.stringify(params())}</code></p>
+        <p>query:  <code>{JSON.stringify(query())}</code></p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.about-page {
+  max-width: 560px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: #333;
+    }
+  }
+
+  .about-body {
+    color: #444;
+    line-height: 1.6;
+
+    h3 {
+      color: #222;
+      margin: 1.25rem 0 0.5rem;
+    }
+
+    ul {
+      padding-left: 1.5rem;
+
+      li {
+        margin-bottom: 0.35rem;
+      }
+    }
+
+    code {
+      background: #f4f4f4;
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+  }
+
+  .router-debug {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.875rem;
+
+    h3 {
+      margin: 0 0 0.5rem;
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    p {
+      margin: 0.25rem 0;
+    }
+  }
+}
+</style>

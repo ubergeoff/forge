@@ -1,0 +1,19 @@
+<script>
+import { RouterLink, RouterOutlet } from '@forge/router';
+</script>
+
+<template>
+  <div class="forge-app">
+    <nav class="forge-nav">
+      <span class="forge-nav__brand">⚡ Forge</span>
+      <div class="forge-nav__links">
+        <RouterLink href="/" label="Home" class="forge-nav__link" />
+        <RouterLink href="/counter" label="Counter" class="forge-nav__link" />
+        <RouterLink href="/about" label="About" class="forge-nav__link" />
+      </div>
+    </nav>
+    <main class="forge-main">
+      <RouterOutlet />
+    </main>
+  </div>
+</template>

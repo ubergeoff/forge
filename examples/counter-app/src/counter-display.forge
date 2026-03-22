@@ -1,0 +1,34 @@
+<script>
+import { inject } from '@forge/core';
+import { CounterService } from './counter.service.js';
+
+const svc = inject(CounterService);
+const count = svc.count;
+const doubled = svc.doubled;
+</script>
+
+<template>
+  <div class="display">
+    <p class="value">{count()}</p>
+    <p class="doubled">Doubled: {doubled()}</p>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.display {
+  margin: 1rem 0;
+
+  .value {
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 0 0 0.25rem;
+    color: #111;
+  }
+
+  .doubled {
+    color: #888;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+}
+</style>

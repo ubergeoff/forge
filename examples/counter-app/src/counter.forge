@@ -1,0 +1,23 @@
+<script>
+import CounterDisplay from './counter-display.forge';
+import CounterControls from './counter-controls.forge';
+</script>
+
+<template>
+  <div class="counter">
+    <h1>Forge Counter</h1>
+    <CounterDisplay />
+    <CounterControls />
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.counter {
+  text-align: center;
+
+  h1 {
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+}
+</style>

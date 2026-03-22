@@ -1,0 +1,32 @@
+{
+  "name": "forge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Forge — a compiled, signal-first JavaScript framework for enterprise apps",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint packages --ext .ts",
+    "typecheck": "tsc --build",
+    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "eslint": "^8.0.0",
+    "happy-dom": "^20.8.4",
+    "rolldown": "^0.14.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
