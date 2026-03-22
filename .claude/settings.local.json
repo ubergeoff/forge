@@ -23,7 +23,8 @@
       "Bash(npx nx:*)",
       "Bash(grep -o 'textContent = `[^`]*`' C:/dev/js/forgeJs/examples/counter-app/dist/browser.js)",
       "Bash(grep -o '_css = `[^`]*' C:/dev/js/forgeJs/examples/counter-app/dist/browser.js)",
-      "Bash(grep -o '\\\\.\\\\\\(flex\\\\|text-gray-[0-9]*\\\\|rounded-md\\\\|hover\\\\\\\\\\\\\\\\:bg-gray-[0-9]*\\\\|min-h-screen\\\\|gap-[0-9]\\\\|font-bold\\\\|transition-colors\\\\\\)[^{]*{' C:/dev/js/forgeJs/examples/counter-app/dist/browser.js)"
+      "Bash(grep -o '\\\\.\\\\\\(flex\\\\|text-gray-[0-9]*\\\\|rounded-md\\\\|hover\\\\\\\\\\\\\\\\:bg-gray-[0-9]*\\\\|min-h-screen\\\\|gap-[0-9]\\\\|font-bold\\\\|transition-colors\\\\\\)[^{]*{' C:/dev/js/forgeJs/examples/counter-app/dist/browser.js)",
+      "Bash(xargs grep:*)"
     ]
   }
 }

@@ -3,6 +3,7 @@
 // Compiles a parsed SFCDescriptor into executable JavaScript module code.
 // =============================================================================
 
+import { createRequire } from 'node:module';
 import type { SFCDescriptor } from './parser.js';
 
 // ---------------------------------------------------------------------------
@@ -37,6 +38,51 @@ export interface CompileError {
   message: string;
   line?: number;
   column?: number;
+}
+
+// ---------------------------------------------------------------------------
+// TypeScript stripping (via oxc-transform)
+// ---------------------------------------------------------------------------
+
+type OxcTransformResult = { code: string; errors: Array<{ message: string }> };
+type OxcTransformFn = (filename: string, source: string, options: object) => OxcTransformResult;
+type OxcTransformModule = { transformSync: OxcTransformFn };
+
+let _oxc: OxcTransformModule | undefined;
+
+/**
+ * Lazily loads oxc-transform via CJS require. Throws a descriptive error if
+ * the package is not installed.
+ */
+function getOxcTransform(): OxcTransformModule {
+  if (_oxc !== undefined) return _oxc;
+  const _require = createRequire(import.meta.url);
+  try {
+    _oxc = _require('oxc-transform') as OxcTransformModule;
+    return _oxc;
+  } catch {
+    throw new Error(
+      `[Forge Compiler] TypeScript stripping requires the 'oxc-transform' package.\n` +
+      `Run: npm install oxc-transform`,
+    );
+  }
+}
+
+/**
+ * Strips TypeScript type annotations from a script block's source using
+ * oxc-transform. The source is treated as a `.ts` file so oxc enables
+ * TypeScript mode. Returns the plain JavaScript and any transform errors.
+ */
+function stripTypeScript(
+  source: string,
+  filename: string,
+): { code: string; errors: CompileError[] } {
+  const oxc = getOxcTransform();
+  // Give oxc a .ts filename so it activates TypeScript parsing mode.
+  const tsFilename = filename.replace(/\.forge$/i, '') + '.ts';
+  const result = oxc.transformSync(tsFilename, source, {});
+  const errors: CompileError[] = result.errors.map(e => ({ message: e.message }));
+  return { code: result.code ?? source, errors };
 }
 
 // ---------------------------------------------------------------------------
@@ -741,8 +787,20 @@ export function compileSFC(descriptor: SFCDescriptor): CompileResult {
 
   // ---- Process script block -------------------------------------------------
 
+  // Strip TypeScript type annotations when <script lang="ts"> is declared.
+  // oxc-transform removes all type syntax and leaves valid plain JavaScript,
+  // which the rest of the compiler then embeds verbatim into the output module.
+  let scriptContent = descriptor.script?.content ?? '';
+  if (descriptor.script?.attrs['lang'] === 'ts') {
+    const stripped = stripTypeScript(scriptContent, descriptor.filename);
+    if (stripped.errors.length > 0) {
+      return { code: '', errors: stripped.errors, warnings, styles };
+    }
+    scriptContent = stripped.code;
+  }
+
   const { hoistedImports, bodyContent, componentMap } =
-    extractScriptParts(descriptor.script?.content ?? '');
+    extractScriptParts(scriptContent);
 
   // ---- Generate template code -----------------------------------------------
 

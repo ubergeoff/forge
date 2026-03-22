@@ -12,9 +12,10 @@ import AppShell from './app-shell.forge';
 
 import { lazy } from '@forge/router';
 
-const HomePage    = lazy(() => import('./pages/home-page.forge'));
-const CounterPage = lazy(() => import('./pages/counter-page.forge'));
-const AboutPage   = lazy(() => import('./pages/about-page.forge'));
+const HomePage        = lazy(() => import('./pages/home-page.forge'));
+const CounterPage     = lazy(() => import('./pages/counter-page.forge'));
+const AboutPage       = lazy(() => import('./pages/about-page.forge'));
+const ReactivityPage  = lazy(() => import('./pages/reactivity-page.forge'));
 
 // ---------------------------------------------------------------------------
 // Bootstrap
@@ -24,7 +25,8 @@ const app = bootstrapApp([
   ...provideRouter([
     { path: '/',        component: HomePage,    title: 'Home — Forge Demo' },
     { path: '/counter', component: CounterPage, title: 'Counter — Forge Demo' },
-    { path: '/about',   component: AboutPage,   title: 'About — Forge Demo' },
+    { path: '/about',       component: AboutPage,       title: 'About — Forge Demo' },
+    { path: '/reactivity',  component: ReactivityPage,  title: 'Reactivity — Forge Demo' },
     { path: '**',       redirectTo: '/' },
   ]),
 ]);

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import { inject } from '@forge/core';
 import { ROUTER } from '@forge/router';
 import CounterComponent from '../components/counter.forge';

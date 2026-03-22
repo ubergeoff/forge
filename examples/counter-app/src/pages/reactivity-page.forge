@@ -1,0 +1,180 @@
+<script lang="ts">
+import { signal, computed, effect, batch } from '@forge/core';
+
+// Demo 1: Derived Chain
+const base = signal(4);
+const doubled = computed(() => base() * 2);
+const squared = computed(() => doubled() * doubled());
+const formatted = computed(() => squared().toLocaleString() + ' units');
+
+function onSlide(ev: Event) {
+  base.set(Number((ev.target as HTMLInputElement).value));
+}
+
+// Demo 2: Fine-grained Update Grid
+const cellA = signal(0);
+const cellB = signal(0);
+const cellC = signal(0);
+const cellD = signal(0);
+const cellE = signal(0);
+const cellF = signal(0);
+
+function incA() { cellA.update(n => n + 1); }
+function incB() { cellB.update(n => n + 1); }
+function incC() { cellC.update(n => n + 1); }
+function incD() { cellD.update(n => n + 1); }
+function incE() { cellE.update(n => n + 1); }
+function incF() { cellF.update(n => n + 1); }
+
+// Demo 3: batch()
+const px = signal(0);
+const py = signal(0);
+const pz = signal(0);
+const pSum = computed(() => px() + py() + pz());
+const effectCalls = signal(0);
+const lastAdded = signal(0);
+
+effect(() => {
+  pSum();
+  effectCalls.update(n => n + 1);
+});
+
+function doUnbatched() {
+  const before = effectCalls();
+  px.update(n => n + 1);
+  py.update(n => n + 1);
+  pz.update(n => n + 1);
+  lastAdded.set(effectCalls() - before);
+}
+
+function doBatched() {
+  const before = effectCalls();
+  batch(() => {
+    px.update(n => n + 1);
+    py.update(n => n + 1);
+    pz.update(n => n + 1);
+  });
+  lastAdded.set(effectCalls() - before);
+}
+
+function resetBatch() {
+  px.set(0);
+  py.set(0);
+  pz.set(0);
+  lastAdded.set(0);
+}
+</script>
+
+<template>
+  <div class="max-w-2xl mx-auto px-4 py-12">
+
+    <div class="text-center mb-14">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Reactivity Showcase</h1>
+      <p class="text-gray-500 text-sm">Fine-grained, signal-driven updates — no virtual DOM, no diffing.</p>
+    </div>
+
+    <!-- Demo 1: Derived Chain -->
+    <div class="mb-14">
+      <h2 class="text-lg font-semibold text-gray-800 mb-1">1 — Derived Chain</h2>
+      <p class="text-sm text-gray-500 mb-5">
+        One slider drives a chain of computed values. Each node re-evaluates only when its upstream dependency changes — and only if something is actually reading it.
+      </p>
+      <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+        <div class="flex items-center gap-4 mb-6">
+          <span class="text-sm text-gray-500 w-12">base</span>
+          <input type="range" min="1" max="20" .value={String(base())} @input={onSlide} class="flex-1 accent-indigo-500 cursor-pointer" />
+          <span class="text-sm font-mono font-bold text-indigo-600 w-6 text-right">{base()}</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-400 font-mono w-32">base</span>
+            <div class="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-2 font-mono text-sm text-gray-700">{base()}</div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-400 font-mono w-32">doubled (×2)</span>
+            <div class="flex-1 bg-white border border-blue-200 rounded-lg px-4 py-2 font-mono text-sm text-blue-600">{doubled()}</div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-400 font-mono w-32">squared (²)</span>
+            <div class="flex-1 bg-white border border-purple-200 rounded-lg px-4 py-2 font-mono text-sm text-purple-600">{squared()}</div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-400 font-mono w-32">formatted</span>
+            <div class="flex-1 bg-white border border-indigo-200 rounded-lg px-4 py-2 font-mono text-sm text-indigo-700 font-medium">{formatted()}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 2: Fine-grained Grid -->
+    <div class="mb-14">
+      <h2 class="text-lg font-semibold text-gray-800 mb-1">2 — Fine-Grained Update Grid</h2>
+      <p class="text-sm text-gray-500 mb-5">
+        Each cell owns its own signal. Clicking one cell updates only that cell's text node in the DOM — every other cell is untouched. Open DevTools Elements panel to see exactly one text node flash per click.
+      </p>
+      <div class="grid grid-cols-3 gap-3">
+        <button @click={incA} class="flex flex-col items-center justify-center bg-white border-2 border-gray-200 rounded-xl p-5 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors">
+          <span class="text-3xl font-bold text-gray-800">{cellA()}</span>
+          <span class="text-xs text-gray-400 mt-1">Cell A</span>
+        </button>
+        <button @click={incB} class="flex flex-col items-center justify-center bg-white border-2 border-gray-200 rounded-xl p-5 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors">
+          <span class="text-3xl font-bold text-gray-800">{cellB()}</span>
+          <span class="text-xs text-gray-400 mt-1">Cell B</span>
+        </button>
+        <button @click={incC} class="flex flex-col items-center justify-center bg-white border-2 border-gray-200 rounded-xl p-5 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors">
+          <span class="text-3xl font-bold text-gray-800">{cellC()}</span>
+          <span class="text-xs text-gray-400 mt-1">Cell C</span>
+        </button>
+        <button @click={incD} class="flex flex-col items-center justify-center bg-white border-2 border-gray-200 rounded-xl p-5 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors">
+          <span class="text-3xl font-bold text-gray-800">{cellD()}</span>
+          <span class="text-xs text-gray-400 mt-1">Cell D</span>
+        </button>
+        <button @click={incE} class="flex flex-col items-center justify-center bg-white border-2 border-gray-200 rounded-xl p-5 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors">
+          <span class="text-3xl font-bold text-gray-800">{cellE()}</span>
+          <span class="text-xs text-gray-400 mt-1">Cell E</span>
+        </button>
+        <button @click={incF} class="flex flex-col items-center justify-center bg-white border-2 border-gray-200 rounded-xl p-5 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors">
+          <span class="text-3xl font-bold text-gray-800">{cellF()}</span>
+          <span class="text-xs text-gray-400 mt-1">Cell F</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Demo 3: batch() -->
+    <div class="mb-14">
+      <h2 class="text-lg font-semibold text-gray-800 mb-1">3 — batch() Coalesces Updates</h2>
+      <p class="text-sm text-gray-500 mb-5">
+        Updating 3 signals individually fires the downstream effect 3 times. Wrap the same writes in batch() and it fires exactly once.
+      </p>
+      <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+        <div class="flex items-center gap-8 mb-6">
+          <div class="text-center">
+            <div class="text-5xl font-bold text-gray-900">{effectCalls() - 1}</div>
+            <div class="text-xs text-gray-400 mt-1">total effect calls</div>
+          </div>
+          <div class="text-center">
+            <div class="text-5xl font-bold text-indigo-500">+{lastAdded()}</div>
+            <div class="text-xs text-gray-400 mt-1">last operation</div>
+          </div>
+          <div class="ml-auto text-right">
+            <div class="text-xs text-gray-400 mb-1">signals</div>
+            <div class="font-mono text-sm text-gray-600">x={px()} y={py()} z={pz()}</div>
+            <div class="font-mono text-sm text-gray-600">sum={pSum()}</div>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <button @click={doUnbatched} class="flex-1 py-2.5 rounded-lg border border-red-200 bg-red-50 text-red-700 text-sm font-medium cursor-pointer hover:bg-red-100 transition-colors">
+            No batch → 3 effect calls
+          </button>
+          <button @click={doBatched} class="flex-1 py-2.5 rounded-lg border border-green-200 bg-green-50 text-green-700 text-sm font-medium cursor-pointer hover:bg-green-100 transition-colors">
+            batch() → 1 effect call
+          </button>
+          <button @click={resetBatch} class="px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-500 text-sm cursor-pointer hover:bg-gray-50 transition-colors">
+            Reset
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</template>

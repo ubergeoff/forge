@@ -18,15 +18,20 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@forge/core": "*"
+    "@forge/core": "*",
+    "oxc-transform": "^0.121.0"
   },
   "peerDependencies": {
     "postcss": ">=8.4.0",
     "sass": ">=1.57.0"
   },
   "peerDependenciesMeta": {
-    "postcss": { "optional": true },
-    "sass": { "optional": true }
+    "postcss": {
+      "optional": true
+    },
+    "sass": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "rolldown": "*",
