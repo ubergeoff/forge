@@ -9,7 +9,7 @@
     "build": "rolldown -c rolldown.browser.config.mjs",
     "build:full": "npm run build --prefix ../.. && npm run build",
     "preview": "node dist/main.js",
-    "serve": "npx serve .",
+    "serve": "npx serve . --single",
     "serve:dev": "npm run build:full && npm run serve"
   },
   "dependencies": {
