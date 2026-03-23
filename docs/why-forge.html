@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why Forge?</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f9f9fb;
+      --surface: #ffffff;
+      --border: #e4e4e8;
+      --accent: #5b4cf5;
+      --accent-light: #ede9ff;
+      --text: #1a1a2e;
+      --muted: #6b7080;
+      --green: #16a34a;
+      --green-bg: #f0fdf4;
+      --code-bg: #f3f4f6;
+      --radius: 10px;
+      --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Layout */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      height: 56px;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+    .logo span { color: var(--text); }
+    .header-sep { color: var(--border); }
+    .header-title { color: var(--muted); font-size: 0.9rem; }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 3.5rem 0 2.5rem;
+    }
+    .hero h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 600px;
+    }
+
+    /* Section headers */
+    h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin: 3rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent-light);
+    }
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0.5rem;
+      color: var(--accent);
+    }
+
+    p { margin-bottom: 1rem; }
+    p:last-child { margin-bottom: 0; }
+
+    ul, ol {
+      padding-left: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    li { margin-bottom: 0.3rem; }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.5rem 0;
+    }
+
+    /* Comparison table */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      min-width: 600px;
+    }
+    thead tr {
+      background: var(--accent);
+      color: #fff;
+    }
+    thead th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+    }
+    thead th:last-child {
+      background: #6d5cf7;
+    }
+    tbody tr:nth-child(even) { background: #fafafa; }
+    tbody tr:hover { background: var(--accent-light); }
+    td {
+      padding: 0.65rem 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+    }
+    td:first-child { color: var(--text); font-weight: 500; }
+    td:last-child { color: var(--accent); font-weight: 500; }
+
+    /* Code blocks */
+    pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.65;
+      margin: 1rem 0 1.5rem;
+      position: relative;
+    }
+    pre .comment { color: #6c7086; font-style: italic; }
+    pre .keyword { color: #cba6f7; }
+    pre .fn { color: #89dceb; }
+    pre .str { color: #a6e3a1; }
+    pre .label { color: #fab387; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      background: var(--code-bg);
+      border-radius: 4px;
+      padding: 0.15em 0.4em;
+      color: var(--accent);
+    }
+
+    /* Callout cards */
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.4rem;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+    }
+    .callout strong { color: var(--accent); }
+
+    /* Sweet spot / when lists */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+    @media (max-width: 640px) {
+      .card-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2rem; }
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      font-size: 0.92rem;
+    }
+    .card.good { border-top: 3px solid var(--green); }
+    .card.bad  { border-top: 3px solid #e11d48; }
+    .card h4 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.6rem;
+      font-weight: 700;
+    }
+    .card.good h4 { color: var(--green); }
+    .card.bad  h4 { color: #e11d48; }
+    .card li { color: var(--muted); margin-bottom: 0.4rem; }
+
+    /* Pitch section */
+    .pitch {
+      background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 2rem 2.5rem;
+      margin-top: 2rem;
+    }
+    .pitch h2 {
+      color: #fff;
+      border-color: rgba(255,255,255,0.25);
+      margin-top: 0;
+    }
+    .pitch p { color: rgba(255,255,255,0.88); }
+    .pitch a {
+      color: #fff;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    /* Section compare cards */
+    .compare-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+    }
+    .compare-section h2 {
+      margin-top: 0;
+      border-color: var(--border);
+    }
+    .compare-section .keep-using {
+      background: #fafafa;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem 1.1rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.9rem;
+    }
+    .compare-section .keep-using strong {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+    .compare-section .keep-using ul { margin: 0; }
+    .compare-section .keep-using li { color: var(--muted); }
+    .choose-forge {
+      background: var(--accent-light);
+      border-radius: 8px;
+      padding: 0.8rem 1.1rem;
+      font-size: 0.9rem;
+      color: var(--accent);
+      font-weight: 500;
+      margin-top: 1rem;
+    }
+    .choose-forge::before {
+      content: "✓  ";
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <span class="logo">⚡ <span>Forge</span></span>
+    <span class="header-sep">/</span>
+    <span class="header-title">Why Forge?</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Why Forge?</h1>
+    <p>There are already great JavaScript frameworks. Here's an honest look at what Forge does differently — and when it's the right choice.</p>
+  </section>
+
+  <!-- Quick comparison table -->
+  <h2>The short version</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>React</th>
+          <th>Vue</th>
+          <th>Angular</th>
+          <th>Forge</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Reactivity model</td>
+          <td>State + VDOM diffing</td>
+          <td>Reactivity + VDOM</td>
+          <td>Zone.js + change detection</td>
+          <td>Fine-grained signals, no VDOM</td>
+        </tr>
+        <tr>
+          <td>Component format</td>
+          <td>JSX in <code>.tsx</code></td>
+          <td>SFC in <code>.vue</code></td>
+          <td>Class + template in separate files</td>
+          <td>SFC in <code>.forge</code></td>
+        </tr>
+        <tr>
+          <td>Dependency injection</td>
+          <td>Context API / hooks</td>
+          <td><code>provide/inject</code></td>
+          <td>Full DI system</td>
+          <td>Full DI system</td>
+        </tr>
+        <tr>
+          <td>Bundle size</td>
+          <td>Medium</td>
+          <td>Small–medium</td>
+          <td>Large</td>
+          <td>Small (compiled output)</td>
+        </tr>
+        <tr>
+          <td>Build speed</td>
+          <td>Fast (Vite)</td>
+          <td>Fast (Vite)</td>
+          <td>Moderate</td>
+          <td>Very fast (Rolldown/Rust)</td>
+        </tr>
+        <tr>
+          <td>TypeScript</td>
+          <td>Good</td>
+          <td>Good</td>
+          <td>Excellent</td>
+          <td>Excellent</td>
+        </tr>
+        <tr>
+          <td>Learning curve</td>
+          <td>Moderate</td>
+          <td>Low</td>
+          <td>High</td>
+          <td>Moderate</td>
+        </tr>
+        <tr>
+          <td>Enterprise structure</td>
+          <td>DIY</td>
+          <td>DIY</td>
+          <td>Built-in</td>
+          <td>Built-in</td>
+        </tr>
+        <tr>
+          <td>Ecosystem</td>
+          <td>Enormous</td>
+          <td>Large</td>
+          <td>Large</td>
+          <td>Early-stage</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- React -->
+  <div class="compare-section">
+    <h2>Compared to React</h2>
+    <p>React is the most widely used framework in the world. It has an enormous ecosystem, a massive talent pool, and solves real problems well.</p>
+    <div class="keep-using">
+      <strong>Keep using React if</strong>
+      <ul>
+        <li>Hiring React developers is a priority</li>
+        <li>You rely on the React ecosystem (Next.js, React Native, etc.)</li>
+        <li>Your team is already proficient and productive in React</li>
+      </ul>
+    </div>
+    <h3>Where Forge is different</h3>
+    <p>React's mental model is built around re-renders. When state changes, components re-render and the virtual DOM reconciler figures out what changed. This works well, but it has costs: you manage <code>useMemo</code>, <code>useCallback</code>, and <code>useEffect</code> to avoid unnecessary work.</p>
+    <p>Forge uses fine-grained signals. When <code>count</code> changes, only the exact DOM node displaying <code>count</code> updates — nothing else runs. There's no reconciler, no re-render cycle, and no dependency arrays to manage.</p>
+    <pre><span class="comment">// React — you manage memoisation</span>
+<span class="keyword">const</span> doubled = <span class="fn">useMemo</span>(() => count * 2, [count]);
+<span class="fn">useEffect</span>(() => { document.title = `Count: ${count}`; }, [count]);
+
+<span class="comment">// Forge — reactivity is automatic</span>
+<span class="keyword">const</span> doubled = <span class="fn">computed</span>(() => <span class="fn">count</span>() * 2);
+<span class="fn">effect</span>(() => { document.title = `Count: ${<span class="fn">count</span>()}`; });</pre>
+    <p>Forge also has a first-class dependency injection system. In React, cross-cutting concerns like auth, logging, and feature flags typically rely on a mix of context, prop drilling, and third-party state libraries. In Forge, services are injectable singletons by default, testable in isolation, and scoped precisely.</p>
+    <div class="choose-forge">Choose Forge over React when you want predictable reactivity without memoisation overhead, or when your app has complex service-layer requirements that feel awkward in React's component-centric model.</div>
+  </div>
+
+  <!-- Vue -->
+  <div class="compare-section">
+    <h2>Compared to Vue</h2>
+    <p>Vue is the friendliest of the major frameworks. Vue 3's Composition API and <code>&lt;script setup&gt;</code> SFCs are genuinely excellent. If you love Vue, you will feel at home in Forge — the SFC format is directly inspired by it.</p>
+    <div class="keep-using">
+      <strong>Keep using Vue if</strong>
+      <ul>
+        <li>Your team already knows and loves Vue</li>
+        <li>You want mature official solutions (Pinia, Vue Router, Nuxt)</li>
+        <li>You're building a public-facing product where SSR matters today</li>
+      </ul>
+    </div>
+    <h3>Where Forge is different</h3>
+    <p>Vue's reactivity uses <code>ref()</code> and <code>reactive()</code> — objects tracked via Proxy. Forge's signals are plain functions. This is a subtle difference but it matters:</p>
+    <pre><span class="comment">// Vue — refs and reactive objects, .value in script</span>
+<span class="keyword">const</span> count = <span class="fn">ref</span>(0);
+<span class="keyword">const</span> doubled = <span class="fn">computed</span>(() => count.value * 2);
+
+<span class="comment">// Forge — signals as functions, consistent in template and script</span>
+<span class="keyword">const</span> count = <span class="fn">signal</span>(0);
+<span class="keyword">const</span> doubled = <span class="fn">computed</span>(() => <span class="fn">count</span>() * 2);</pre>
+    <p>More significantly, Vue does not have a built-in DI system designed for services. <code>provide/inject</code> works for passing values down a component tree, but it's not built for singleton application services — things like auth services, HTTP clients, or feature flag managers with their own internal state.</p>
+    <p>Forge's DI system is designed for exactly this. Services are decorated, lazily instantiated, and can be scoped globally, to a component subtree, or to a custom injector. Forge also uses <strong>Rolldown</strong> — a Rust-based bundler — instead of Vite, giving measurably faster build times at enterprise scale.</p>
+    <div class="choose-forge">Choose Forge over Vue when your app has a substantial service layer, you prefer a pure signal model over refs/reactive, or build performance is a priority at scale.</div>
+  </div>
+
+  <!-- Angular -->
+  <div class="compare-section">
+    <h2>Compared to Angular</h2>
+    <p>Angular is the most structurally similar framework to Forge. Both have a real DI system, both are TypeScript-first, and both target enterprise applications. If your team knows Angular, you will recognise many of Forge's patterns immediately.</p>
+    <div class="keep-using">
+      <strong>Keep using Angular if</strong>
+      <ul>
+        <li>You have a large existing Angular codebase</li>
+        <li>You need Angular's mature ecosystem (Angular Material, NgRx, Angular Universal)</li>
+        <li>Your team relies on Angular's opinions about forms, HTTP, and i18n</li>
+      </ul>
+    </div>
+    <h3>Where Forge is different</h3>
+    <p>Angular's change detection is based on Zone.js, which monkey-patches browser APIs to detect when anything might have changed. Angular 17 introduced signals as an opt-in alternative, but Zone.js remains the default and the mental model is still largely class-based with lifecycle hooks.</p>
+    <p>Forge is signals all the way down from day one. There's no Zone.js, no <code>OnPush</code> strategy to opt into, no <code>markForCheck()</code> calls, no <code>ngZone.run()</code> workarounds. Reactivity is the default, not an addition.</p>
+    <pre><span class="comment">// Angular — class component, zone-based, lifecycle hooks</span>
+<span class="label">@Component</span>({ template: `{{ doubled }}` })
+<span class="keyword">export class</span> <span class="fn">CounterComponent</span> <span class="keyword">implements</span> OnInit {
+  count = 0;
+  doubled = 0;
+  <span class="fn">ngOnInit</span>() { <span class="keyword">this</span>.doubled = <span class="keyword">this</span>.count * 2; }
+  <span class="fn">increment</span>() { <span class="keyword">this</span>.count++; <span class="keyword">this</span>.doubled = <span class="keyword">this</span>.count * 2; }
+}
+
+<span class="comment">// Forge — signals, no lifecycle hooks needed</span>
+<span class="keyword">const</span> count = <span class="fn">signal</span>(0);
+<span class="keyword">const</span> doubled = <span class="fn">computed</span>(() => <span class="fn">count</span>() * 2);
+<span class="keyword">function</span> <span class="fn">increment</span>() { count.<span class="fn">update</span>(n => n + 1); }</pre>
+    <p>Angular is also a large framework with a large bundle. Its opinions are comprehensive — a strength when you need them and friction when you don't. Forge takes Angular's best idea (dependency injection) and leaves behind the rest of the complexity.</p>
+    <div class="choose-forge">Choose Forge over Angular when you want Angular's structural discipline without its runtime weight, or you're starting a new project and don't need the full Angular platform.</div>
+  </div>
+
+  <!-- When to use / not use -->
+  <h2>Is Forge right for you?</h2>
+  <div class="card-grid">
+    <div class="card good">
+      <h4>Good fit</h4>
+      <ul>
+        <li><strong>Enterprise apps</strong> that need real architecture — services, DI, routing</li>
+        <li><strong>Performance-sensitive UIs</strong> where re-render overhead is unacceptable</li>
+        <li><strong>TypeScript-first teams</strong> who want strict types end-to-end</li>
+        <li><strong>Greenfield projects</strong> free from existing framework constraints</li>
+        <li><strong>Teams who want structure</strong> without being prescribed everything</li>
+      </ul>
+    </div>
+    <div class="card bad">
+      <h4>Not a good fit</h4>
+      <ul>
+        <li><strong>SSR / SSG today</strong> — Forge has no server-rendering story yet</li>
+        <li><strong>Ecosystem depth</strong> — React, Vue, Angular have years of libraries and tutorials</li>
+        <li><strong>React-only teams</strong> — onboarding to signals + DI has a real cost</li>
+        <li><strong>Mobile apps</strong> — there's no React Native equivalent for Forge</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Pitch -->
+  <div class="pitch">
+    <h2>The one-paragraph pitch</h2>
+    <p>Forge combines the reactivity model of SolidJS, the component ergonomics of Vue, and the application structure of Angular — compiled to minimal, fast output using a Rust-based bundler. It's for teams who have outgrown the DIY architecture of React or the runtime weight of Angular, and want a framework that makes the right patterns the easy patterns.</p>
+    <p style="margin-top: 1rem;">If that sounds like your situation, <a href="../README.md">get started here →</a></p>
+  </div>
+
+</main>
+
+</body>
+</html>
