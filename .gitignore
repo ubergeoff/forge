@@ -5,5 +5,6 @@ coverage/
 .forge-cache/
 *.local
 .DS_Store
+.idea
 .nx/cache
 .nx/workspace-data

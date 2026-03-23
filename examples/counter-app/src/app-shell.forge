@@ -11,6 +11,7 @@ import { RouterLink, RouterOutlet } from '@forge/router';
         <RouterLink href="/counter" label="Counter" class="px-3 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" />
         <RouterLink href="/about" label="About" class="px-3 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" />
         <RouterLink href="/reactivity" label="Reactivity" class="px-3 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" />
+        <RouterLink href="/forms" label="Forms" class="px-3 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" />
       </div>
     </nav>
     <main class="flex-1 px-4 py-16">

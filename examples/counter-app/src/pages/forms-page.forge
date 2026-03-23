@@ -1,0 +1,390 @@
+<script lang="ts">
+import { computed, signal } from '@forge/core';
+import { formControl, formGroup, formArray, Validators } from '@forge/forms';
+
+// ---------------------------------------------------------------------------
+// Demo 1: FormControl + FormGroup — Login
+// ---------------------------------------------------------------------------
+const email    = formControl('', [Validators.required, Validators.email]);
+const password = formControl('', [Validators.required, Validators.minLength(8)]);
+const loginForm = formGroup({ email, password });
+
+const loginSubmitted = signal(false);
+const loginMessage   = computed(() => {
+  if (!loginSubmitted()) return '';
+  if (loginForm.valid()) return '✓ Logged in as ' + email.value();
+  return '✗ Please fix the errors above.';
+});
+const showEmailError    = computed(() => email.invalid()    && email.touched());
+const showPasswordError = computed(() => password.invalid() && password.touched());
+
+function onEmailInput(ev: Event) {
+  email.setValue((ev.target as HTMLInputElement).value);
+  email.markAsTouched();
+}
+function onPasswordInput(ev: Event) {
+  password.setValue((ev.target as HTMLInputElement).value);
+  password.markAsTouched();
+}
+function submitLogin(ev: Event) {
+  ev.preventDefault();
+  loginForm.markAsTouched();
+  loginSubmitted.set(true);
+}
+function resetLogin() {
+  loginForm.reset();
+  loginSubmitted.set(false);
+}
+
+// ---------------------------------------------------------------------------
+// Demo 2: FormGroup — patchValue / reset
+// ---------------------------------------------------------------------------
+const firstName = formControl('Ada',      [Validators.required]);
+const lastName  = formControl('Lovelace', [Validators.required]);
+const age       = formControl(28,         [Validators.required, Validators.min(0), Validators.max(120)]);
+const website   = formControl('',         [Validators.pattern(/^https?:\/\/.+/)]);
+const profileForm = formGroup({ firstName, lastName, age, website });
+
+const profileStatus = computed(() => profileForm.status());
+
+function onFirstNameInput(ev: Event) {
+  firstName.setValue((ev.target as HTMLInputElement).value);
+}
+function onLastNameInput(ev: Event) {
+  lastName.setValue((ev.target as HTMLInputElement).value);
+}
+function onAgeInput(ev: Event) {
+  age.setValue(Number((ev.target as HTMLInputElement).value));
+}
+function onWebsiteInput(ev: Event) {
+  website.setValue((ev.target as HTMLInputElement).value);
+  website.markAsTouched();
+}
+function autofill() {
+  profileForm.patchValue({ firstName: 'Alan', lastName: 'Turing', age: 41, website: 'https://turing.io' });
+}
+function clearProfile() {
+  profileForm.reset({ firstName: '', lastName: '', age: 0, website: '' });
+}
+
+// ---------------------------------------------------------------------------
+// Demo 3: FormArray — dynamic skills (up to 5 slots, shown via :show)
+// ---------------------------------------------------------------------------
+const s0 = formControl('TypeScript', [Validators.required]);
+const s1 = formControl('Signals',    [Validators.required]);
+const s2 = formControl('',           [Validators.required]);
+const s3 = formControl('',           [Validators.required]);
+const s4 = formControl('',           [Validators.required]);
+
+const skills     = formArray<string>([s0, s1]);
+const skillCount = signal(2);
+
+const showS2 = computed(() => skillCount() > 2);
+const showS3 = computed(() => skillCount() > 3);
+const showS4 = computed(() => skillCount() > 4);
+const canAdd    = computed(() => skillCount() < 5);
+const canRemove = computed(() => skillCount() > 1);
+
+function addSkill() {
+  if (skillCount() >= 5) return;
+  const idx = skillCount();
+  const ctrl = [s0, s1, s2, s3, s4][idx];
+  ctrl.reset('');
+  skills.push(ctrl);
+  skillCount.set(idx + 1);
+}
+function removeLastSkill() {
+  if (skillCount() <= 1) return;
+  const next = skillCount() - 1;
+  skills.removeAt(next);
+  skillCount.set(next);
+}
+
+function onS0Input(ev: Event) { s0.setValue((ev.target as HTMLInputElement).value); s0.markAsTouched(); }
+function onS1Input(ev: Event) { s1.setValue((ev.target as HTMLInputElement).value); s1.markAsTouched(); }
+function onS2Input(ev: Event) { s2.setValue((ev.target as HTMLInputElement).value); s2.markAsTouched(); }
+function onS3Input(ev: Event) { s3.setValue((ev.target as HTMLInputElement).value); s3.markAsTouched(); }
+function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).value); s4.markAsTouched(); }
+</script>
+
+<template>
+  <div class="max-w-2xl mx-auto px-4 py-12">
+
+    <div class="text-center mb-14">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Forms Showcase</h1>
+      <p class="text-gray-500 text-sm">Signal-driven forms via <span class="font-mono text-indigo-600">@forge/forms</span> — live validation, no re-renders.</p>
+    </div>
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- Demo 1: FormControl + FormGroup — Login                            -->
+    <!-- ------------------------------------------------------------------ -->
+    <div class="mb-14">
+      <h2 class="text-lg font-semibold text-gray-800 mb-1">1 — FormControl &amp; FormGroup</h2>
+      <p class="text-sm text-gray-500 mb-5">
+        Each field is a <span class="font-mono">formControl</span> with sync validators.
+        A <span class="font-mono">formGroup</span> aggregates their validity — the button stays
+        disabled until the form is <span class="font-mono text-green-600">VALID</span>.
+      </p>
+
+      <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+        <form @submit={submitLogin}>
+
+          <!-- Email -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input
+              type="email"
+              .value={email.value()}
+              @input={onEmailInput}
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+              placeholder="you@example.com"
+            />
+            <p :show={showEmailError()} class="mt-1 text-xs text-red-500">
+              Enter a valid email address.
+            </p>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input
+              type="password"
+              .value={password.value()}
+              @input={onPasswordInput}
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+              placeholder="Min 8 characters"
+            />
+            <p :show={showPasswordError()} class="mt-1 text-xs text-red-500">
+              Password must be at least 8 characters.
+            </p>
+          </div>
+
+          <!-- Status bar -->
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-xs text-gray-400">Form status:</span>
+            <span class="font-mono text-xs font-semibold px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-700">{loginForm.status()}</span>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-3">
+            <button
+              type="submit"
+              .disabled={loginForm.invalid()}
+              class="flex-1 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-medium cursor-pointer hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Sign in
+            </button>
+            <button
+              type="button"
+              @click={resetLogin}
+              class="px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-500 text-sm cursor-pointer hover:bg-gray-50 transition-colors"
+            >
+              Reset
+            </button>
+          </div>
+
+          <p :show={loginMessage() !== ''} class="mt-4 text-sm font-medium text-center text-gray-700">{loginMessage()}</p>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- Demo 2: FormGroup — patchValue / reset                             -->
+    <!-- ------------------------------------------------------------------ -->
+    <div class="mb-14">
+      <h2 class="text-lg font-semibold text-gray-800 mb-1">2 — FormGroup: patchValue &amp; reset</h2>
+      <p class="text-sm text-gray-500 mb-5">
+        <span class="font-mono">patchValue</span> updates only the fields you supply — other controls keep their current value.
+        <span class="font-mono">reset</span> restores initial values and clears dirty/touched state.
+      </p>
+
+      <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 space-y-4">
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">First name</label>
+            <input
+              type="text"
+              .value={firstName.value()}
+              @input={onFirstNameInput}
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Last name</label>
+            <input
+              type="text"
+              .value={lastName.value()}
+              @input={onLastNameInput}
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Age (0 – 120)</label>
+          <input
+            type="number"
+            .value={String(age.value())}
+            @input={onAgeInput}
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Website (must start with http)</label>
+          <input
+            type="url"
+            .value={website.value()}
+            @input={onWebsiteInput}
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
+            placeholder="https://..."
+          />
+          <p :show={website.invalid() && website.touched()} class="mt-1 text-xs text-red-500">
+            Must be a valid URL starting with http:// or https://
+          </p>
+        </div>
+
+        <!-- Live snapshot -->
+        <div class="bg-white rounded-lg border border-gray-200 px-4 py-3 font-mono text-xs text-gray-600 leading-relaxed">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-gray-400">status:</span>
+            <span class="font-semibold text-indigo-600">{profileStatus()}</span>
+            <span class="text-gray-300">|</span>
+            <span class="text-gray-400">dirty:</span>
+            <span>{String(profileForm.dirty())}</span>
+            <span class="text-gray-300">|</span>
+            <span class="text-gray-400">touched:</span>
+            <span>{String(profileForm.touched())}</span>
+          </div>
+          <div>value: {JSON.stringify(profileForm.value())}</div>
+        </div>
+
+        <div class="flex gap-3 pt-1">
+          <button
+            @click={autofill}
+            class="flex-1 py-2 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-medium cursor-pointer hover:bg-indigo-100 transition-colors"
+          >
+            patchValue → Alan Turing
+          </button>
+          <button
+            @click={clearProfile}
+            class="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-500 text-sm cursor-pointer hover:bg-gray-50 transition-colors"
+          >
+            reset()
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- Demo 3: FormArray — dynamic skill list (up to 5)                   -->
+    <!-- ------------------------------------------------------------------ -->
+    <div class="mb-14">
+      <h2 class="text-lg font-semibold text-gray-800 mb-1">3 — FormArray: Dynamic List</h2>
+      <p class="text-sm text-gray-500 mb-5">
+        <span class="font-mono">formArray</span> manages a reactive list of controls.
+        Use <span class="font-mono">push</span> and <span class="font-mono">removeAt</span> to add or remove entries at runtime —
+        <span class="font-mono">valid</span> and <span class="font-mono">value</span> update automatically.
+      </p>
+
+      <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+        <div class="space-y-2 mb-4">
+
+          <!-- Slot 0 — always visible -->
+          <div class="flex gap-2 items-center">
+            <input
+              type="text"
+              .value={s0.value()}
+              @input={onS0Input}
+              class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
+              placeholder="Skill name (required)"
+            />
+            <span class="w-8 text-xs text-gray-400 text-center">1</span>
+          </div>
+
+          <!-- Slot 1 — always visible -->
+          <div class="flex gap-2 items-center">
+            <input
+              type="text"
+              .value={s1.value()}
+              @input={onS1Input}
+              class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
+              placeholder="Skill name (required)"
+            />
+            <span class="w-8 text-xs text-gray-400 text-center">2</span>
+          </div>
+
+          <!-- Slot 2 -->
+          <div :show={showS2()} class="flex gap-2 items-center">
+            <input
+              type="text"
+              .value={s2.value()}
+              @input={onS2Input}
+              class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
+              placeholder="Skill name (required)"
+            />
+            <span class="w-8 text-xs text-gray-400 text-center">3</span>
+          </div>
+
+          <!-- Slot 3 -->
+          <div :show={showS3()} class="flex gap-2 items-center">
+            <input
+              type="text"
+              .value={s3.value()}
+              @input={onS3Input}
+              class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
+              placeholder="Skill name (required)"
+            />
+            <span class="w-8 text-xs text-gray-400 text-center">4</span>
+          </div>
+
+          <!-- Slot 4 -->
+          <div :show={showS4()} class="flex gap-2 items-center">
+            <input
+              type="text"
+              .value={s4.value()}
+              @input={onS4Input}
+              class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
+              placeholder="Skill name (required)"
+            />
+            <span class="w-8 text-xs text-gray-400 text-center">5</span>
+          </div>
+
+        </div>
+
+        <!-- Add / Remove buttons -->
+        <div class="flex gap-3 mb-5">
+          <button
+            @click={addSkill}
+            .disabled={!canAdd()}
+            class="flex-1 py-2 rounded-lg border-2 border-dashed border-gray-300 text-sm text-gray-500 cursor-pointer hover:border-indigo-400 hover:text-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            + Add skill
+          </button>
+          <button
+            @click={removeLastSkill}
+            .disabled={!canRemove()}
+            class="px-4 py-2 rounded-lg border border-red-200 bg-red-50 text-red-500 text-sm cursor-pointer hover:bg-red-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Remove last
+          </button>
+        </div>
+
+        <!-- Array stats -->
+        <div class="bg-white rounded-lg border border-gray-200 px-4 py-3 font-mono text-xs text-gray-600 leading-relaxed">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-gray-400">length:</span>
+            <span class="font-semibold">{skills.length()}</span>
+            <span class="text-gray-300">|</span>
+            <span class="text-gray-400">valid:</span>
+            <span class="font-semibold">{String(skills.valid())}</span>
+          </div>
+          <div>value: {JSON.stringify(skills.value())}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</template>

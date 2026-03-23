@@ -279,38 +279,40 @@ describe('forgePlugin() — CSS style blocks', () => {
     expect(plugin.resolveId('./styles.css')).toBeNull();
   });
 
-  it('load returns null for unknown IDs', () => {
+  it('load returns null for unknown IDs', async () => {
     const plugin = forgePlugin();
-    expect(plugin.load('src/main.ts')).toBeNull();
+    expect(await plugin.load('src/main.ts')).toBeNull();
   });
 
   it('load returns empty code for a virtual style ID (styles are now inlined, not stored)', async () => {
     const plugin = forgePlugin();
     await plugin.transform(FORGE_WITH_CSS, 'src/Box.forge');
     // The virtualStyles map is no longer populated for .forge files.
-    const mod = plugin.load('\0forge-style:src/Box.forge') as { code: string };
+    const mod = await plugin.load('\0forge-style:src/Box.forge') as { code: string };
     expect(mod.code).toBe('');
   });
 });
 
 // ---------------------------------------------------------------------------
-// .css file handling
+// .css file handling — new forge:css virtual module approach
 // ---------------------------------------------------------------------------
 
 describe('forgePlugin() — .css file handling', () => {
-  it('transforms a .css import into a style-injection module', async () => {
+  it('returns null from transform for .css files (Rolldown handles them natively)', async () => {
     const plugin = forgePlugin();
-    const result = await plugin.transform('.box { color: red; }', 'src/style.css') as { code: string };
-    expect(result).not.toBeNull();
-    expect(result.code).toContain('document.createElement');
-    expect(result.code).toContain('color: red');
+    expect(await plugin.transform('.box { color: red; }', 'src/style.css')).toBeNull();
   });
 
-  it('injects CSS content verbatim when no PostCSS is configured', async () => {
+  it('resolveId maps "forge:css" to the internal virtual ID', () => {
     const plugin = forgePlugin();
-    const css = '.app { font-family: sans-serif; }';
-    const result = await plugin.transform(css, 'src/main.css') as { code: string };
-    expect(result.code).toContain('font-family: sans-serif');
+    expect(plugin.resolveId('forge:css')).toBe('\0forge:css');
+  });
+
+  it('load returns empty code for the CSS virtual module when no css option is set', async () => {
+    const plugin = forgePlugin();
+    const result = await plugin.load('\0forge:css') as { code: string };
+    expect(result).not.toBeNull();
+    expect(result.code).toBe('');
   });
 
   it('still returns null for non-.css, non-.forge files', async () => {
@@ -328,8 +330,7 @@ describe('forgePlugin({ postcss }) — PostCSS integration', () => {
     expect(() => forgePlugin({ postcss: { plugins: [] } })).not.toThrow();
   });
 
-  it('passes CSS through the provided PostCSS plugins for .css files', async () => {
-    // A minimal PostCSS plugin that appends a comment to the CSS output.
+  it('does not transform .css files via transform (PostCSS is applied via forge:css virtual module)', async () => {
     const appendComment = {
       postcssPlugin: 'test-append',
       Once(root: { append: (node: object) => void }) {
@@ -337,8 +338,8 @@ describe('forgePlugin({ postcss }) — PostCSS integration', () => {
       },
     };
     const plugin = forgePlugin({ postcss: { plugins: [appendComment] } });
-    const result = await plugin.transform('.box { color: red; }', 'src/style.css') as { code: string };
-    expect(result.code).toContain('processed by test');
+    // .css files are no longer handled by transform; Rolldown intercepts them.
+    expect(await plugin.transform('.box { color: red; }', 'src/style.css')).toBeNull();
   });
 
   it('passes <style> block CSS through PostCSS before scoping', async () => {

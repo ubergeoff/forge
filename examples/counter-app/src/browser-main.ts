@@ -16,6 +16,7 @@ const HomePage        = lazy(() => import('./pages/home-page.forge'));
 const CounterPage     = lazy(() => import('./pages/counter-page.forge'));
 const AboutPage       = lazy(() => import('./pages/about-page.forge'));
 const ReactivityPage  = lazy(() => import('./pages/reactivity-page.forge'));
+const FormsPage       = lazy(() => import('./pages/forms-page.forge'));
 
 // ---------------------------------------------------------------------------
 // Bootstrap
@@ -27,6 +28,7 @@ const app = bootstrapApp([
     { path: '/counter', component: CounterPage, title: 'Counter — Forge Demo' },
     { path: '/about',       component: AboutPage,       title: 'About — Forge Demo' },
     { path: '/reactivity',  component: ReactivityPage,  title: 'Reactivity — Forge Demo' },
+    { path: '/forms',       component: FormsPage,       title: 'Forms — Forge Demo' },
     { path: '**',       redirectTo: '/' },
   ]),
 ]);

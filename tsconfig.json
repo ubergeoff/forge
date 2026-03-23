@@ -21,6 +21,7 @@
     "@forge/core": ["packages/core/src/index.ts"],
     "@forge/compiler": ["packages/compiler/src/index.ts"],
     "@forge/cli": ["packages/cli/src/index.ts"],
-    "@forge/router": ["packages/router/src/index.ts"]
+    "@forge/router": ["packages/router/src/index.ts"],
+    "@forge/forms": ["packages/forms/src/index.ts"]
   }
 }
