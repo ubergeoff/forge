@@ -18,7 +18,14 @@
       "Bash(npx nx:*)",
       "Bash(xargs grep:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Read(//mnt/c/dev/js/**)",
+      "Bash(npx vitest:*)",
+      "Bash(npx rolldown:*)",
+      "Bash(nx run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
