@@ -1,30 +1,24 @@
 {
   "permissions": {
     "allow": [
-      "Read(//mnt/c/dev/js/**)",
       "Bash(npm run:*)",
-      "Bash(node -e \"console.log\\(require\\(''./node_modules/rolldown/package.json''\\).version\\)\")",
       "Bash(grep -r '\"\"build\"\"' packages/*/package.json examples/*/package.json)",
       "Bash(cd:*)",
-      "Bash(echo \"EXIT: $?\")",
       "Bash(npm test:*)",
       "Bash(node C:/dev/js/forge/packages/cli/dist/bin.js --help)",
       "Bash(node C:/dev/js/forge/packages/cli/dist/bin.js --version)",
       "Bash(node C:/dev/js/forge/packages/cli/dist/bin.js new test-project)",
       "Bash(node:*)",
       "Bash(npx vite-node:*)",
-      "Bash(curl -s http://localhost:4173/examples/counter-app/)",
       "Bash(npx tsc:*)",
       "Bash(npm list:*)",
       "Bash(npm install:*)",
-      "Bash(grep -r import.*from.*.forge /c/dev/js/forge --include=*.ts --include=*.js)",
       "Bash(grep -E \"\\\\.\\(forge|ts\\)$\")",
       "Bash(grep -E \"\\\\.\\(forge|ts|js|scss\\)$\")",
       "Bash(npx nx:*)",
-      "Bash(grep -o 'textContent = `[^`]*`' C:/dev/js/forgeJs/examples/counter-app/dist/browser.js)",
-      "Bash(grep -o '_css = `[^`]*' C:/dev/js/forgeJs/examples/counter-app/dist/browser.js)",
-      "Bash(grep -o '\\\\.\\\\\\(flex\\\\|text-gray-[0-9]*\\\\|rounded-md\\\\|hover\\\\\\\\\\\\\\\\:bg-gray-[0-9]*\\\\|min-h-screen\\\\|gap-[0-9]\\\\|font-bold\\\\|transition-colors\\\\\\)[^{]*{' C:/dev/js/forgeJs/examples/counter-app/dist/browser.js)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }
