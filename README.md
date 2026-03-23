@@ -309,35 +309,6 @@ forge dev
 forge build
 ```
 
-`forge.config.ts`:
-
-```ts
-import { defineConfig } from '@forge/cli';
-
-export default defineConfig({
-  entry:   'src/main.ts',
-  outDir:  'dist',
-  port:    3000,
-  plugins: [],
-});
-```
-
----
-
-## Build Roadmap
-
-- [x] **Step 1** — Reactivity Core (`signal`, `computed`, `effect`, `batch`, `untrack`)
-- [x] **Step 2** — DI System (`@Injectable`, `inject`, `Injector`, `InjectionToken`)
-- [x] **Step 3** — Runtime DOM Layer
-- [x] **Step 4** — `.forge` SFC Parser
-- [x] **Step 5** — Template Compiler
-- [x] **Step 6** — Rolldown Plugin
-- [x] **Step 7** — Dev CLI (`forge new` / `forge dev` / `forge build`)
-- [x] **Step 8** — Router (`@forge/router`)
-- [x] **Step 9** — Forms (`@forge/forms` + `[formControl]` directive)
-
----
-
 ## License
 
 MIT
