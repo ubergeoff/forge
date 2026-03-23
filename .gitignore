@@ -8,3 +8,8 @@ coverage/
 .idea
 .nx/cache
 .nx/workspace-data
+
+# Docs build output and cache
+docs/.vitepress/dist
+docs/.vitepress/cache
+docs/public/forge

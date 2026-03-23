@@ -5,17 +5,21 @@
   "description": "Forge — a compiled, signal-first JavaScript framework for enterprise apps",
   "workspaces": [
     "packages/*",
-    "examples/*"
+    "examples/*",
+    "docs"
   ],
   "scripts": {
-    "build": "nx run-many --target=build",
-    "test": "nx run-many --target=test",
+    "build": "nx run-many --target=build --exclude=docs",
+    "test": "nx run-many --target=test --exclude=docs",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "nx run-many --target=lint",
-    "typecheck": "nx run-many --target=typecheck",
+    "lint": "nx run-many --target=lint --exclude=docs",
+    "typecheck": "nx run-many --target=typecheck --exclude=docs",
     "clean": "nx run-many --target=clean && rm -rf node_modules",
-    "graph": "nx graph"
+    "graph": "nx graph",
+    "docs:dev": "nx run docs:dev",
+    "docs:build": "nx run docs:build",
+    "docs:preview": "nx run docs:preview"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",

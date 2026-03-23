@@ -1,0 +1,19 @@
+{
+  "name": "docs",
+  "targets": {
+    "dev": {
+      "command": "npm run dev",
+      "options": { "cwd": "{projectRoot}" }
+    },
+    "build": {
+      "command": "npm run build",
+      "options": { "cwd": "{projectRoot}" },
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/.vitepress/dist"]
+    },
+    "preview": {
+      "command": "npm run preview",
+      "options": { "cwd": "{projectRoot}" }
+    }
+  }
+}
