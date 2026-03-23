@@ -44,7 +44,9 @@ export interface CompileError {
 // TypeScript stripping (via oxc-transform)
 // ---------------------------------------------------------------------------
 
-type OxcTransformResult = { code: string; errors: Array<{ message: string }> };
+type OxcErrorLabel = { span: { start: number; end: number }; message: string };
+type OxcError = { message: string; severity?: string; labels?: OxcErrorLabel[]; helpMessage?: string };
+type OxcTransformResult = { code: string; errors: Array<OxcError> };
 type OxcTransformFn = (filename: string, source: string, options: object) => OxcTransformResult;
 type OxcTransformModule = { transformSync: OxcTransformFn };
 
@@ -69,9 +71,24 @@ function getOxcTransform(): OxcTransformModule {
 }
 
 /**
+ * Converts a byte offset in `source` to a 1-based line and column number.
+ * Used to attach human-readable location info to oxc parse errors.
+ */
+function offsetToLineCol(source: string, offset: number): { line: number; column: number } {
+  const clamped = Math.min(offset, source.length);
+  const before = source.slice(0, clamped);
+  const line = (before.match(/\n/g)?.length ?? 0) + 1;
+  const column = clamped - before.lastIndexOf('\n');
+  return { line, column };
+}
+
+/**
  * Strips TypeScript type annotations from a script block's source using
  * oxc-transform. The source is treated as a `.ts` file so oxc enables
  * TypeScript mode. Returns the plain JavaScript and any transform errors.
+ *
+ * Errors are enriched with line/column info derived from the oxc span labels
+ * so the user knows exactly which line in the <script> block is broken.
  */
 function stripTypeScript(
   source: string,
@@ -83,7 +100,22 @@ function stripTypeScript(
   const result = oxc.transformSync(tsFilename, source, {
     typescript: { onlyRemoveTypeImports: true },
   });
-  const errors: CompileError[] = result.errors.map(e => ({ message: e.message }));
+
+  const errors: CompileError[] = result.errors.map(e => {
+    // Try to extract a span from the first label so we can report a line/col.
+    const span = e.labels?.[0]?.span;
+    if (span !== undefined) {
+      const { line, column } = offsetToLineCol(source, span.start);
+      const hint = e.helpMessage ? `\n  Hint: ${e.helpMessage}` : '';
+      return {
+        message: `[Script] Line ${line}:${column} — ${e.message}${hint}`,
+        line,
+        column,
+      };
+    }
+    return { message: `[Script] ${e.message}` };
+  });
+
   return { code: result.code ?? source, errors };
 }
 
@@ -116,7 +148,7 @@ interface InterpolationNode {
   expression: string;
 }
 
-type DirectiveKind = 'bind' | 'prop' | 'event' | 'show' | 'class';
+type DirectiveKind = 'bind' | 'prop' | 'event' | 'show' | 'class' | 'formControl';
 
 interface DirectiveNode {
   kind: DirectiveKind;
@@ -286,6 +318,10 @@ class TemplateParser {
       } else if (name.startsWith('.')) {
         // DOM property: .value={expr}
         directives.push({ kind: 'prop', name: name.slice(1), expression: value });
+      } else if (name === '[formControl]') {
+        // Two-way form control binding: [formControl]={control}
+        // Expands to: value prop binding + input handler (setValue + markAsTouched) + blur handler
+        directives.push({ kind: 'formControl', name: '', expression: value });
       } else if (name.startsWith('class:')) {
         // Class toggle: class:active={expr}
         directives.push({ kind: 'class', name: name.slice(6), expression: value });
@@ -533,12 +569,20 @@ class CodeGenerator {
       this.emit(`setAttr(${v}, ${q(attr.name)}, ${q(attr.value)});`);
     }
 
-    // Directives — class: gathered for one bindClass call; rest emitted inline.
+    // Directives — class: gathered for one bindClass call; formControl: expanded
+    // into value binding + input/blur handlers; rest emitted inline.
     const classDirectives = node.directives.filter(d => d.kind === 'class');
-    const otherDirectives = node.directives.filter(d => d.kind !== 'class');
+    const formControlDirectives = node.directives.filter(d => d.kind === 'formControl');
+    const otherDirectives = node.directives.filter(
+      d => d.kind !== 'class' && d.kind !== 'formControl',
+    );
 
     for (const dir of otherDirectives) {
       this.genDirective(v, dir);
+    }
+
+    for (const dir of formControlDirectives) {
+      this.genFormControlDirective(v, dir.expression, node.staticAttrs);
     }
 
     if (classDirectives.length > 0) {
@@ -594,6 +638,45 @@ class CodeGenerator {
     }
 
     return v;
+  }
+
+  /**
+   * Generates the wiring for a `[formControl]={ctrl}` directive:
+   *  1. Reactive value/checked prop binding (reads `ctrl.value()`)
+   *  2. `input` event → `ctrl.setValue(...)` + `ctrl.markAsTouched()`
+   *  3. `blur` event → `ctrl.markAsTouched()`
+   *
+   * Value coercion is inferred from the element's static `type` attribute:
+   *  - `number` / `range` → `Number(ev.target.value)`
+   *  - `checkbox`         → `ev.target.checked` (boolean)
+   *  - everything else    → `ev.target.value`   (string)
+   */
+  private genFormControlDirective(
+    elVar: string,
+    ctrlExpr: string,
+    staticAttrs: StaticAttr[],
+  ): void {
+    const inputType = staticAttrs.find(a => a.name === 'type')?.value ?? 'text';
+
+    this.use('bindProp');
+    this.use('listen');
+
+    if (inputType === 'checkbox') {
+      // Checkbox: bind `checked` property; read `.checked` on input.
+      this.emit(`ctx.effects.push(bindProp(${elVar}, 'checked', () => Boolean(${ctrlExpr}.value())));`);
+      this.emit(`ctx.effects.push(listen(${elVar}, 'input', (ev) => { const _t = ev.target; ${ctrlExpr}.setValue(_t.checked); ${ctrlExpr}.markAsTouched(); }));`);
+    } else if (inputType === 'number' || inputType === 'range') {
+      // Numeric inputs: bind `value` as string for the DOM; coerce to Number on input.
+      this.emit(`ctx.effects.push(bindProp(${elVar}, 'value', () => String(${ctrlExpr}.value())));`);
+      this.emit(`ctx.effects.push(listen(${elVar}, 'input', (ev) => { const _t = ev.target; ${ctrlExpr}.setValue(Number(_t.value)); ${ctrlExpr}.markAsTouched(); }));`);
+    } else {
+      // Text, email, password, url, textarea, etc.
+      this.emit(`ctx.effects.push(bindProp(${elVar}, 'value', () => String(${ctrlExpr}.value())));`);
+      this.emit(`ctx.effects.push(listen(${elVar}, 'input', (ev) => { const _t = ev.target; ${ctrlExpr}.setValue(_t.value); ${ctrlExpr}.markAsTouched(); }));`);
+    }
+
+    // Blur always marks as touched (handles focus-out without typing).
+    this.emit(`ctx.effects.push(listen(${elVar}, 'blur', () => ${ctrlExpr}.markAsTouched()));`);
   }
 
   private genDirective(elVar: string, dir: DirectiveNode): void {

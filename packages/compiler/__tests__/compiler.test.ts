@@ -686,3 +686,82 @@ describe('compileSFC — style blocks', () => {
     expect(result.styles).toHaveLength(1);
   });
 });
+
+// ---------------------------------------------------------------------------
+// [formControl] directive
+// ---------------------------------------------------------------------------
+
+describe('compileSFC — [formControl] directive', () => {
+  it('binds value prop and attaches input + blur listeners for text inputs', () => {
+    const result = compile(forge({
+      template: '<input type="text" [formControl]={ctrl} />',
+    }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain("bindProp(_e0, 'value', () => String(ctrl.value()))");
+    expect(result.code).toContain("listen(_e0, 'input'");
+    expect(result.code).toContain('ctrl.setValue(_t.value)');
+    expect(result.code).toContain('ctrl.markAsTouched()');
+    expect(result.code).toContain("listen(_e0, 'blur'");
+  });
+
+  it('coerces value with Number() for type="number"', () => {
+    const result = compile(forge({
+      template: '<input type="number" [formControl]={age} />',
+    }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain("bindProp(_e0, 'value', () => String(age.value()))");
+    expect(result.code).toContain('age.setValue(Number(_t.value))');
+  });
+
+  it('coerces value with Number() for type="range"', () => {
+    const result = compile(forge({
+      template: '<input type="range" [formControl]={vol} />',
+    }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain('vol.setValue(Number(_t.value))');
+  });
+
+  it('binds checked prop and reads .checked for type="checkbox"', () => {
+    const result = compile(forge({
+      template: '<input type="checkbox" [formControl]={agree} />',
+    }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain("bindProp(_e0, 'checked', () => Boolean(agree.value()))");
+    expect(result.code).toContain('agree.setValue(_t.checked)');
+  });
+
+  it('treats type="email" as a text-type input (string coercion)', () => {
+    const result = compile(forge({
+      template: '<input type="email" [formControl]={email} />',
+    }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain('email.setValue(_t.value)');
+    expect(result.code).not.toContain('Number(');
+  });
+
+  it('treats type="password" as a text-type input (string coercion)', () => {
+    const result = compile(forge({
+      template: '<input type="password" [formControl]={pw} />',
+    }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain('pw.setValue(_t.value)');
+  });
+
+  it('works alongside other directives on the same element', () => {
+    const result = compile(forge({
+      template: '<input type="text" [formControl]={ctrl} class="my-class" :placeholder={hint()} />',
+    }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain('ctrl.setValue(_t.value)');
+    expect(result.code).toContain("bindAttr(_e0, 'placeholder'");
+  });
+
+  it('imports bindProp and listen when [formControl] is used', () => {
+    const result = compile(forge({
+      template: '<input type="text" [formControl]={ctrl} />',
+    }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain('bindProp');
+    expect(result.code).toContain('listen');
+  });
+});

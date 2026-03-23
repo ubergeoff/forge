@@ -18,14 +18,6 @@ const loginMessage   = computed(() => {
 const showEmailError    = computed(() => email.invalid()    && email.touched());
 const showPasswordError = computed(() => password.invalid() && password.touched());
 
-function onEmailInput(ev: Event) {
-  email.setValue((ev.target as HTMLInputElement).value);
-  email.markAsTouched();
-}
-function onPasswordInput(ev: Event) {
-  password.setValue((ev.target as HTMLInputElement).value);
-  password.markAsTouched();
-}
 function submitLogin(ev: Event) {
   ev.preventDefault();
   loginForm.markAsTouched();
@@ -47,19 +39,6 @@ const profileForm = formGroup({ firstName, lastName, age, website });
 
 const profileStatus = computed(() => profileForm.status());
 
-function onFirstNameInput(ev: Event) {
-  firstName.setValue((ev.target as HTMLInputElement).value);
-}
-function onLastNameInput(ev: Event) {
-  lastName.setValue((ev.target as HTMLInputElement).value);
-}
-function onAgeInput(ev: Event) {
-  age.setValue(Number((ev.target as HTMLInputElement).value));
-}
-function onWebsiteInput(ev: Event) {
-  website.setValue((ev.target as HTMLInputElement).value);
-  website.markAsTouched();
-}
 function autofill() {
   profileForm.patchValue({ firstName: 'Alan', lastName: 'Turing', age: 41, website: 'https://turing.io' });
 }
@@ -99,12 +78,6 @@ function removeLastSkill() {
   skills.removeAt(next);
   skillCount.set(next);
 }
-
-function onS0Input(ev: Event) { s0.setValue((ev.target as HTMLInputElement).value); s0.markAsTouched(); }
-function onS1Input(ev: Event) { s1.setValue((ev.target as HTMLInputElement).value); s1.markAsTouched(); }
-function onS2Input(ev: Event) { s2.setValue((ev.target as HTMLInputElement).value); s2.markAsTouched(); }
-function onS3Input(ev: Event) { s3.setValue((ev.target as HTMLInputElement).value); s3.markAsTouched(); }
-function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).value); s4.markAsTouched(); }
 </script>
 
 <template>
@@ -134,8 +107,7 @@ function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).valu
             <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
               type="email"
-              .value={email.value()}
-              @input={onEmailInput}
+              [formControl]={email}
               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
               placeholder="you@example.com"
             />
@@ -149,8 +121,7 @@ function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).valu
             <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
               type="password"
-              .value={password.value()}
-              @input={onPasswordInput}
+              [formControl]={password}
               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
               placeholder="Min 8 characters"
             />
@@ -206,8 +177,7 @@ function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).valu
             <label class="block text-xs font-medium text-gray-600 mb-1">First name</label>
             <input
               type="text"
-              .value={firstName.value()}
-              @input={onFirstNameInput}
+              [formControl]={firstName}
               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
             />
           </div>
@@ -215,8 +185,7 @@ function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).valu
             <label class="block text-xs font-medium text-gray-600 mb-1">Last name</label>
             <input
               type="text"
-              .value={lastName.value()}
-              @input={onLastNameInput}
+              [formControl]={lastName}
               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
             />
           </div>
@@ -226,8 +195,7 @@ function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).valu
           <label class="block text-xs font-medium text-gray-600 mb-1">Age (0 – 120)</label>
           <input
             type="number"
-            .value={String(age.value())}
-            @input={onAgeInput}
+            [formControl]={age}
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
           />
         </div>
@@ -236,8 +204,7 @@ function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).valu
           <label class="block text-xs font-medium text-gray-600 mb-1">Website (must start with http)</label>
           <input
             type="url"
-            .value={website.value()}
-            @input={onWebsiteInput}
+            [formControl]={website}
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
             placeholder="https://..."
           />
@@ -296,8 +263,7 @@ function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).valu
           <div class="flex gap-2 items-center">
             <input
               type="text"
-              .value={s0.value()}
-              @input={onS0Input}
+              [formControl]={s0}
               class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
               placeholder="Skill name (required)"
             />
@@ -308,8 +274,7 @@ function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).valu
           <div class="flex gap-2 items-center">
             <input
               type="text"
-              .value={s1.value()}
-              @input={onS1Input}
+              [formControl]={s1}
               class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
               placeholder="Skill name (required)"
             />
@@ -320,8 +285,7 @@ function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).valu
           <div :show={showS2()} class="flex gap-2 items-center">
             <input
               type="text"
-              .value={s2.value()}
-              @input={onS2Input}
+              [formControl]={s2}
               class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
               placeholder="Skill name (required)"
             />
@@ -332,8 +296,7 @@ function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).valu
           <div :show={showS3()} class="flex gap-2 items-center">
             <input
               type="text"
-              .value={s3.value()}
-              @input={onS3Input}
+              [formControl]={s3}
               class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
               placeholder="Skill name (required)"
             />
@@ -344,8 +307,7 @@ function onS4Input(ev: Event) { s4.setValue((ev.target as HTMLInputElement).valu
           <div :show={showS4()} class="flex gap-2 items-center">
             <input
               type="text"
-              .value={s4.value()}
-              @input={onS4Input}
+              [formControl]={s4}
               class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-400"
               placeholder="Skill name (required)"
             />
