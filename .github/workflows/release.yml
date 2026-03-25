@@ -1,0 +1,127 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  id-token: write   # for npm provenance
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ── Validate tag matches package versions ────────────────────────────────────
+  validate:
+    name: Validate release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract version from tag
+        id: version
+        run: echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+      - name: Confirm root package.json version matches tag
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json version $PKG_VERSION"
+            exit 1
+          fi
+
+  # ── Full CI gate before publishing ──────────────────────────────────────────
+  ci:
+    name: Build & test
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci --prefer-offline
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm test
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-release
+          path: packages/*/dist
+          retention-days: 1
+
+  # ── Publish to npm ───────────────────────────────────────────────────────────
+  publish:
+    name: Publish to npm
+    needs: ci
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci --prefer-offline
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-release
+          path: packages
+      - name: Publish packages
+        run: |
+          for pkg in packages/core packages/compiler packages/router packages/cli packages/forms; do
+            if [ -f "$pkg/package.json" ]; then
+              PRIVATE=$(node -p "require('./$pkg/package.json').private || false")
+              if [ "$PRIVATE" != "true" ]; then
+                echo "Publishing $pkg…"
+                npm publish --workspace="$pkg" --access=public --provenance
+              else
+                echo "Skipping private package $pkg"
+              fi
+            fi
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # ── Create GitHub Release ────────────────────────────────────────────────────
+  github-release:
+    name: Create GitHub release
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate changelog since previous tag
+        id: changelog
+        run: |
+          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]' | sed -n '2p')
+          if [ -z "$PREVIOUS_TAG" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="${PREVIOUS_TAG}..HEAD"
+          fi
+          CHANGELOG=$(git log "$RANGE" --pretty=format:"- %s (%h)" --no-merges)
+          {
+            echo "content<<EOF"
+            echo "$CHANGELOG"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Forge $GITHUB_REF_NAME" \
+            --notes "${{ steps.changelog.outputs.content }}" \
+            --verify-tag
