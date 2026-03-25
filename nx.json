@@ -61,5 +61,17 @@
       "cache": false
     }
   },
+  "release": {
+    "projects": ["packages/*"],
+    "projectsRelationship": "fixed",
+    "releaseTagPattern": "v{version}",
+    "version": {
+      "conventionalCommits": true,
+      "updateDependents": "auto"
+    },
+    "changelog": {
+      "workspaceChangelog": true
+    }
+  },
   "analytics": false
 }

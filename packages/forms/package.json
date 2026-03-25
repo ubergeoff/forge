@@ -2,6 +2,7 @@
   "name": "@forge/forms",
   "version": "0.1.0",
   "description": "Forge forms — signal-based reactive forms",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -13,12 +14,24 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ubergeoff/forge.git",
+    "directory": "packages/forms"
+  },
   "scripts": {
     "build": "rolldown -c rolldown.config.mjs",
+    "prepublishOnly": "npm run build",
     "clean": "rm -rf dist .tsbuildinfo"
   },
   "peerDependencies": {
-    "@forge/core": "*"
+    "@forge/core": "^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "sideEffects": false
 }

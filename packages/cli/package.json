@@ -2,6 +2,7 @@
   "name": "@forge/cli",
   "version": "0.1.0",
   "description": "Forge CLI — forge new / forge dev / forge build",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "forge": "./dist/bin.js"
@@ -16,15 +17,27 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ubergeoff/forge.git",
+    "directory": "packages/cli"
+  },
   "scripts": {
     "build": "rolldown -c rolldown.config.mjs",
+    "prepublishOnly": "npm run build",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@forge/compiler": "*",
-    "rolldown": "*"
+    "@forge/compiler": "^0.1.0",
+    "rolldown": "^0.14.0"
   },
   "devDependencies": {
     "typescript": "*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

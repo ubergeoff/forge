@@ -2,6 +2,7 @@
   "name": "@forge/compiler",
   "version": "0.1.0",
   "description": "Forge compiler — .forge SFC parser and template compiler",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -17,12 +18,21 @@
       "types": "./dist/browser.d.ts"
     }
   },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ubergeoff/forge.git",
+    "directory": "packages/compiler"
+  },
   "scripts": {
     "build": "rolldown -c rolldown.config.mjs",
+    "prepublishOnly": "npm run build",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@forge/core": "*",
+    "@forge/core": "^0.1.0",
     "oxc-transform": "^0.121.0"
   },
   "peerDependencies": {
@@ -41,6 +51,9 @@
     "rolldown": "*",
     "sass": "*",
     "typescript": "*"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "sideEffects": false
 }
