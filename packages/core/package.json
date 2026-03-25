@@ -2,6 +2,7 @@
   "name": "@forge/core",
   "version": "0.1.0",
   "description": "Forge core — reactivity primitives and dependency injection",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -28,14 +29,26 @@
       "types": "./dist/dom.d.ts"
     }
   },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ubergeoff/forge.git",
+    "directory": "packages/core"
+  },
   "scripts": {
     "build": "rolldown -c rolldown.config.mjs",
+    "prepublishOnly": "npm run build",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "devDependencies": {
     "rolldown": "*",
     "typescript": "*",
     "vitest": "*"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "sideEffects": false
 }

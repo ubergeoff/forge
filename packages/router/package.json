@@ -2,6 +2,7 @@
   "name": "@forge/router",
   "version": "0.1.0",
   "description": "Forge router — signal-driven client-side routing",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -13,17 +14,29 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ubergeoff/forge.git",
+    "directory": "packages/router"
+  },
   "scripts": {
     "build": "rolldown -c rolldown.config.mjs",
+    "prepublishOnly": "npm run build",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@forge/core": "*"
+    "@forge/core": "^0.1.0"
   },
   "devDependencies": {
     "rolldown": "*",
     "typescript": "*",
     "vitest": "*"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "sideEffects": false
 }
