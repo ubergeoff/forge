@@ -310,6 +310,11 @@ export async function runDev(args: string[]): Promise<void> {
     }, 80);
   });
 
+  // Derive the entry script URL so we can auto-inject it into HTML responses
+  // when the user's index.html has no <script type="module"> tag.
+  const entryName = path.basename(entry, path.extname(entry));
+  const devScriptSrc = `/${outDir}/${entryName}.js`;
+
   // Initial build on startup.
   console.log(`[forge dev] Server:  http://localhost:${port}`);
   console.log(`[forge dev] Entry:   ${entry}`);
@@ -357,7 +362,7 @@ export async function runDev(args: string[]): Promise<void> {
       return;
     }
 
-    serveFile(filePath, res);
+    serveFile(filePath, res, devScriptSrc);
   });
 
   server.listen(port);
@@ -407,8 +412,16 @@ function resolveFilePath(
   return null;
 }
 
-/** Reads a file from disk and writes it to the HTTP response. */
-function serveFile(filePath: string, res: http.ServerResponse): void {
+/**
+ * Reads a file from disk and writes it to the HTTP response.
+ *
+ * For HTML files, two scripts are injected before </body>:
+ *   1. The compiled entry module — only when no <script type="module"> is
+ *      already present in the file, so users don't need to add the tag
+ *      manually; the framework adds it for them.
+ *   2. The HMR client — always present in dev mode.
+ */
+function serveFile(filePath: string, res: http.ServerResponse, entryScript?: string): void {
   const ext = path.extname(filePath).toLowerCase();
   const contentType = MIME[ext] ?? 'application/octet-stream';
 
@@ -421,9 +434,16 @@ function serveFile(filePath: string, res: http.ServerResponse): void {
     return;
   }
 
-  // Inject HMR client script into HTML responses.
+  // Inject entry script + HMR client into HTML responses.
   if (ext === '.html') {
-    const html = body.toString('utf8');
+    let html = body.toString('utf8');
+
+    // Auto-inject the entry module script if the HTML has no module script tag.
+    if (entryScript && !/<script\s[^>]*type=["']module["']/i.test(html)) {
+      const tag = `<script type="module" src="${entryScript}"></script>`;
+      html = html.includes('</body>') ? html.replace('</body>', `${tag}\n</body>`) : html + tag;
+    }
+
     const injected = html.includes('</body>')
       ? html.replace('</body>', `${HMR_CLIENT_SCRIPT}\n</body>`)
       : html + HMR_CLIENT_SCRIPT;

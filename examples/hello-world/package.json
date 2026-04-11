@@ -9,10 +9,10 @@
     "build": "forge build"
   },
   "dependencies": {
-    "@forge/core": "*",
-    "@forge/cli": "*"
+    "@forge/core": "*"
   },
   "devDependencies": {
+    "@forge/cli": "*",
     "@forge/compiler": "*",
     "@tailwindcss/postcss": "^4.0.0",
     "postcss": "^8.0.0",
