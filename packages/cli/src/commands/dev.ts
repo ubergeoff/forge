@@ -1,17 +1,18 @@
 // =============================================================================
 // @forge/cli — forge dev
-// Development server: Rolldown watch mode + HTTP static file serving +
+// Development server: Rolldown one-shot builds + fs.watch for source changes +
 // Server-Sent Events (SSE) for live reload.
 //
-// On every successful rebuild the server sends a 'reload' SSE event to all
-// connected browser clients, which triggers a full-page reload.
-// True module-level HMR is planned for a future step.
+// We intentionally do NOT use Rolldown's watch() API because its native
+// file-watcher does not reliably exclude the output directory on Windows,
+// causing every build write to trigger another rebuild (infinite loop).
+// Instead we use Node's built-in fs.watch() restricted to source files only.
 // =============================================================================
 
 import * as http from 'node:http';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { watch } from 'rolldown';
+import { build } from 'rolldown';
 import type { RolldownPlugin } from 'rolldown';
 import { forgePlugin } from '@forge/compiler';
 import { loadConfig } from '../utils/config.js';
@@ -82,6 +83,9 @@ export async function runDev(args: string[]): Promise<void> {
 
   const entryAbs = path.join(cwd, entry);
   const outDirAbs = path.join(cwd, outDir);
+  // Normalise to forward-slash for reliable prefix checks on Windows.
+  const outDirNorm = outDirAbs.replace(/\\/g, '/') + '/';
+
   const userPlugins = (config.plugins ?? []) as RolldownPlugin[];
   const plugins: RolldownPlugin[] = [
     forgePlugin() as RolldownPlugin,
@@ -92,38 +96,100 @@ export async function runDev(args: string[]): Promise<void> {
   fs.mkdirSync(outDirAbs, { recursive: true });
 
   // -------------------------------------------------------------------------
-  // Rolldown watch mode
+  // SSE clients
   // -------------------------------------------------------------------------
 
-  // watch() is async — it resolves once the watcher is initialised.
-  const watcher = await watch({
-    input: entryAbs,
-    plugins,
-    output: {
-      dir: outDirAbs,
-      format: 'es',
-      sourcemap: true,
-      entryFileNames: '[name].js',
-      chunkFileNames: '[name]-[hash].js',
-    },
-  });
-
-  // Track connected SSE clients for live reload.
   const clients = new Set<http.ServerResponse>();
 
-  watcher.on('event', (ev) => {
-    if (ev.code === 'BUNDLE_END') {
-      console.log('[forge dev] Rebuilt — notifying clients...');
-      for (const client of clients) {
+  function notifyClients(): void {
+    console.log('[forge dev] Rebuilt — notifying clients...');
+    for (const client of clients) {
+      try {
         client.write('event: reload\ndata: {}\n\n');
+      } catch {
+        // Dead connection — remove it.
+        clients.delete(client);
       }
     }
-    if (ev.code === 'ERROR') {
-      // RollupWatcherEvent for ERROR doesn't expose the error field in rolldown's
-      // current type definitions; log what we can.
-      console.error('[Forge CLI] Build error — check the terminal above for details.');
+  }
+
+  // -------------------------------------------------------------------------
+  // One-shot Rolldown build
+  // -------------------------------------------------------------------------
+
+  let isBuilding = false;
+  let pendingRebuild = false;
+
+  async function runBuild(): Promise<void> {
+    if (isBuilding) {
+      // A build is already in flight; schedule a follow-up instead of stacking.
+      pendingRebuild = true;
+      return;
     }
+    isBuilding = true;
+    pendingRebuild = false;
+    try {
+      await build({
+        input: entryAbs,
+        plugins,
+        output: {
+          dir: outDirAbs,
+          format: 'es',
+          sourcemap: true,
+          entryFileNames: '[name].js',
+          chunkFileNames: '[name]-[hash].js',
+        },
+      });
+      notifyClients();
+    } catch {
+      console.error('[forge dev] Build error — check the terminal above for details.');
+    } finally {
+      isBuilding = false;
+      if (pendingRebuild) {
+        void runBuild();
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Source file watcher (fs.watch, source files only)
+  // -------------------------------------------------------------------------
+  //
+  // We watch the entire project root but skip anything inside the output
+  // directory and node_modules. This avoids the Rolldown-watcher bug where
+  // the native exclude option does not reliably prevent dist/ writes from
+  // re-triggering a rebuild on Windows.
+
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const fsWatcher = fs.watch(cwd, { recursive: true }, (_event, filename) => {
+    if (!filename) return;
+
+    // Normalise to forward slashes for consistent prefix matching.
+    const rel = filename.replace(/\\/g, '/');
+
+    // Ignore output directory and node_modules.
+    if (rel.startsWith(path.relative(cwd, outDirAbs).replace(/\\/g, '/') + '/')) return;
+    if (rel.startsWith('node_modules/')) return;
+
+    // Also guard against absolute paths that lie inside outDir (Windows edge case).
+    const abs = path.resolve(cwd, filename).replace(/\\/g, '/') + '/';
+    if (abs.startsWith(outDirNorm)) return;
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      debounceTimer = null;
+      void runBuild();
+    }, 80);
   });
+
+  // Initial build on startup.
+  console.log(`[forge dev] Server:  http://localhost:${port}`);
+  console.log(`[forge dev] Entry:   ${entry}`);
+  console.log(`[forge dev] Output:  ${outDir}/`);
+  console.log('[forge dev] Building...');
+  await runBuild();
+  console.log('[forge dev] Watching for changes...\n');
 
   // -------------------------------------------------------------------------
   // HTTP server
@@ -143,7 +209,9 @@ export async function runDev(args: string[]): Promise<void> {
       // Initial comment keeps the connection alive in some browsers.
       res.write(':\n\n');
       clients.add(res);
-      req.on('close', () => {
+      // res.on('close') is more reliable than req.on('close') for detecting
+      // client disconnection on a streaming (never-ended) response.
+      res.on('close', () => {
         clients.delete(res);
       });
       return;
@@ -164,12 +232,7 @@ export async function runDev(args: string[]): Promise<void> {
     serveFile(filePath, res);
   });
 
-  server.listen(port, () => {
-    console.log(`[forge dev] Server:  http://localhost:${port}`);
-    console.log(`[forge dev] Entry:   ${entry}`);
-    console.log(`[forge dev] Output:  ${outDir}/`);
-    console.log('[forge dev] Watching for changes...\n');
-  });
+  server.listen(port);
 
   // -------------------------------------------------------------------------
   // Graceful shutdown
@@ -177,9 +240,8 @@ export async function runDev(args: string[]): Promise<void> {
 
   process.on('SIGINT', () => {
     console.log('\n[forge dev] Stopping...');
-    void watcher.close().then(() => {
-      server.close(() => process.exit(0));
-    });
+    fsWatcher.close();
+    server.close(() => process.exit(0));
   });
 }
 
