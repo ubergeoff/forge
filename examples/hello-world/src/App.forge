@@ -1,0 +1,16 @@
+<script>
+import { signal, computed } from '@forge/core';
+import Greeting from './components/Greeting.forge';
+import ClickCounter from './components/ClickCounter.forge';
+</script>
+
+<template>
+  <div style="text-align: center; padding: 2rem;">
+    <h1 style="font-size: 2rem; margin-bottom: 0.5rem; color: #1a1a1a;">
+      ⚡ Forge — Hello World
+    </h1>
+    <p style="color: #666; margin-bottom: 2rem;">Edit a .forge file to see HMR in action.</p>
+    <Greeting />
+    <ClickCounter />
+  </div>
+</template>

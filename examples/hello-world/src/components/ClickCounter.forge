@@ -1,0 +1,28 @@
+<script lang="ts">
+import { signal } from '@forge/core';
+
+const count = signal(0);
+
+function increment() { count.update(n => n + 1); }
+function reset() { count.set(0); }
+</script>
+
+<template>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+    <p style="font-size: 3rem; font-weight: bold; color: #1a1a1a;">{count()}</p>
+    <div style="display: flex; gap: 0.75rem;">
+      <button
+        style="padding: 0.5rem 1.5rem; font-size: 1rem; border: 2px solid #333; border-radius: 6px; background: #333; color: white; cursor: pointer;"
+        @click={increment}
+      >
+        Click me
+      </button>
+      <button
+        style="padding: 0.5rem 1.5rem; font-size: 1rem; border: 2px solid #ddd; border-radius: 6px; background: white; cursor: pointer;"
+        @click={reset}
+      >
+        Reset
+      </button>
+    </div>
+  </div>
+</template>

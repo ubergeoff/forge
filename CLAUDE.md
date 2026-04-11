@@ -14,6 +14,8 @@ This is an **npm workspace monorepo** with four packages and an example app:
 
 ## Commands
 
+IMPORTANT: this is a NX enabled project. To build project/libraries. Rather make use the actual nx command to build and test libraries.
+
 ```bash
 npm run build         # Build all packages (ESM + CJS via Rolldown)
 npm test              # Run all tests (Vitest)
@@ -25,7 +27,12 @@ npm run clean         # Remove all dist/ and node_modules
 npm run graph         # Visualize Nx dependency graph
 ```
 
-To build or test a single package, run the same commands inside its directory (e.g., `cd packages/core && npm run build`).
+To build or test a single package, use the Nx target syntax:
+```bash
+npx nx run <library>:build   # e.g. npx nx run cli:build
+npx nx run <library>:test    # e.g. npx nx run cli:test
+```
+Where `<library>` matches the Nx project name: `core`, `compiler`, `router`, `cli`. Do NOT `cd` into a package directory and run npm scripts directly — always use `npx nx run` for individual library builds and tests.
 
 ## Architecture
 

@@ -1,21 +1,26 @@
 // =============================================================================
 // @forge/cli — forge dev
-// Development server: Rolldown watch mode + HTTP static file serving +
+// Development server: Rolldown one-shot builds + fs.watch for source changes +
 // Server-Sent Events (SSE) for component-level HMR.
+//
+// We intentionally do NOT use Rolldown's watch() API because its native
+// file-watcher does not reliably exclude the output directory on Windows,
+// causing every build write to trigger another rebuild (infinite loop).
+// Instead we use Node's built-in fs.watch() restricted to source files only.
 //
 // HMR strategy:
 //   - Each .forge file is split into its own output chunk (stable name).
-//   - When a .forge file changes, only its chunk is rebuilt and the browser
-//     dynamically imports the new chunk (cache-busted with ?t=timestamp).
-//   - The new chunk calls window.__forge_hmr.accept(id, factory) which swaps
-//     all mounted instances of that component in-place.
-//   - Non-.forge changes (services, utils) fall back to a full page reload.
+//   - fs.watch tracks which .forge files changed during a quiet period.
+//   - If ONLY .forge files changed, an 'hmr-update' SSE event is sent so the
+//     browser can hot-swap individual components without a full page reload.
+//   - If any non-.forge source file also changed, a full 'reload' is sent
+//     (e.g. a service dependency changed — the whole app must restart).
 // =============================================================================
 
 import * as http from 'node:http';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { watch } from 'rolldown';
+import { build } from 'rolldown';
 import type { RolldownPlugin, OutputOptions } from 'rolldown';
 import { forgePlugin, generateScopeId } from '@forge/compiler';
 import { loadConfig } from '../utils/config.js';
@@ -114,24 +119,12 @@ export async function runDev(args: string[]): Promise<void> {
 
   const entryAbs = path.join(cwd, entry);
   const outDirAbs = path.join(cwd, outDir);
+  // Normalise to forward-slash for reliable prefix checks on Windows.
+  const outDirNorm = outDirAbs.replace(/\\/g, '/') + '/';
+  const outDirRel = path.relative(cwd, outDirAbs).replace(/\\/g, '/');
+
   const userPlugins = (config.plugins ?? []) as RolldownPlugin[];
-
-  // -------------------------------------------------------------------------
-  // HMR file-change tracker plugin
-  // Collects .forge paths that changed so the BUNDLE_END handler can send
-  // targeted HMR updates instead of falling back to a full reload.
-  // -------------------------------------------------------------------------
-
-  const changedForgeFiles = new Set<string>();
-  const hmrTrackerPlugin: RolldownPlugin = {
-    name: 'forge-hmr-tracker',
-    watchChange(id: string) {
-      if (id.endsWith('.forge')) changedForgeFiles.add(id);
-    },
-  } as RolldownPlugin;
-
   const plugins: RolldownPlugin[] = [
-    hmrTrackerPlugin,
     forgePlugin({ hmr: true }) as RolldownPlugin,
     ...userPlugins,
   ];
@@ -140,8 +133,42 @@ export async function runDev(args: string[]): Promise<void> {
   fs.mkdirSync(outDirAbs, { recursive: true });
 
   // -------------------------------------------------------------------------
-  // Rolldown watch mode
+  // SSE clients
   // -------------------------------------------------------------------------
+
+  const clients = new Set<http.ServerResponse>();
+
+  /** Broadcasts an SSE event to all connected browser clients. */
+  function broadcast(event: string, data: string): void {
+    for (const client of clients) {
+      try {
+        client.write(`event: ${event}\ndata: ${data}\n\n`);
+      } catch {
+        // Dead connection — remove it.
+        clients.delete(client);
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // HMR change tracking
+  //
+  // The fs.watch callback populates these sets as files change. runBuild()
+  // drains them at the start of each build to decide whether to send a
+  // component-level HMR update or a full page reload.
+  // -------------------------------------------------------------------------
+
+  /** Absolute paths of .forge files that changed since the last build. */
+  const changedForgeFiles = new Set<string>();
+  /** True if any non-.forge source file changed since the last build. */
+  let hasNonForgeChanges = false;
+
+  // -------------------------------------------------------------------------
+  // One-shot Rolldown build
+  // -------------------------------------------------------------------------
+
+  let isBuilding = false;
+  let pendingRebuild = false;
 
   // Each .forge component gets its own output chunk (stable name so the
   // browser can cache-bust with ?t=timestamp on HMR update).
@@ -152,12 +179,16 @@ export async function runDev(args: string[]): Promise<void> {
     format: 'es',
     sourcemap: true,
     entryFileNames: '[name].js',
+    // Stable chunk names (no content hash) so the browser can predict the URL.
     chunkFileNames: '[name].js',
     ...(({
       manualChunks(id: string): string | undefined {
+        // Each .forge component becomes its own chunk so only the changed
+        // component needs to be re-fetched on HMR update.
         if (id.endsWith('.forge')) {
           return path.relative(cwd, id).replace(/\\/g, '/').replace('.forge', '');
         }
+        // Bundle all @forge/* runtime into a single stable shared chunk.
         if (id.includes(path.join('node_modules', '@forge'))) {
           return 'forge-runtime';
         }
@@ -166,52 +197,105 @@ export async function runDev(args: string[]): Promise<void> {
     }) as unknown as Partial<OutputOptions>),
   };
 
-  // watch() is async — it resolves once the watcher is initialised.
-  const watcher = await watch({
-    input: entryAbs,
-    plugins,
-    // __forge_dev is a compile-time constant read by @forge/core/dom.ts to
-    // set up the HMR runtime on window.__forge_hmr at startup.
-    define: { __forge_dev: 'true' },
-    output: devOutput,
-  });
-
-  // Track connected SSE clients for live reload / HMR.
-  const clients = new Set<http.ServerResponse>();
-
-  /** Broadcasts an SSE event to all connected browser clients. */
-  function broadcast(event: string, data: string): void {
-    for (const client of clients) {
-      client.write(`event: ${event}\ndata: ${data}\n\n`);
+  async function runBuild(): Promise<void> {
+    if (isBuilding) {
+      // A build is already in flight; schedule a follow-up instead of stacking.
+      pendingRebuild = true;
+      return;
     }
-  }
+    isBuilding = true;
+    pendingRebuild = false;
 
-  watcher.on('event', (ev) => {
-    if (ev.code === 'BUNDLE_END') {
-      if (changedForgeFiles.size > 0) {
-        // Build per-component HMR update payloads.
-        const updates = Array.from(changedForgeFiles).map((filePath) => {
+    // Snapshot and clear the change sets before the async build starts so
+    // any edits made during the build are captured in the next cycle.
+    const currentForgeChanges = new Set(changedForgeFiles);
+    const currentHasNonForge = hasNonForgeChanges;
+    changedForgeFiles.clear();
+    hasNonForgeChanges = false;
+
+    try {
+      await build({
+        input: entryAbs,
+        plugins,
+        // __forge_dev is a compile-time constant read by @forge/core/dom.ts to
+        // set up the HMR runtime on window.__forge_hmr at startup.
+        define: { __forge_dev: 'true' },
+        output: devOutput,
+      });
+
+      if (currentForgeChanges.size > 0 && !currentHasNonForge) {
+        // Only .forge files changed — perform component-level HMR.
+        const updates = Array.from(currentForgeChanges).map((filePath) => {
           const id = generateScopeId(filePath);
           const rel = path.relative(cwd, filePath).replace(/\\/g, '/').replace('.forge', '');
-          // The URL the browser will request; the static server resolves it
-          // from outDirAbs (see resolveFilePath).
+          // URL the browser will request; the static server resolves it from outDirAbs.
           const url = `/${path.join(outDir, rel).replace(/\\/g, '/')}.js`;
           return { id, url };
         });
-        changedForgeFiles.clear();
-
         console.log(`[forge hmr] Hot-updating ${updates.length} component(s)...`);
         broadcast('hmr-update', JSON.stringify({ updates }));
       } else {
-        // A non-.forge file changed (service, utility, etc.) — full reload.
+        // Non-.forge source changed (service, utility, config, etc.) — full reload.
         console.log('[forge dev] Rebuilt — notifying clients...');
         broadcast('reload', '{}');
       }
+    } catch {
+      console.error('[forge dev] Build error — check the terminal above for details.');
+    } finally {
+      isBuilding = false;
+      if (pendingRebuild) {
+        void runBuild();
+      }
     }
-    if (ev.code === 'ERROR') {
-      console.error('[Forge CLI] Build error — check the terminal above for details.');
+  }
+
+  // -------------------------------------------------------------------------
+  // Source file watcher (fs.watch, source files only)
+  // -------------------------------------------------------------------------
+  //
+  // We watch the entire project root but skip anything inside the output
+  // directory and node_modules. This avoids the Rolldown-watcher bug where
+  // the native exclude option does not reliably prevent dist/ writes from
+  // re-triggering a rebuild on Windows.
+
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const fsWatcher = fs.watch(cwd, { recursive: true }, (_event, filename) => {
+    if (!filename) return;
+
+    // Normalise to forward slashes for consistent prefix matching.
+    const rel = filename.replace(/\\/g, '/');
+
+    // Ignore output directory and node_modules.
+    if (rel.startsWith(outDirRel + '/')) return;
+    if (rel.startsWith('node_modules/')) return;
+
+    // Also guard against absolute paths that lie inside outDir (Windows edge case).
+    const abs = path.resolve(cwd, filename).replace(/\\/g, '/') + '/';
+    if (abs.startsWith(outDirNorm)) return;
+
+    // Track file type for HMR decision.
+    if (filename.endsWith('.forge')) {
+      changedForgeFiles.add(path.resolve(cwd, filename));
+    } else {
+      hasNonForgeChanges = true;
     }
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      debounceTimer = null;
+      void runBuild();
+    }, 80);
   });
+
+  // Initial build on startup.
+  console.log(`[forge dev] Server:  http://localhost:${port}`);
+  console.log(`[forge dev] Entry:   ${entry}`);
+  console.log(`[forge dev] Output:  ${outDir}/`);
+  console.log('[forge dev] HMR:     enabled');
+  console.log('[forge dev] Building...');
+  await runBuild();
+  console.log('[forge dev] Watching for changes...\n');
 
   // -------------------------------------------------------------------------
   // HTTP server
@@ -231,7 +315,9 @@ export async function runDev(args: string[]): Promise<void> {
       // Initial comment keeps the connection alive in some browsers.
       res.write(':\n\n');
       clients.add(res);
-      req.on('close', () => {
+      // res.on('close') is more reliable than req.on('close') for detecting
+      // client disconnection on a streaming (never-ended) response.
+      res.on('close', () => {
         clients.delete(res);
       });
       return;
@@ -252,13 +338,7 @@ export async function runDev(args: string[]): Promise<void> {
     serveFile(filePath, res);
   });
 
-  server.listen(port, () => {
-    console.log(`[forge dev] Server:  http://localhost:${port}`);
-    console.log(`[forge dev] Entry:   ${entry}`);
-    console.log(`[forge dev] Output:  ${outDir}/`);
-    console.log('[forge dev] HMR:     enabled');
-    console.log('[forge dev] Watching for changes...\n');
-  });
+  server.listen(port);
 
   // -------------------------------------------------------------------------
   // Graceful shutdown
@@ -266,9 +346,8 @@ export async function runDev(args: string[]): Promise<void> {
 
   process.on('SIGINT', () => {
     console.log('\n[forge dev] Stopping...');
-    void watcher.close().then(() => {
-      server.close(() => process.exit(0));
-    });
+    fsWatcher.close();
+    server.close(() => process.exit(0));
   });
 }
 
