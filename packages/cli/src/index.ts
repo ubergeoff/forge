@@ -13,6 +13,12 @@ export interface ForgeConfig {
   outDir?: string;
   /** Dev server port. Defaults to `3000`. */
   port?: number;
+  /**
+   * Output directory used by `forge dev`. Defaults to `'.forge'`.
+   * Kept separate from `outDir` so dev artifacts never pollute the production
+   * build folder. Add `.forge/` to your `.gitignore`.
+   */
+  devOutDir?: string;
   /** Additional Rolldown plugins appended after the built-in forge plugin. */
   plugins?: unknown[];
   /**

@@ -115,7 +115,7 @@ export async function runDev(args: string[]): Promise<void> {
   const entry =
     (entryIdx !== -1 ? args[entryIdx + 1] : undefined) ?? config.entry ?? 'src/main.ts';
   const outDir =
-    (outDirIdx !== -1 ? args[outDirIdx + 1] : undefined) ?? config.outDir ?? 'dist';
+    (outDirIdx !== -1 ? args[outDirIdx + 1] : undefined) ?? config.devOutDir ?? '.forge';
 
   const entryAbs = path.join(cwd, entry);
   const outDirAbs = path.join(cwd, outDir);

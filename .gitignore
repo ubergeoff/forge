@@ -2,6 +2,7 @@ node_modules/
 dist/
 *.tsbuildinfo
 coverage/
+.forge
 .forge-cache/
 *.local
 .DS_Store
