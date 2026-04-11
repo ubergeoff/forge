@@ -16,6 +16,18 @@ export interface ForgeConfig {
   /** Additional Rolldown plugins appended after the built-in forge plugin. */
   plugins?: unknown[];
   /**
+   * Emit source map files alongside build output.
+   * Defaults to `false` for `forge build` (production).
+   * `forge dev` always enables source maps regardless of this setting.
+   *
+   * @example
+   * ```js
+   * // forge.config.js — enable source maps for a debug/staging build
+   * export default defineConfig({ sourcemap: true });
+   * ```
+   */
+  sourcemap?: boolean;
+  /**
    * Absolute or relative path to a CSS entry file processed through PostCSS
    * (e.g. a Tailwind CSS file using `@import "tailwindcss"`). Import the
    * virtual module `"forge:css"` from your entry point to inject it:
