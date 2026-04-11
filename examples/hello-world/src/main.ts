@@ -1,3 +1,4 @@
+import 'forge:css';
 import { bootstrapApp } from '@forge/core';
 import { mountComponent, createComponent } from '@forge/core/dom';
 import App from './App.forge';

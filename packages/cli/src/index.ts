@@ -15,6 +15,32 @@ export interface ForgeConfig {
   port?: number;
   /** Additional Rolldown plugins appended after the built-in forge plugin. */
   plugins?: unknown[];
+  /**
+   * Absolute or relative path to a CSS entry file processed through PostCSS
+   * (e.g. a Tailwind CSS file using `@import "tailwindcss"`). Import the
+   * virtual module `"forge:css"` from your entry point to inject it:
+   *
+   * ```ts
+   * // src/main.ts
+   * import 'forge:css';
+   * ```
+   */
+  css?: string;
+  /**
+   * PostCSS configuration. Required when `css` uses PostCSS-processed rules
+   * such as Tailwind CSS.
+   *
+   * @example
+   * ```js
+   * // forge.config.js
+   * import tailwindcss from '@tailwindcss/postcss';
+   * export default defineConfig({
+   *   css: './src/tailwind.css',
+   *   postcss: { plugins: [tailwindcss()] },
+   * });
+   * ```
+   */
+  postcss?: { plugins: unknown[] };
 }
 
 /**

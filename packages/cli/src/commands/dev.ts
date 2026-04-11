@@ -137,7 +137,11 @@ export async function runDev(args: string[]): Promise<void> {
     },
   };
   const plugins: RolldownPlugin[] = [
-    forgePlugin({ hmr: true }) as RolldownPlugin,
+    forgePlugin({
+      hmr: true,
+      ...(config.css ? { css: path.join(cwd, config.css) } : {}),
+      ...(config.postcss ? { postcss: config.postcss } : {}),
+    }) as RolldownPlugin,
     devDefinePlugin,
     ...userPlugins,
   ];
