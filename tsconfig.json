@@ -15,6 +15,7 @@
     "useDefineForClassFields": false,
     "skipLibCheck": true,
     "composite": true,
+    "baseUrl": ".",
     "paths": {
       "@forge/core": ["packages/core/src/index.ts"],
       "@forge/compiler": ["packages/compiler/src/index.ts"],
