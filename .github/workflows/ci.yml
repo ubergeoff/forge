@@ -25,5 +25,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run unit tests
-        run: npm test
+      - name: Run affected unit tests
+        run: npx nx affected --target=test --base=origin/main --head=HEAD --exclude=docs
