@@ -124,8 +124,21 @@ export async function runDev(args: string[]): Promise<void> {
   const outDirRel = path.relative(cwd, outDirAbs).replace(/\\/g, '/');
 
   const userPlugins = (config.plugins ?? []) as RolldownPlugin[];
+  // Replace the __forge_dev compile-time constant with `true` so the HMR
+  // runtime block in @forge/core/dom.ts is included (and dead code in
+  // production builds is tree-shaken when the constant is `false`).
+  // Rolldown's programmatic build() API does not accept a top-level `define`
+  // option, so we use a minimal transform plugin instead.
+  const devDefinePlugin: RolldownPlugin = {
+    name: 'forge-dev-define',
+    transform(code: string) {
+      if (!code.includes('__forge_dev')) return null;
+      return { code: code.replaceAll('__forge_dev', 'true') };
+    },
+  };
   const plugins: RolldownPlugin[] = [
     forgePlugin({ hmr: true }) as RolldownPlugin,
+    devDefinePlugin,
     ...userPlugins,
   ];
 
@@ -217,9 +230,6 @@ export async function runDev(args: string[]): Promise<void> {
       await build({
         input: entryAbs,
         plugins,
-        // __forge_dev is a compile-time constant read by @forge/core/dom.ts to
-        // set up the HMR runtime on window.__forge_hmr at startup.
-        define: { __forge_dev: 'true' },
         output: devOutput,
       });
 
@@ -275,10 +285,18 @@ export async function runDev(args: string[]): Promise<void> {
     if (abs.startsWith(outDirNorm)) return;
 
     // Track file type for HMR decision.
+    // Only recognised source extensions should trigger a rebuild — everything
+    // else (editor temp files, OS metadata, TypeScript build-info, etc.) is
+    // ignored entirely, including the debounce, so it cannot cause a spurious
+    // empty rebuild that falls to the full-reload branch.
+    const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs', '.cjs', '.json', '.html', '.css'];
     if (filename.endsWith('.forge')) {
       changedForgeFiles.add(path.resolve(cwd, filename));
-    } else {
+    } else if (SOURCE_EXTENSIONS.some((ext) => filename.endsWith(ext))) {
       hasNonForgeChanges = true;
+    } else {
+      // Not a source file we care about — skip debounce entirely.
+      return;
     }
 
     if (debounceTimer) clearTimeout(debounceTimer);
