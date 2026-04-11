@@ -173,7 +173,7 @@ function tplIndexHtml(name: string): string {
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="./dist/main.js"></script>
+    <!-- entry script injected automatically by forge dev / forge build -->
   </body>
 </html>
 `;
@@ -182,6 +182,7 @@ function tplIndexHtml(name: string): string {
 function tplGitignore(): string {
   return `node_modules/
 dist/
+.forge/
 *.tsbuildinfo
 `;
 }

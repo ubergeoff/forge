@@ -49,10 +49,12 @@ export async function runBuild(args: string[]): Promise<void> {
     plugins,
   });
 
+  const sourcemap = config.sourcemap ?? false;
+
   await build.write({
     dir: outDirAbs,
     format: 'es',
-    sourcemap: true,
+    sourcemap,
     entryFileNames: '[name].js',
     chunkFileNames: '[name]-[hash].js',
   });
