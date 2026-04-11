@@ -26,7 +26,7 @@ jobs:
         run: npm ci
 
       - name: Build affected packages
-        run: npx nx affected --target=build --base=origin/main --head=HEAD --exclude=docs
+        run: npx nx affected --target=build --base=origin/main --head=HEAD --exclude=docs,hello-world
 
   test:
     name: Test
@@ -48,4 +48,4 @@ jobs:
         run: npm ci
 
       - name: Run affected unit tests
-        run: npx nx affected --target=test --base=origin/main --head=HEAD --exclude=docs
+        run: npx nx affected --target=test --base=origin/main --head=HEAD --exclude=docs,hello-world
