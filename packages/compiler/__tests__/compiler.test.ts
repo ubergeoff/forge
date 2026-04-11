@@ -765,3 +765,59 @@ describe('compileSFC — [formControl] directive', () => {
     expect(result.code).toContain('listen');
   });
 });
+
+// ---------------------------------------------------------------------------
+// HMR code generation
+// ---------------------------------------------------------------------------
+
+describe('compileSFC — HMR output', () => {
+  function compileHmr(source: string, filename = 'test.forge'): CompileResult {
+    return compileSFC(parseSFC(source, filename), undefined, { hmr: true });
+  }
+
+  it('names the factory function _ForgeComponent when hmr: true', () => {
+    const result = compileHmr(forge({ template: '<div></div>' }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain('export default function _ForgeComponent(ctx, props = {})');
+  });
+
+  it('does NOT name the factory when hmr is not set', () => {
+    const result = compile(forge({ template: '<div></div>' }));
+    expect(result.code).toContain('export default function(ctx, props = {})');
+    expect(result.code).not.toContain('_ForgeComponent');
+  });
+
+  it('appends __hmrId assignment after the factory', () => {
+    const result = compileHmr(forge({ template: '<div></div>' }), 'Button.forge');
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain("_ForgeComponent.__hmrId = '");
+  });
+
+  it('appends window.__forge_hmr.accept call after the factory', () => {
+    const result = compileHmr(forge({ template: '<div></div>' }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain("window.__forge_hmr?.accept");
+    expect(result.code).toContain('window.__forge_hmr.accept(');
+    expect(result.code).toContain('_ForgeComponent)');
+  });
+
+  it('uses the same scope ID for __hmrId and data-v scoping', () => {
+    const source = forge({
+      template: '<div></div>',
+      style: '<style scoped>\ndiv { color: red; }\n</style>',
+    });
+    const result = compileHmr(source, 'Scoped.forge');
+    expect(result.errors).toHaveLength(0);
+    // Both the scoped attribute on the element and the __hmrId use the same hash
+    const hmrIdMatch = /_ForgeComponent\.__hmrId = '([^']+)'/.exec(result.code);
+    expect(hmrIdMatch).not.toBeNull();
+    const hmrId = hmrIdMatch![1];
+    expect(result.code).toContain(`data-v-${hmrId}`);
+  });
+
+  it('HMR code is guarded by __forge_dev check', () => {
+    const result = compileHmr(forge({ template: '<span></span>' }));
+    expect(result.code).toContain("typeof __forge_dev !== 'undefined'");
+    expect(result.code).toContain('__forge_dev');
+  });
+});

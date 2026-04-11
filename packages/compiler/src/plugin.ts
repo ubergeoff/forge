@@ -16,6 +16,7 @@ import { readFileSync } from 'node:fs';
 import { resolve, isAbsolute } from 'node:path';
 import { parseSFC } from './parser.js';
 import { compileSFC } from './compiler.js';
+import type { CompileSFCOptions } from './compiler.js';
 
 // ---------------------------------------------------------------------------
 // Plugin options
@@ -69,6 +70,15 @@ export interface ForgePluginOptions {
   postcss?: {
     plugins: unknown[];
   };
+
+  /**
+   * Enable Hot Module Replacement (HMR) support. When true, compiled `.forge`
+   * components include self-registration code that allows the dev server to
+   * hot-swap component instances without a full page reload.
+   *
+   * Set automatically by `forge dev`; do not set in production builds.
+   */
+  hmr?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -332,7 +342,8 @@ export function forgePlugin(options?: ForgePluginOptions): ForgePluginObject {
       const descriptor = parseSFC(code, id);
 
       // Step 2 — compile the descriptor into a JS module string.
-      const result = compileSFC(descriptor);
+      const compileOptions: CompileSFCOptions = options?.hmr ? { hmr: true } : {};
+      const result = compileSFC(descriptor, undefined, compileOptions);
 
       // Fatal errors abort the build with a descriptive message.
       if (result.errors.length > 0) {

@@ -120,7 +120,7 @@ const VOID_TAGS = new Set([
 // Scope ID generation
 // ---------------------------------------------------------------------------
 
-function generateScopeId(filename: string): string {
+export function generateScopeId(filename: string): string {
   let h = 5381;
   for (let i = 0; i < filename.length; i++) {
     h = Math.imul(33, h) ^ filename.charCodeAt(i);
@@ -612,6 +612,15 @@ export function extractScriptParts(content: string): {
 // Public: compileSFC
 // ---------------------------------------------------------------------------
 
+export interface CompileSFCOptions {
+  /**
+   * When true, the compiled output includes HMR self-registration code so the
+   * dev server can hot-swap component instances without a full page reload.
+   * Set by the Rolldown plugin in dev mode; never set for production builds.
+   */
+  hmr?: boolean;
+}
+
 /**
  * Compiles a parsed `.forge` SFCDescriptor into a JavaScript module string.
  * Requires a `stripTypeScript` implementation — Node.js callers use
@@ -621,6 +630,7 @@ export function extractScriptParts(content: string): {
 export function compileSFC(
   descriptor: SFCDescriptor,
   stripTypeScript: StripTypeScriptFn,
+  options?: CompileSFCOptions,
 ): CompileResult {
   const errors: CompileError[] = [];
   const warnings: CompileError[] = [];
@@ -706,11 +716,27 @@ export function compileSFC(
   if (domImportLine) parts.push(domImportLine);
   for (const imp of hoistedImports) parts.push(imp);
   parts.push('');
-  parts.push('export default function(ctx, props = {}) {');
+
+  if (options?.hmr) {
+    // Named factory so we can attach __hmrId and reference it below.
+    parts.push('export default function _ForgeComponent(ctx, props = {}) {');
+  } else {
+    parts.push('export default function(ctx, props = {}) {');
+  }
   parts.push('  return runInContext(ctx.injector, () => {');
   parts.push(innerLines.join('\n'));
   parts.push('  });');
   parts.push('}');
+
+  if (options?.hmr) {
+    parts.push(`_ForgeComponent.__hmrId = '${scopeId}';`);
+    parts.push(
+      `if (typeof __forge_dev !== 'undefined' && __forge_dev &&` +
+      ` typeof window !== 'undefined' && window.__forge_hmr?.accept) {`,
+    );
+    parts.push(`  window.__forge_hmr.accept('${scopeId}', _ForgeComponent);`);
+    parts.push(`}`);
+  }
 
   return { code: parts.join('\n'), errors, warnings, styles };
 }

@@ -10,14 +10,12 @@ function onInput(e: Event) {
 </script>
 
 <template>
-  <div style="margin-bottom: 2rem;">
-    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #333;">
-      {greeting()}
-    </p>
+  <div class="mb-8">
+    <p class="text-2xl font-bold text-gray-800 mb-3">{greeting()}</p>
     <input
       type="text"
       placeholder="Enter your name"
-      style="padding: 0.5rem 1rem; font-size: 1rem; border: 2px solid #ddd; border-radius: 6px; outline: none;"
+      class="px-4 py-2 text-base border-2 border-gray-300 rounded-lg outline-none focus:border-blue-500 transition-colors"
       @input={onInput}
     />
   </div>

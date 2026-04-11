@@ -8,17 +8,17 @@ function reset() { count.set(0); }
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-    <p style="font-size: 3rem; font-weight: bold; color: #1a1a1a;">{count()}</p>
-    <div style="display: flex; gap: 0.75rem;">
+  <div class="flex flex-col items-center gap-4">
+    <p class="text-6xl font-bold text-gray-900 tabular-nums">{count()}</p>
+    <div class="flex gap-3">
       <button
-        style="padding: 0.5rem 1.5rem; font-size: 1rem; border: 2px solid #333; border-radius: 6px; background: #333; color: white; cursor: pointer;"
+        class="px-6 py-2 text-base font-medium rounded-lg bg-gray-900 text-white hover:bg-gray-700 cursor-pointer transition-colors"
         @click={increment}
       >
         Click me
       </button>
       <button
-        style="padding: 0.5rem 1.5rem; font-size: 1rem; border: 2px solid #ddd; border-radius: 6px; background: white; cursor: pointer;"
+        class="px-6 py-2 text-base font-medium rounded-lg border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
         @click={reset}
       >
         Reset

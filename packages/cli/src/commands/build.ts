@@ -32,7 +32,13 @@ export async function runBuild(args: string[]): Promise<void> {
   const entryAbs = path.join(cwd, entry);
   const outDirAbs = path.join(cwd, outDir);
   const userPlugins = (config.plugins ?? []) as RolldownPlugin[];
-  const plugins: RolldownPlugin[] = [forgePlugin() as RolldownPlugin, ...userPlugins];
+  const plugins: RolldownPlugin[] = [
+    forgePlugin({
+      ...(config.css ? { css: path.join(cwd, config.css) } : {}),
+      ...(config.postcss ? { postcss: config.postcss } : {}),
+    }) as RolldownPlugin,
+    ...userPlugins,
+  ];
 
   console.log(`[forge build] ${entry} → ${outDir}/`);
 
