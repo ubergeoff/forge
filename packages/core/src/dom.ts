@@ -18,6 +18,18 @@ export interface ComponentContext {
   children: ComponentContext[];
 }
 
+// Injected as a compile-time constant by Rolldown `define` in dev mode.
+// `typeof` check is intentional — the variable may not be defined at runtime.
+declare const __forge_dev: boolean | undefined;
+
+/** Internal record of a mounted component instance, used by HMR swapping. */
+interface HMRInstance {
+  node: Node;
+  ctx: ComponentContext;
+  props: Record<string, () => unknown>;
+  parentCtx: ComponentContext;
+}
+
 // ---------------------------------------------------------------------------
 // 5.1 Element creation & patching
 // ---------------------------------------------------------------------------
@@ -286,5 +298,69 @@ export function mountChild(
 ): Node {
   const childCtx = createComponent(parentCtx.injector);
   parentCtx.children.push(childCtx);
-  return factory(childCtx, props);
+  const node = factory(childCtx, props);
+
+  // Register the instance for HMR swapping when the runtime is active.
+  const hmrId = (factory as unknown as Record<string, unknown>)['__hmrId'] as string | undefined;
+  if (hmrId) {
+    const w = typeof window !== 'undefined' ? (window as unknown as Record<string, unknown>) : null;
+    const hmr = w?.['__forge_hmr'] as { instances?: Map<string, HMRInstance[]> } | undefined;
+    if (hmr?.instances) {
+      const list = hmr.instances.get(hmrId) ?? [];
+      list.push({ node, ctx: childCtx, props, parentCtx });
+      hmr.instances.set(hmrId, list);
+    }
+  }
+
+  return node;
+}
+
+/**
+ * Replaces all mounted instances of the component identified by `id` with
+ * the output of `newFactory`. Called by the HMR client when a `.forge` chunk
+ * is hot-updated. Not intended for use in application code.
+ */
+export function hmrAccept(
+  id: string,
+  newFactory: (ctx: ComponentContext, props: Record<string, () => unknown>) => Node,
+): void {
+  const w = typeof window !== 'undefined' ? (window as unknown as Record<string, unknown>) : null;
+  const hmr = w?.['__forge_hmr'] as { instances?: Map<string, HMRInstance[]> } | undefined;
+  if (!hmr?.instances) return;
+
+  const instances = hmr.instances.get(id) ?? [];
+  for (const inst of instances) {
+    const parent = inst.node.parentNode;
+    if (!parent) continue; // component was unmounted — skip
+
+    const nextSibling = inst.node.nextSibling;
+
+    // Tear down old component subtree.
+    destroyComponent(inst.ctx);
+    parent.removeChild(inst.node);
+
+    // Mount the new factory in its place.
+    const newCtx = createComponent(inst.parentCtx.injector);
+    const idx = inst.parentCtx.children.indexOf(inst.ctx);
+    if (idx >= 0) inst.parentCtx.children[idx] = newCtx;
+
+    const newNode = newFactory(newCtx, inst.props);
+    parent.insertBefore(newNode, nextSibling);
+
+    // Update the instance record for future HMR swaps.
+    inst.node = newNode;
+    inst.ctx = newCtx;
+  }
+}
+
+// Wire up the HMR runtime on the global `window.__forge_hmr` object so that
+// dynamically-imported component chunks can call `window.__forge_hmr.accept`.
+// This block is compiled away in production builds (Rolldown replaces
+// `__forge_dev` with `false` and tree-shakes the dead code).
+if (typeof __forge_dev !== 'undefined' && __forge_dev && typeof window !== 'undefined') {
+  const w = window as unknown as Record<string, unknown>;
+  if (!w['__forge_hmr']) w['__forge_hmr'] = {};
+  const hmr = w['__forge_hmr'] as Record<string, unknown>;
+  if (!hmr['instances']) hmr['instances'] = new Map<string, HMRInstance[]>();
+  hmr['accept'] = hmrAccept;
 }

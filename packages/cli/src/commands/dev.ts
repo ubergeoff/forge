@@ -1,19 +1,23 @@
 // =============================================================================
 // @forge/cli — forge dev
 // Development server: Rolldown watch mode + HTTP static file serving +
-// Server-Sent Events (SSE) for live reload.
+// Server-Sent Events (SSE) for component-level HMR.
 //
-// On every successful rebuild the server sends a 'reload' SSE event to all
-// connected browser clients, which triggers a full-page reload.
-// True module-level HMR is planned for a future step.
+// HMR strategy:
+//   - Each .forge file is split into its own output chunk (stable name).
+//   - When a .forge file changes, only its chunk is rebuilt and the browser
+//     dynamically imports the new chunk (cache-busted with ?t=timestamp).
+//   - The new chunk calls window.__forge_hmr.accept(id, factory) which swaps
+//     all mounted instances of that component in-place.
+//   - Non-.forge changes (services, utils) fall back to a full page reload.
 // =============================================================================
 
 import * as http from 'node:http';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { watch } from 'rolldown';
-import type { RolldownPlugin } from 'rolldown';
-import { forgePlugin } from '@forge/compiler';
+import type { RolldownPlugin, OutputOptions } from 'rolldown';
+import { forgePlugin, generateScopeId } from '@forge/compiler';
 import { loadConfig } from '../utils/config.js';
 
 // ---------------------------------------------------------------------------
@@ -22,14 +26,42 @@ import { loadConfig } from '../utils/config.js';
 
 const HMR_ENDPOINT = '/__forge_hmr';
 
-/** Injected before </body> in every HTML response. */
-const HMR_CLIENT_SCRIPT = `<script>
+/**
+ * Injected before </body> in every HTML response.
+ *
+ * Sets up window.__forge_hmr with an instance registry, then opens an SSE
+ * connection to receive either component-level HMR updates or full reloads.
+ *
+ * 'hmr-update' — one or more .forge chunks changed; each is re-imported with
+ *   a cache-busting timestamp. The new chunk calls window.__forge_hmr.accept()
+ *   which triggers the in-place component swap implemented in @forge/core.
+ *
+ * 'reload' — a non-component file changed; fall back to a full page reload.
+ */
+const HMR_CLIENT_SCRIPT = `<script type="module">
 (function () {
+  if (!window.__forge_hmr) window.__forge_hmr = {};
+  var hmr = window.__forge_hmr;
+  if (!hmr.instances) hmr.instances = new Map();
+
   var es = new EventSource('${HMR_ENDPOINT}');
+
+  es.addEventListener('hmr-update', function (e) {
+    var data = JSON.parse(e.data);
+    data.updates.forEach(function (update) {
+      console.log('[forge hmr] updating component ' + update.id);
+      import(update.url + '?t=' + Date.now()).catch(function (err) {
+        console.error('[forge hmr] failed to load update, falling back to reload', err);
+        location.reload();
+      });
+    });
+  });
+
   es.addEventListener('reload', function () {
-    console.log('[forge hmr] reloading...');
+    console.log('[forge hmr] full reload');
     location.reload();
   });
+
   es.addEventListener('error', function () { es.close(); });
 })();
 </script>`;
@@ -83,8 +115,24 @@ export async function runDev(args: string[]): Promise<void> {
   const entryAbs = path.join(cwd, entry);
   const outDirAbs = path.join(cwd, outDir);
   const userPlugins = (config.plugins ?? []) as RolldownPlugin[];
+
+  // -------------------------------------------------------------------------
+  // HMR file-change tracker plugin
+  // Collects .forge paths that changed so the BUNDLE_END handler can send
+  // targeted HMR updates instead of falling back to a full reload.
+  // -------------------------------------------------------------------------
+
+  const changedForgeFiles = new Set<string>();
+  const hmrTrackerPlugin: RolldownPlugin = {
+    name: 'forge-hmr-tracker',
+    watchChange(id: string) {
+      if (id.endsWith('.forge')) changedForgeFiles.add(id);
+    },
+  } as RolldownPlugin;
+
   const plugins: RolldownPlugin[] = [
-    forgePlugin() as RolldownPlugin,
+    hmrTrackerPlugin,
+    forgePlugin({ hmr: true }) as RolldownPlugin,
     ...userPlugins,
   ];
 
@@ -95,32 +143,72 @@ export async function runDev(args: string[]): Promise<void> {
   // Rolldown watch mode
   // -------------------------------------------------------------------------
 
+  // Each .forge component gets its own output chunk (stable name so the
+  // browser can cache-bust with ?t=timestamp on HMR update).
+  // manualChunks is part of Rolldown's Rollup-compatible surface but is not
+  // in its native OutputOptions type yet; cast through unknown to suppress.
+  const devOutput: OutputOptions = {
+    dir: outDirAbs,
+    format: 'es',
+    sourcemap: true,
+    entryFileNames: '[name].js',
+    chunkFileNames: '[name].js',
+    ...(({
+      manualChunks(id: string): string | undefined {
+        if (id.endsWith('.forge')) {
+          return path.relative(cwd, id).replace(/\\/g, '/').replace('.forge', '');
+        }
+        if (id.includes(path.join('node_modules', '@forge'))) {
+          return 'forge-runtime';
+        }
+        return undefined;
+      },
+    }) as unknown as Partial<OutputOptions>),
+  };
+
   // watch() is async — it resolves once the watcher is initialised.
   const watcher = await watch({
     input: entryAbs,
     plugins,
-    output: {
-      dir: outDirAbs,
-      format: 'es',
-      sourcemap: true,
-      entryFileNames: '[name].js',
-      chunkFileNames: '[name]-[hash].js',
-    },
+    // __forge_dev is a compile-time constant read by @forge/core/dom.ts to
+    // set up the HMR runtime on window.__forge_hmr at startup.
+    define: { __forge_dev: 'true' },
+    output: devOutput,
   });
 
-  // Track connected SSE clients for live reload.
+  // Track connected SSE clients for live reload / HMR.
   const clients = new Set<http.ServerResponse>();
+
+  /** Broadcasts an SSE event to all connected browser clients. */
+  function broadcast(event: string, data: string): void {
+    for (const client of clients) {
+      client.write(`event: ${event}\ndata: ${data}\n\n`);
+    }
+  }
 
   watcher.on('event', (ev) => {
     if (ev.code === 'BUNDLE_END') {
-      console.log('[forge dev] Rebuilt — notifying clients...');
-      for (const client of clients) {
-        client.write('event: reload\ndata: {}\n\n');
+      if (changedForgeFiles.size > 0) {
+        // Build per-component HMR update payloads.
+        const updates = Array.from(changedForgeFiles).map((filePath) => {
+          const id = generateScopeId(filePath);
+          const rel = path.relative(cwd, filePath).replace(/\\/g, '/').replace('.forge', '');
+          // The URL the browser will request; the static server resolves it
+          // from outDirAbs (see resolveFilePath).
+          const url = `/${path.join(outDir, rel).replace(/\\/g, '/')}.js`;
+          return { id, url };
+        });
+        changedForgeFiles.clear();
+
+        console.log(`[forge hmr] Hot-updating ${updates.length} component(s)...`);
+        broadcast('hmr-update', JSON.stringify({ updates }));
+      } else {
+        // A non-.forge file changed (service, utility, etc.) — full reload.
+        console.log('[forge dev] Rebuilt — notifying clients...');
+        broadcast('reload', '{}');
       }
     }
     if (ev.code === 'ERROR') {
-      // RollupWatcherEvent for ERROR doesn't expose the error field in rolldown's
-      // current type definitions; log what we can.
       console.error('[Forge CLI] Build error — check the terminal above for details.');
     }
   });
@@ -132,7 +220,7 @@ export async function runDev(args: string[]): Promise<void> {
   const server = http.createServer((req, res) => {
     const rawUrl = req.url ?? '/';
 
-    // SSE endpoint — browsers connect here to receive live-reload events.
+    // SSE endpoint — browsers connect here to receive HMR / reload events.
     if (rawUrl === HMR_ENDPOINT) {
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
@@ -149,7 +237,7 @@ export async function runDev(args: string[]): Promise<void> {
       return;
     }
 
-    // Strip query string.
+    // Strip query string (allows cache-busting via ?t=timestamp).
     const urlPath = rawUrl.split('?')[0] ?? '/';
 
     // Resolve to a file on disk.
@@ -168,6 +256,7 @@ export async function runDev(args: string[]): Promise<void> {
     console.log(`[forge dev] Server:  http://localhost:${port}`);
     console.log(`[forge dev] Entry:   ${entry}`);
     console.log(`[forge dev] Output:  ${outDir}/`);
+    console.log('[forge dev] HMR:     enabled');
     console.log('[forge dev] Watching for changes...\n');
   });
 

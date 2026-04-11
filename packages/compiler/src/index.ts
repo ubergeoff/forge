@@ -7,8 +7,8 @@ export type { SFCBlock, SFCDescriptor } from './parser.js';
 export { parseSFC } from './parser.js';
 
 // Step 5: Template compiler (complete)
-export type { CompileResult, CompileError } from './compiler.js';
-export { compileSFC } from './compiler.js';
+export type { CompileResult, CompileError, CompileSFCOptions } from './compiler.js';
+export { compileSFC, generateScopeId } from './compiler.js';
 
 // Step 6: Rolldown plugin (complete)
 export type { ForgePluginObject } from './plugin.js';

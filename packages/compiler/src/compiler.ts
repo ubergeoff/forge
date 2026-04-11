@@ -7,9 +7,9 @@
 import { createRequire } from 'node:module';
 import type { SFCDescriptor } from './parser.js';
 
-export type { CompileResult, CompileError, StyleResult, StripTypeScriptFn } from './compiler-shared.js';
-export { regexStripTypeScript, extractScriptParts } from './compiler-shared.js';
-import type { StripTypeScriptFn, CompileResult, CompileError } from './compiler-shared.js';
+export type { CompileResult, CompileError, StyleResult, StripTypeScriptFn, CompileSFCOptions } from './compiler-shared.js';
+export { regexStripTypeScript, extractScriptParts, generateScopeId } from './compiler-shared.js';
+import type { StripTypeScriptFn, CompileResult, CompileError, CompileSFCOptions } from './compiler-shared.js';
 import { compileSFC as _compileSFC } from './compiler-shared.js';
 
 // ---------------------------------------------------------------------------
@@ -79,6 +79,7 @@ export const oxcStripTypeScript: StripTypeScriptFn = (source, filename) => {
 export function compileSFC(
   descriptor: SFCDescriptor,
   stripTypeScript: StripTypeScriptFn = oxcStripTypeScript,
+  options?: CompileSFCOptions,
 ): CompileResult {
-  return _compileSFC(descriptor, stripTypeScript);
+  return _compileSFC(descriptor, stripTypeScript, options);
 }

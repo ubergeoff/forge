@@ -16,6 +16,8 @@ import {
   createComponent,
   destroyComponent,
   mountComponent,
+  mountChild,
+  hmrAccept,
 } from '../src/dom.js';
 import { bootstrapApp, resetRootInjector } from '../src/di.js';
 
@@ -369,6 +371,150 @@ describe('mountComponent', () => {
 
     expect(container.querySelector('#mounted')).not.toBeNull();
     destroyComponent(ctx);
+    app.destroy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// HMR — mountChild instance tracking + hmrAccept swapping
+// ---------------------------------------------------------------------------
+
+describe('HMR — mountChild instance registration', () => {
+  it('registers an instance in window.__forge_hmr.instances when factory has __hmrId', () => {
+    const app = bootstrapApp();
+    const parentCtx = createComponent(app);
+
+    // Simulate what the compiled output does: attach __hmrId to the factory.
+    const factory = (ctx: ReturnType<typeof createComponent>) => {
+      const el = createElement('span');
+      setAttr(el, 'id', 'child');
+      return el;
+    };
+    (factory as Record<string, unknown>)['__hmrId'] = 'forge-test01';
+
+    // Set up a fake global HMR runtime (normally done by dom.ts at startup
+    // when __forge_dev is true, but that constant is undefined in tests).
+    const instances = new Map<string, unknown[]>();
+    (window as Record<string, unknown>)['__forge_hmr'] = { instances };
+
+    mountChild(factory, parentCtx);
+
+    expect(instances.has('forge-test01')).toBe(true);
+    expect(instances.get('forge-test01')).toHaveLength(1);
+
+    destroyComponent(parentCtx);
+    delete (window as Record<string, unknown>)['__forge_hmr'];
+    app.destroy();
+  });
+
+  it('does not throw when window.__forge_hmr is absent (production)', () => {
+    const app = bootstrapApp();
+    const parentCtx = createComponent(app);
+
+    const factory = (ctx: ReturnType<typeof createComponent>) => createElement('div');
+    (factory as Record<string, unknown>)['__hmrId'] = 'forge-test02';
+
+    // No __forge_hmr global — must not throw.
+    expect(() => mountChild(factory, parentCtx)).not.toThrow();
+
+    destroyComponent(parentCtx);
+    app.destroy();
+  });
+});
+
+describe('HMR — hmrAccept swaps component instances', () => {
+  it('replaces a mounted component node with output from the new factory', () => {
+    const app = bootstrapApp();
+    const parentCtx = createComponent(app);
+    const container = createElement('div');
+
+    const COMP_ID = 'forge-swap01';
+
+    // Original factory renders a <span>.
+    const originalFactory = (ctx: ReturnType<typeof createComponent>) => {
+      return createElement('span');
+    };
+    (originalFactory as Record<string, unknown>)['__hmrId'] = COMP_ID;
+
+    // Set up fake HMR registry.
+    const instances = new Map<string, unknown[]>();
+    (window as Record<string, unknown>)['__forge_hmr'] = { instances };
+
+    const node = mountChild(originalFactory, parentCtx);
+    insert(container, node);
+
+    expect(container.children[0]?.tagName.toLowerCase()).toBe('span');
+
+    // New factory renders a <button>.
+    const newFactory = (ctx: ReturnType<typeof createComponent>) => {
+      return createElement('button');
+    };
+
+    hmrAccept(COMP_ID, newFactory);
+
+    expect(container.children[0]?.tagName.toLowerCase()).toBe('button');
+
+    destroyComponent(parentCtx);
+    delete (window as Record<string, unknown>)['__forge_hmr'];
+    app.destroy();
+  });
+
+  it('skips instances whose node is no longer in the DOM', () => {
+    const app = bootstrapApp();
+    const parentCtx = createComponent(app);
+
+    const COMP_ID = 'forge-skip01';
+
+    const factory = (ctx: ReturnType<typeof createComponent>) => createElement('p');
+    (factory as Record<string, unknown>)['__hmrId'] = COMP_ID;
+
+    const instances = new Map<string, unknown[]>();
+    (window as Record<string, unknown>)['__forge_hmr'] = { instances };
+
+    // Mount but never insert into a parent — node.parentNode will be null.
+    mountChild(factory, parentCtx);
+
+    const newFactory = (ctx: ReturnType<typeof createComponent>) => createElement('section');
+
+    // Should not throw even though the node has no parent.
+    expect(() => hmrAccept(COMP_ID, newFactory)).not.toThrow();
+
+    destroyComponent(parentCtx);
+    delete (window as Record<string, unknown>)['__forge_hmr'];
+    app.destroy();
+  });
+
+  it('destroys the old context effects when swapping', () => {
+    const app = bootstrapApp();
+    const parentCtx = createComponent(app);
+    const container = createElement('div');
+
+    const COMP_ID = 'forge-effect01';
+    let effectDestroyed = false;
+
+    const originalFactory = (ctx: ReturnType<typeof createComponent>) => {
+      const el = createElement('div');
+      // Register a fake effect that tracks its own destruction.
+      ctx.effects.push({ destroy() { effectDestroyed = true; } });
+      return el;
+    };
+    (originalFactory as Record<string, unknown>)['__hmrId'] = COMP_ID;
+
+    const instances = new Map<string, unknown[]>();
+    (window as Record<string, unknown>)['__forge_hmr'] = { instances };
+
+    const node = mountChild(originalFactory, parentCtx);
+    insert(container, node);
+
+    expect(effectDestroyed).toBe(false);
+
+    const newFactory = (ctx: ReturnType<typeof createComponent>) => createElement('div');
+    hmrAccept(COMP_ID, newFactory);
+
+    expect(effectDestroyed).toBe(true);
+
+    destroyComponent(parentCtx);
+    delete (window as Record<string, unknown>)['__forge_hmr'];
     app.destroy();
   });
 });
