@@ -9,7 +9,7 @@
     "docs"
   ],
   "scripts": {
-    "build": "nx run-many --target=build --exclude=docs",
+    "build": "nx run-many --target=build --exclude=docs,hello-world",
     "test": "nx run-many --target=test --exclude=docs",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

@@ -14,14 +14,15 @@
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "skipLibCheck": true,
-    "composite": true
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@forge/core": ["packages/core/src/index.ts"],
+      "@forge/compiler": ["packages/compiler/src/index.ts"],
+      "@forge/cli": ["packages/cli/src/index.ts"],
+      "@forge/router": ["packages/router/src/index.ts"],
+      "@forge/forms": ["packages/forms/src/index.ts"]
+    }
   },
-  "exclude": ["**/node_modules", "**/dist"],
-  "paths": {
-    "@forge/core": ["packages/core/src/index.ts"],
-    "@forge/compiler": ["packages/compiler/src/index.ts"],
-    "@forge/cli": ["packages/cli/src/index.ts"],
-    "@forge/router": ["packages/router/src/index.ts"],
-    "@forge/forms": ["packages/forms/src/index.ts"]
-  }
+  "exclude": ["**/node_modules", "**/dist"]
 }
