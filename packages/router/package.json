@@ -34,7 +34,7 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@forge/core": "workspace:*"
+    "@forge/core": "*"
   },
   "devDependencies": {
     "rolldown": "*",
