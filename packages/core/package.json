@@ -1,6 +1,6 @@
 {
   "name": "@forge/core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Forge core — reactivity primitives and dependency injection",
   "license": "MIT",
   "repository": {
@@ -9,7 +9,13 @@
     "directory": "packages/core"
   },
   "homepage": "https://github.com/ubergeoff/forge/tree/main/packages/core#readme",
-  "keywords": ["forge", "signals", "reactivity", "dependency-injection", "framework"],
+  "keywords": [
+    "forge",
+    "signals",
+    "reactivity",
+    "dependency-injection",
+    "framework"
+  ],
   "publishConfig": {
     "access": "public"
   },

@@ -1,6 +1,6 @@
 {
   "name": "@forge/cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Forge CLI — forge new / forge dev / forge build",
   "license": "MIT",
   "repository": {
@@ -9,7 +9,13 @@
     "directory": "packages/cli"
   },
   "homepage": "https://github.com/ubergeoff/forge/tree/main/packages/cli#readme",
-  "keywords": ["forge", "cli", "dev-server", "build-tool", "framework"],
+  "keywords": [
+    "forge",
+    "cli",
+    "dev-server",
+    "build-tool",
+    "framework"
+  ],
   "publishConfig": {
     "access": "public"
   },

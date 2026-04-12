@@ -1,6 +1,6 @@
 {
   "name": "@forge/router",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Forge router — signal-driven client-side routing",
   "license": "MIT",
   "repository": {
@@ -9,7 +9,13 @@
     "directory": "packages/router"
   },
   "homepage": "https://github.com/ubergeoff/forge/tree/main/packages/router#readme",
-  "keywords": ["forge", "router", "signals", "client-side-routing", "framework"],
+  "keywords": [
+    "forge",
+    "router",
+    "signals",
+    "client-side-routing",
+    "framework"
+  ],
   "publishConfig": {
     "access": "public"
   },

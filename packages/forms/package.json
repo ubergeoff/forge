@@ -1,6 +1,6 @@
 {
   "name": "@forge/forms",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Forge forms — signal-based reactive forms",
   "license": "MIT",
   "repository": {
@@ -9,7 +9,13 @@
     "directory": "packages/forms"
   },
   "homepage": "https://github.com/ubergeoff/forge/tree/main/packages/forms#readme",
-  "keywords": ["forge", "forms", "signals", "reactive-forms", "framework"],
+  "keywords": [
+    "forge",
+    "forms",
+    "signals",
+    "reactive-forms",
+    "framework"
+  ],
   "publishConfig": {
     "access": "public"
   },

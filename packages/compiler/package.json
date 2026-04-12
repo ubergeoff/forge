@@ -1,6 +1,6 @@
 {
   "name": "@forge/compiler",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Forge compiler — .forge SFC parser and template compiler",
   "license": "MIT",
   "repository": {
@@ -9,7 +9,13 @@
     "directory": "packages/compiler"
   },
   "homepage": "https://github.com/ubergeoff/forge/tree/main/packages/compiler#readme",
-  "keywords": ["forge", "compiler", "sfc", "template", "framework"],
+  "keywords": [
+    "forge",
+    "compiler",
+    "sfc",
+    "template",
+    "framework"
+  ],
   "publishConfig": {
     "access": "public"
   },
