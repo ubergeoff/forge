@@ -9,7 +9,8 @@
     "build": "forge build"
   },
   "dependencies": {
-    "@forge/core": "*"
+    "@forge/core": "*",
+    "@forge/router": "*"
   },
   "devDependencies": {
     "@forge/cli": "*",
