@@ -7,6 +7,7 @@ export default defineConfig({
     environment: 'node',
     coverage: {
       provider: 'v8',
+      reportsDirectory: '../../coverage/forms',
       include: ['src/**/*.ts'],
       exclude: ['**/node_modules/**', '**/dist/**'],
       reporter: ['text', 'lcov', 'html'],

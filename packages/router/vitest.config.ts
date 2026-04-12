@@ -13,6 +13,7 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
+      reportsDirectory: '../../coverage/router',
       include: ['src/**/*.ts'],
       exclude: ['**/node_modules/**', '**/dist/**'],
       reporter: ['text', 'lcov', 'html'],
