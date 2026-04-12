@@ -24,6 +24,7 @@ import { build } from 'rolldown';
 import type { RolldownPlugin, OutputOptions } from 'rolldown';
 import { forgePlugin, generateScopeId } from '@forge/compiler';
 import { loadConfig } from '../utils/config.js';
+import { forgeDedupePlugin } from '../utils/forge-dedupe-plugin.js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -142,6 +143,7 @@ export async function runDev(args: string[]): Promise<void> {
     },
   };
   const plugins: RolldownPlugin[] = [
+    forgeDedupePlugin,
     forgePlugin({
       hmr: true,
       ...(config.css ? { css: path.join(cwd, config.css) } : {}),
