@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Router } from '../src/router.js';
 import { provideRouter, ROUTER, ROUTES } from '../src/router.js';
 import { bootstrapApp, resetRootInjector, inject, runInContext } from '@forge/core';
@@ -110,6 +110,22 @@ describe('Router', () => {
     router = makeRouter([{ path: '**' }]);
     router.navigate('/anything/goes/here');
     expect(router.currentRoute()).not.toBeNull();
+  });
+
+  it('back() calls window.history.back', () => {
+    router = makeRouter([{ path: '/home' }]);
+    const spy = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+    router.back();
+    expect(spy).toHaveBeenCalledOnce();
+    spy.mockRestore();
+  });
+
+  it('forward() calls window.history.forward', () => {
+    router = makeRouter([{ path: '/home' }]);
+    const spy = vi.spyOn(window.history, 'forward').mockImplementation(() => {});
+    router.forward();
+    expect(spy).toHaveBeenCalledOnce();
+    spy.mockRestore();
   });
 
   it('signals update reactively when the route changes', () => {
