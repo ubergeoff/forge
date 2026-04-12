@@ -133,7 +133,12 @@ export async function runDev(args: string[]): Promise<void> {
     name: 'forge-dev-define',
     transform(code: string) {
       if (!code.includes('__forge_dev')) return null;
-      return { code: code.replaceAll('__forge_dev', 'true') };
+      // Strip TypeScript `declare const __forge_dev` ambient declarations so that
+      // Rolldown resolving workspace packages to their TypeScript source (via root
+      // tsconfig `paths`) doesn't produce invalid syntax like `declare const true`.
+      let result = code.replace(/declare\s+const\s+__forge_dev\b[^\n]*\n?/g, '');
+      result = result.replaceAll('__forge_dev', 'true');
+      return { code: result };
     },
   };
   const plugins: RolldownPlugin[] = [

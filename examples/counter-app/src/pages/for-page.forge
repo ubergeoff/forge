@@ -1,0 +1,116 @@
+<script lang="ts">
+import { signal, computed } from '@forge/core';
+
+interface Task {
+  id: number;
+  text: string;
+  done: boolean;
+}
+
+let nextId = 1;
+
+const tasks = signal<Task[]>([
+  { id: nextId++, text: 'Learn Forge signals', done: true },
+  { id: nextId++, text: 'Build a .forge component', done: true },
+  { id: nextId++, text: 'Try the @for directive', done: false },
+  { id: nextId++, text: 'Ship something great', done: false },
+]);
+
+const newText = signal('');
+
+const remaining = computed(() => tasks().filter(t => !t.done).length);
+const total = computed(() => tasks().length);
+
+function onInput(e: Event) {
+  newText.set((e.target as HTMLInputElement).value);
+}
+
+function addTask() {
+  const text = newText().trim();
+  if (!text) return;
+  tasks.update(list => [...list, { id: nextId++, text, done: false }]);
+  newText.set('');
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Enter') addTask();
+}
+
+function toggleTask(id: number) {
+  tasks.update(list =>
+    list.map(t => t.id === id ? { ...t, done: !t.done } : t)
+  );
+}
+
+function removeTask(id: number) {
+  tasks.update(list => list.filter(t => t.id !== id));
+}
+
+function clearDone() {
+  tasks.update(list => list.filter(t => !t.done));
+}
+</script>
+
+<template>
+  <div class="max-w-xl mx-auto px-4 py-16">
+
+    <div class="text-center mb-10">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">@for Directive</h1>
+      <p class="text-gray-500 text-sm">
+        Reactive list rendering — the DOM updates surgically when the signal changes.
+      </p>
+    </div>
+
+    <!-- Input row -->
+    <div class="flex gap-2 mb-6">
+      <input
+        type="text"
+        placeholder="Add a new task…"
+        .value={newText()}
+        @input={onInput}
+        @keydown={onKeydown}
+        class="flex-1 px-4 py-2 text-sm border-2 border-gray-300 rounded-lg outline-none focus:border-indigo-500 transition-colors"
+      />
+      <button
+        @click={addTask}
+        class="px-4 py-2 text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 cursor-pointer transition-colors"
+      >
+        Add
+      </button>
+    </div>
+
+    <!-- Task list rendered with @for -->
+    <ul class="space-y-2 mb-6">
+      <li
+        @for={task of tasks()}
+        class="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-lg"
+      >
+        <input
+          type="checkbox"
+          .checked={task.done}
+          @change={() => toggleTask(task.id)}
+          class="w-4 h-4 accent-indigo-600 cursor-pointer"
+        />
+        <span class="flex-1 text-sm text-gray-800">{task.text}</span>
+        <button
+          @click={() => removeTask(task.id)}
+          class="text-gray-300 hover:text-red-400 text-lg leading-none cursor-pointer transition-colors"
+        >
+          ×
+        </button>
+      </li>
+    </ul>
+
+    <!-- Footer -->
+    <div class="flex items-center justify-between text-xs text-gray-400">
+      <span>{remaining()} of {total()} tasks remaining</span>
+      <button
+        @click={clearDone}
+        class="hover:text-gray-600 cursor-pointer transition-colors"
+      >
+        Clear completed
+      </button>
+    </div>
+
+  </div>
+</template>
