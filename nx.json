@@ -59,6 +59,34 @@
     },
     "clean": {
       "cache": false
+    },
+    "nx-release-publish": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "npm publish --access public",
+        "cwd": "{projectRoot}"
+      }
+    }
+  },
+  "release": {
+    "projects": ["core", "compiler", "router", "cli", "forms"],
+    "projectsRelationship": "independent",
+    "version": {
+      "conventionalCommits": true,
+      "generatorOptions": {
+        "updateDependents": "auto"
+      }
+    },
+    "changelog": {
+      "projectChangelogs": {
+        "createRelease": "github",
+        "renderOptions": {
+          "authors": true,
+          "commitReferences": true,
+          "versionTitleDate": true
+        }
+      }
     }
   },
   "analytics": false
