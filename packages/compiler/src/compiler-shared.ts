@@ -99,7 +99,7 @@ interface InterpolationNode {
   expression: string;
 }
 
-type DirectiveKind = 'bind' | 'prop' | 'event' | 'show' | 'class' | 'formControl';
+type DirectiveKind = 'bind' | 'prop' | 'event' | 'show' | 'class' | 'formControl' | 'for';
 
 interface DirectiveNode {
   kind: DirectiveKind;
@@ -223,7 +223,9 @@ class TemplateParser {
         value = this.parseAttrValue();
       }
 
-      if (name.startsWith('@')) {
+      if (name === '@for') {
+        directives.push({ kind: 'for', name: '', expression: value });
+      } else if (name.startsWith('@')) {
         directives.push({ kind: 'event', name: name.slice(1), expression: value });
       } else if (name.startsWith(':')) {
         const attrName = name.slice(1);
@@ -387,6 +389,8 @@ class CodeGenerator {
   private readonly stmts: string[] = [];
   private elemCount = 0;
   private textCount = 0;
+  /** Current context variable name — 'ctx' at the top level, '_itemCtx' inside @for loops. */
+  private ctxVar = 'ctx';
 
   readonly usedDomFns = new Set<string>();
 
@@ -417,11 +421,16 @@ class CodeGenerator {
     const v = `_t${this.textCount++}`;
     this.use('bindText');
     this.emit(`const ${v} = document.createTextNode('');`);
-    this.emit(`ctx.effects.push(bindText(${v}, () => String(${node.expression})));`);
+    this.emit(`${this.ctxVar}.effects.push(bindText(${v}, () => String(${node.expression})));`);
     return v;
   }
 
   private genElement(node: ElementNode): string {
+    const forDir = node.directives.find(d => d.kind === 'for');
+    if (forDir !== undefined) {
+      return this.genForElement(node, forDir);
+    }
+
     if (this.componentMap.has(node.tag)) {
       return this.genComponentElement(node);
     }
@@ -459,7 +468,7 @@ class CodeGenerator {
       const entries = classDirectives
         .map(d => `      ${q(d.name)}: Boolean(${d.expression})`)
         .join(',\n');
-      this.emit(`ctx.effects.push(bindClass(${v}, () => ({\n${entries}\n    })));`);
+      this.emit(`${this.ctxVar}.effects.push(bindClass(${v}, () => ({\n${entries}\n    })));`);
     }
 
     for (const child of node.children) {
@@ -491,12 +500,65 @@ class CodeGenerator {
 
     if (propsEntries.length > 0) {
       this.emit(`const _props${idx} = {\n${propsEntries.join(',\n')}\n  };`);
-      this.emit(`const ${v} = mountChild(${factoryName}, ctx, _props${idx});`);
+      this.emit(`const ${v} = mountChild(${factoryName}, ${this.ctxVar}, _props${idx});`);
     } else {
-      this.emit(`const ${v} = mountChild(${factoryName}, ctx);`);
+      this.emit(`const ${v} = mountChild(${factoryName}, ${this.ctxVar});`);
     }
 
     return v;
+  }
+
+  private parseForExpression(expr: string): { itemVar: string; iterableExpr: string } {
+    // Supports: "item of items()" or "item of items(); track item.id"
+    const match = /^\s*(\w+)\s+of\s+([\s\S]+?)(?:\s*;\s*track\s+[\s\S]+)?\s*$/.exec(expr);
+    if (!match) {
+      throw new Error(`[Forge Compiler] Invalid @for expression: "${expr}". Expected: "item of items()"`);
+    }
+    return { itemVar: match[1]!, iterableExpr: match[2]!.trim() };
+  }
+
+  private genForElement(node: ElementNode, forDir: DirectiveNode): string {
+    const { itemVar, iterableExpr } = this.parseForExpression(forDir.expression);
+
+    // Reserve the anchor variable index before generating the inner element,
+    // so the anchor name doesn't collide with element variables.
+    const anchorIdx = this.elemCount++;
+    const anchorVar = `_anchor${anchorIdx}`;
+
+    // Generate the inner element (without the @for directive) into a temporary
+    // statements buffer so we can wrap it in the item factory arrow function.
+    const stmtsBefore = this.stmts.length;
+    const savedCtxVar = this.ctxVar;
+    this.ctxVar = '_itemCtx';
+
+    const clonedNode: ElementNode = {
+      ...node,
+      directives: node.directives.filter(d => d.kind !== 'for'),
+    };
+    const innerVar = this.genElement(clonedNode);
+
+    this.ctxVar = savedCtxVar;
+
+    // Extract the statements that were emitted for the item template.
+    const innerStmts = this.stmts.splice(stmtsBefore);
+
+    // Emit: comment anchor node (acts as stable insertion point).
+    this.emit(`const ${anchorVar} = document.createComment('for');`);
+
+    // Emit: reactive list binding wrapping the item factory.
+    this.use('bindList');
+    this.emit(
+      `${this.ctxVar}.effects.push(bindList(${anchorVar}, ${this.ctxVar}, () => (${iterableExpr}), (${itemVar}, _idx, _itemCtx) => {`,
+    );
+    for (const s of innerStmts) {
+      // innerStmts already have the base '  ' indent from emit(); add two more
+      // spaces so they sit correctly inside the arrow function body.
+      this.stmts.push(`  ${s}`);
+    }
+    this.stmts.push(`    return ${innerVar};`);
+    this.stmts.push(`  }));`);
+
+    return anchorVar;
   }
 
   private genFormControlDirective(
@@ -510,38 +572,39 @@ class CodeGenerator {
     this.use('listen');
 
     if (inputType === 'checkbox') {
-      this.emit(`ctx.effects.push(bindProp(${elVar}, 'checked', () => Boolean(${ctrlExpr}.value())));`);
-      this.emit(`ctx.effects.push(listen(${elVar}, 'input', (ev) => { const _t = ev.target; ${ctrlExpr}.setValue(_t.checked); ${ctrlExpr}.markAsTouched(); }));`);
+      this.emit(`${this.ctxVar}.effects.push(bindProp(${elVar}, 'checked', () => Boolean(${ctrlExpr}.value())));`);
+      this.emit(`${this.ctxVar}.effects.push(listen(${elVar}, 'input', (ev) => { const _t = ev.target; ${ctrlExpr}.setValue(_t.checked); ${ctrlExpr}.markAsTouched(); }));`);
     } else if (inputType === 'number' || inputType === 'range') {
-      this.emit(`ctx.effects.push(bindProp(${elVar}, 'value', () => String(${ctrlExpr}.value())));`);
-      this.emit(`ctx.effects.push(listen(${elVar}, 'input', (ev) => { const _t = ev.target; ${ctrlExpr}.setValue(Number(_t.value)); ${ctrlExpr}.markAsTouched(); }));`);
+      this.emit(`${this.ctxVar}.effects.push(bindProp(${elVar}, 'value', () => String(${ctrlExpr}.value())));`);
+      this.emit(`${this.ctxVar}.effects.push(listen(${elVar}, 'input', (ev) => { const _t = ev.target; ${ctrlExpr}.setValue(Number(_t.value)); ${ctrlExpr}.markAsTouched(); }));`);
     } else {
-      this.emit(`ctx.effects.push(bindProp(${elVar}, 'value', () => String(${ctrlExpr}.value())));`);
-      this.emit(`ctx.effects.push(listen(${elVar}, 'input', (ev) => { const _t = ev.target; ${ctrlExpr}.setValue(_t.value); ${ctrlExpr}.markAsTouched(); }));`);
+      this.emit(`${this.ctxVar}.effects.push(bindProp(${elVar}, 'value', () => String(${ctrlExpr}.value())));`);
+      this.emit(`${this.ctxVar}.effects.push(listen(${elVar}, 'input', (ev) => { const _t = ev.target; ${ctrlExpr}.setValue(_t.value); ${ctrlExpr}.markAsTouched(); }));`);
     }
 
-    this.emit(`ctx.effects.push(listen(${elVar}, 'blur', () => ${ctrlExpr}.markAsTouched()));`);
+    this.emit(`${this.ctxVar}.effects.push(listen(${elVar}, 'blur', () => ${ctrlExpr}.markAsTouched()));`);
   }
 
   private genDirective(elVar: string, dir: DirectiveNode): void {
     switch (dir.kind) {
       case 'event':
         this.use('listen');
-        this.emit(`ctx.effects.push(listen(${elVar}, ${q(dir.name)}, ${dir.expression}));`);
+        this.emit(`${this.ctxVar}.effects.push(listen(${elVar}, ${q(dir.name)}, ${dir.expression}));`);
         break;
       case 'bind':
         this.use('bindAttr');
-        this.emit(`ctx.effects.push(bindAttr(${elVar}, ${q(dir.name)}, () => ${dir.expression}));`);
+        this.emit(`${this.ctxVar}.effects.push(bindAttr(${elVar}, ${q(dir.name)}, () => ${dir.expression}));`);
         break;
       case 'prop':
         this.use('bindProp');
-        this.emit(`ctx.effects.push(bindProp(${elVar}, ${q(dir.name)}, () => ${dir.expression}));`);
+        this.emit(`${this.ctxVar}.effects.push(bindProp(${elVar}, ${q(dir.name)}, () => ${dir.expression}));`);
         break;
       case 'show':
         this.use('bindShow');
-        this.emit(`ctx.effects.push(bindShow(${elVar}, () => Boolean(${dir.expression})));`);
+        this.emit(`${this.ctxVar}.effects.push(bindShow(${elVar}, () => Boolean(${dir.expression})));`);
         break;
       case 'class':
+      case 'for':
         break;
     }
   }

@@ -408,6 +408,85 @@ describe('compileSFC — DI injection context', () => {
 });
 
 // ---------------------------------------------------------------------------
+// @for directive
+// ---------------------------------------------------------------------------
+
+describe('compileSFC — @for directive', () => {
+  it('generates a comment anchor and bindList call', () => {
+    const result = compile(forge({ template: '<ul><li @for={item of items()}>text</li></ul>' }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain(`document.createComment('for')`);
+    expect(result.code).toContain('bindList(');
+  });
+
+  it('imports bindList from @forge/core/dom', () => {
+    const result = compile(forge({ template: '<ul><li @for={item of items()}>{item.name}</li></ul>' }));
+    expect(result.code).toMatch(/import\s*\{[^}]*bindList[^}]*\}/);
+    expect(result.code).toContain("from '@forge/core/dom'");
+  });
+
+  it('passes the iterable getter to bindList', () => {
+    const result = compile(forge({ template: '<ul><li @for={item of items()}>{item.name}</li></ul>' }));
+    expect(result.code).toContain('() => (items())');
+  });
+
+  it('exposes the loop variable in the item factory', () => {
+    const result = compile(forge({ template: '<ul><li @for={item of items()}>{item.name}</li></ul>' }));
+    expect(result.code).toContain('(item, _idx, _itemCtx)');
+    expect(result.code).toContain('item.name');
+  });
+
+  it('uses _itemCtx for effect registration inside the loop', () => {
+    const result = compile(forge({ template: '<ul><li @for={item of items()}>{item.name}</li></ul>' }));
+    // Bindings inside the loop body must use _itemCtx, not ctx
+    expect(result.code).toContain('_itemCtx.effects.push(bindText(');
+    // The outer bindList call itself is registered on ctx
+    expect(result.code).toContain('ctx.effects.push(bindList(');
+  });
+
+  it('supports static attributes on the repeated element', () => {
+    const result = compile(forge({ template: '<ul><li @for={item of items()} class="row">{item.name}</li></ul>' }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain(`setAttr(`);
+    expect(result.code).toContain(`'class'`);
+  });
+
+  it('supports reactive bindings on the repeated element', () => {
+    const result = compile(forge({ template: '<ul><li @for={item of items()} :class={item.active}>{item.name}</li></ul>' }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain('bindAttr(');
+  });
+
+  it('supports event bindings on the repeated element', () => {
+    const result = compile(forge({ template: '<ul><li @for={item of items()} @click={handleClick}>{item.name}</li></ul>' }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain('listen(');
+  });
+
+  it('supports @for with track expression (track clause is parsed and ignored in output)', () => {
+    const result = compile(forge({ template: '<ul><li @for={item of items(); track item.id}>{item.name}</li></ul>' }));
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain('bindList(');
+    expect(result.code).toContain('() => (items())');
+  });
+
+  it('emits an error for a malformed @for expression', () => {
+    // "items()" with no "item of" prefix is invalid
+    expect(() =>
+      compile(forge({ template: '<ul><li @for={items()}>text</li></ul>' }))
+    ).toThrow(/Invalid @for expression/);
+  });
+
+  it('outer elements outside the loop are unaffected', () => {
+    const result = compile(forge({ template: '<div><h1>title</h1><ul><li @for={item of items()}>{item.name}</li></ul></div>' }));
+    expect(result.errors).toHaveLength(0);
+    // h1 and its text are generated normally
+    expect(result.code).toContain("createElement('h1')");
+    expect(result.code).toContain("createTextNode('title')");
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Error handling
 // ---------------------------------------------------------------------------
 

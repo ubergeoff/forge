@@ -13,6 +13,7 @@ import {
   bindProp,
   bindShow,
   bindClass,
+  bindList,
   createComponent,
   destroyComponent,
   mountComponent,
@@ -515,6 +516,129 @@ describe('HMR — hmrAccept swaps component instances', () => {
 
     destroyComponent(parentCtx);
     delete (window as Record<string, unknown>)['__forge_hmr'];
+    app.destroy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// bindList
+// ---------------------------------------------------------------------------
+
+describe('bindList', () => {
+  it('renders initial list items before the anchor', () => {
+    const app = bootstrapApp();
+    const ctx = createComponent(app);
+    const container = createElement('div');
+    const anchor = document.createComment('for');
+    insert(container, anchor);
+
+    const items = signal(['a', 'b', 'c']);
+    const handle = bindList(anchor, ctx, () => items(), (item, _i, _c) => {
+      const el = createElement('span');
+      el.textContent = item;
+      return el;
+    });
+    ctx.effects.push(handle);
+
+    const spans = container.querySelectorAll('span');
+    expect(spans).toHaveLength(3);
+    expect(spans[0]!.textContent).toBe('a');
+    expect(spans[1]!.textContent).toBe('b');
+    expect(spans[2]!.textContent).toBe('c');
+
+    destroyComponent(ctx);
+    app.destroy();
+  });
+
+  it('updates DOM when the signal changes', () => {
+    const app = bootstrapApp();
+    const ctx = createComponent(app);
+    const container = createElement('div');
+    const anchor = document.createComment('for');
+    insert(container, anchor);
+
+    const items = signal(['x', 'y']);
+    ctx.effects.push(bindList(anchor, ctx, () => items(), (item, _i, _c) => {
+      const el = createElement('li');
+      el.textContent = item;
+      return el;
+    }));
+
+    expect(container.querySelectorAll('li')).toHaveLength(2);
+
+    items.set(['x', 'y', 'z']);
+    expect(container.querySelectorAll('li')).toHaveLength(3);
+    expect(container.querySelectorAll('li')[2]!.textContent).toBe('z');
+
+    items.set([]);
+    expect(container.querySelectorAll('li')).toHaveLength(0);
+
+    destroyComponent(ctx);
+    app.destroy();
+  });
+
+  it('destroys item child contexts on re-render', () => {
+    const app = bootstrapApp();
+    const ctx = createComponent(app);
+    const container = createElement('div');
+    const anchor = document.createComment('for');
+    insert(container, anchor);
+
+    const items = signal([1]);
+    let effectRuns = 0;
+
+    ctx.effects.push(bindList(anchor, ctx, () => items(), (_item, _i, itemCtx) => {
+      const el = createElement('div');
+      // Register a reactive binding on the item context.
+      const t = document.createTextNode('');
+      itemCtx.effects.push(bindText(t, () => { effectRuns++; return 'v'; }));
+      insert(el, t);
+      return el;
+    }));
+
+    const runsBefore = effectRuns;
+    // Updating the list should destroy the old item context.
+    items.set([2]);
+    // The old effect should not run again after items change.
+    const runsAfterReset = effectRuns;
+    items.set([3]);
+    // Only the NEW item's effect runs, not the destroyed one's.
+    expect(effectRuns).toBe(runsAfterReset + 1);
+
+    destroyComponent(ctx);
+    app.destroy();
+
+    void runsBefore; // suppress unused warning
+  });
+
+  it('inserts items in order before the anchor, after any preceding siblings', () => {
+    const app = bootstrapApp();
+    const ctx = createComponent(app);
+    const container = createElement('div');
+
+    const header = createElement('h1');
+    insert(container, header);
+    const anchor = document.createComment('for');
+    insert(container, anchor);
+    const footer = createElement('footer');
+    insert(container, footer);
+
+    const items = signal(['a', 'b']);
+    ctx.effects.push(bindList(anchor, ctx, () => items(), (item, _i, _c) => {
+      const el = createElement('p');
+      el.textContent = item;
+      return el;
+    }));
+
+    // Expected order: h1, p[a], p[b], comment, footer
+    const children = Array.from(container.childNodes);
+    expect(children[0]).toBe(header);
+    expect((children[1] as Element).textContent).toBe('a');
+    expect((children[2] as Element).textContent).toBe('b');
+    expect(children[3]).toBe(anchor);
+    expect(children[4]).toBe(footer);
+
+    destroyComponent(ctx);
     app.destroy();
   });
 });

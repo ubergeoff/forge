@@ -62,6 +62,7 @@ export {
   bindProp,
   bindShow,
   bindClass,
+  bindList,
   createComponent,
   destroyComponent,
   mountComponent,
