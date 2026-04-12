@@ -38,21 +38,40 @@ export function createRouterOutlet(
   const container = createElement('div');
   container.setAttribute('data-forge-outlet', '');
 
-  let currentNode: Node | null = null;
-  let currentCtx: ComponentContext | null = null;
+  // Shared object reference so that hmrAccept's in-place updates to .node/.ctx
+  // are immediately visible when destroyCurrent reads from currentInst.
+  interface MountedInstance {
+    node: Node;
+    ctx: ComponentContext;
+    props: Record<string, () => unknown>;
+    parentCtx: ComponentContext;
+  }
+  let currentInst: MountedInstance | null = null;
+  let currentHmrId: string | undefined;
+
   // Monotonically increasing — lets async mounts detect they are stale.
   let mountGeneration = 0;
 
   function destroyCurrent(): void {
-    if (currentNode !== null) {
-      remove(currentNode);
-      currentNode = null;
-    }
-    if (currentCtx !== null) {
-      const idx = parentCtx.children.indexOf(currentCtx);
+    if (currentInst !== null) {
+      // Deregister from the HMR registry before tearing down the DOM so that a
+      // concurrent hot-swap cannot fire on an instance we are about to destroy.
+      if (currentHmrId !== undefined && typeof window !== 'undefined') {
+        const w = window as unknown as Record<string, unknown>;
+        const hmr = w['__forge_hmr'] as { instances?: Map<string, MountedInstance[]> } | undefined;
+        const list = hmr?.instances?.get(currentHmrId);
+        if (list) {
+          const i = list.indexOf(currentInst);
+          if (i >= 0) list.splice(i, 1);
+        }
+        currentHmrId = undefined;
+      }
+
+      remove(currentInst.node);
+      const idx = parentCtx.children.indexOf(currentInst.ctx);
       if (idx >= 0) parentCtx.children.splice(idx, 1);
-      destroyComponent(currentCtx);
-      currentCtx = null;
+      destroyComponent(currentInst.ctx);
+      currentInst = null;
     }
   }
 
@@ -81,8 +100,24 @@ export function createRouterOutlet(
     parentCtx.children.push(childCtx);
     const node = factory(childCtx);
     insert(container, node);
-    currentNode = node;
-    currentCtx = childCtx;
+
+    const inst: MountedInstance = { node, ctx: childCtx, props: {}, parentCtx };
+    currentInst = inst;
+
+    // Register the page component for HMR hot-swapping. hmrAccept updates
+    // inst.node and inst.ctx in-place, so currentInst always reflects the
+    // latest mounted node/context after a hot swap.
+    const hmrId = (factory as unknown as Record<string, unknown>)['__hmrId'] as string | undefined;
+    if (hmrId !== undefined && typeof window !== 'undefined') {
+      const w = window as unknown as Record<string, unknown>;
+      const hmr = w['__forge_hmr'] as { instances?: Map<string, MountedInstance[]> } | undefined;
+      if (hmr?.instances) {
+        const list = hmr.instances.get(hmrId) ?? [];
+        list.push(inst);
+        hmr.instances.set(hmrId, list);
+        currentHmrId = hmrId;
+      }
+    }
   }
 
   const handle = effect(() => {
