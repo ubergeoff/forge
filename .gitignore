@@ -10,6 +10,10 @@ coverage/
 .nx/cache
 .nx/workspace-data
 
+# Playwright e2e test results
+examples/*/test-results/
+playwright-report/
+
 # Docs build output and cache
 docs/.vitepress/dist
 docs/.vitepress/cache
