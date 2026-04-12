@@ -49,7 +49,7 @@ jobs:
         run: npx nx run-many --target=build --projects=core,compiler,router,cli
 
       - name: Build counter-app
-        run: cd examples/counter-app && npm run build
+        run: cd examples/counter-app && node ../../packages/cli/dist/bin.js build
 
   test:
     name: Test
