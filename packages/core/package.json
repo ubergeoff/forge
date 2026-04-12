@@ -1,6 +1,6 @@
 {
   "name": "@forge/core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Forge core — reactivity primitives and dependency injection",
   "license": "MIT",
   "repository": {

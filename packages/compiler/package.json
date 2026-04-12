@@ -1,6 +1,6 @@
 {
   "name": "@forge/compiler",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Forge compiler — .forge SFC parser and template compiler",
   "license": "MIT",
   "repository": {

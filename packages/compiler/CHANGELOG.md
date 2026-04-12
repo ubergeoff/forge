@@ -1,3 +1,19 @@
+## 0.3.0 (2026-04-12)
+
+### 🚀 Features
+
+- add @for directive for reactive list rendering ([#9](https://github.com/ubergeoff/forge/pull/9))
+
+### 🧱 Updated Dependencies
+
+- Updated core to 0.3.0
+
+### ❤️ Thank You
+
+- Claude Sonnet 4.6
+- Geoffrey Le Roux
+- ubergeoff @ubergeoff
+
 ## 0.2.0 (2026-04-12)
 
 ### 🚀 Features

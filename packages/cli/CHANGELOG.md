@@ -1,3 +1,9 @@
+## 0.3.0 (2026-04-12)
+
+### 🧱 Updated Dependencies
+
+- Updated compiler to 0.3.0
+
 ## 0.2.0 (2026-04-12)
 
 ### 🚀 Features
