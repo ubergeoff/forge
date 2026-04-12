@@ -12,7 +12,6 @@
     "build": "nx run-many --target=build --exclude=docs,hello-world",
     "test": "nx run-many --target=test --exclude=docs",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
     "lint": "nx run-many --target=lint --exclude=docs",
     "typecheck": "nx run-many --target=typecheck --exclude=docs",
     "clean": "nx run-many --target=clean && rm -rf node_modules",

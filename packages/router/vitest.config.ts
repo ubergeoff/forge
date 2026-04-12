@@ -7,6 +7,9 @@ export default defineConfig({
     environment: 'node',
     environmentMatchGlobs: [
       ['__tests__/router.test.ts', 'happy-dom'],
+      ['__tests__/link.test.ts', 'happy-dom'],
+      ['__tests__/outlet.test.ts', 'happy-dom'],
+      ['__tests__/components.test.ts', 'happy-dom'],
     ],
     coverage: {
       provider: 'v8',
@@ -14,10 +17,10 @@ export default defineConfig({
       exclude: ['**/node_modules/**', '**/dist/**'],
       reporter: ['text', 'lcov', 'html'],
       thresholds: {
-        statements: 39,
-        branches: 82,
-        functions: 52,
-        lines: 39,
+        statements: 90,
+        branches: 87,
+        functions: 85,
+        lines: 90,
       },
     },
     isolate: true,
