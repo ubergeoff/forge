@@ -29,14 +29,27 @@ export function resolveForgePackage(name: string, subpath = 'dist/index.js'): st
   return path.join(pkgRoot, subpath);
 }
 
-export const forgeAliases: Record<string, string> = {
-  '@forge/core':            resolveForgePackage('@forge/core'),
-  '@forge/core/dom':        resolveForgePackage('@forge/core', 'dist/dom.js'),
-  '@forge/core/reactivity': resolveForgePackage('@forge/core', 'dist/reactivity.js'),
-  '@forge/core/di':         resolveForgePackage('@forge/core', 'dist/di.js'),
-  '@forge/forms':           resolveForgePackage('@forge/forms'),
-  '@forge/router':          resolveForgePackage('@forge/router'),
-};
+/**
+ * Lazily-built alias map. Populated on first use inside `resolveId` so that
+ * importing this module never triggers `_require.resolve()` at load time.
+ * This keeps the module safe to import in test environments where `dist/`
+ * files may not exist yet.
+ */
+let _aliases: Record<string, string> | undefined;
+
+export function getForgeAliases(): Record<string, string> {
+  if (_aliases === undefined) {
+    _aliases = {
+      '@forge/core':            resolveForgePackage('@forge/core'),
+      '@forge/core/dom':        resolveForgePackage('@forge/core', 'dist/dom.js'),
+      '@forge/core/reactivity': resolveForgePackage('@forge/core', 'dist/reactivity.js'),
+      '@forge/core/di':         resolveForgePackage('@forge/core', 'dist/di.js'),
+      '@forge/forms':           resolveForgePackage('@forge/forms'),
+      '@forge/router':          resolveForgePackage('@forge/router'),
+    };
+  }
+  return _aliases;
+}
 
 /**
  * Rolldown plugin that forces all `@forge/*` imports to their canonical dist
@@ -47,7 +60,7 @@ export const forgeAliases: Record<string, string> = {
 export const forgeDedupePlugin: RolldownPlugin = {
   name: 'forge-dedupe',
   resolveId(id: string) {
-    const resolved = forgeAliases[id];
+    const resolved = getForgeAliases()[id];
     if (resolved !== undefined) {
       return { id: resolved, external: false };
     }

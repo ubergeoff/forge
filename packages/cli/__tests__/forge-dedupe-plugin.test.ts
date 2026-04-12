@@ -3,8 +3,41 @@
 // =============================================================================
 
 import * as path from 'node:path';
-import { describe, it, expect } from 'vitest';
-import { forgeAliases, forgeDedupePlugin, resolveForgePackage } from '../src/utils/forge-dedupe-plugin.js';
+import { describe, it, expect, vi } from 'vitest';
+
+// ---------------------------------------------------------------------------
+// Mock createRequire so _require.resolve() returns predictable fake paths
+// without needing real dist/ files on disk.
+// vi.mock is hoisted before imports by Vitest, so the plugin module picks up
+// the mock when it calls createRequire at module initialisation time.
+// ---------------------------------------------------------------------------
+
+const FAKE_ROOTS: Record<string, string> = {
+  '@forge/core':   '/fake/node_modules/@forge/core/dist/index.cjs',
+  '@forge/forms':  '/fake/node_modules/@forge/forms/dist/index.cjs',
+  '@forge/router': '/fake/node_modules/@forge/router/dist/index.cjs',
+};
+
+vi.mock('node:module', async (importOriginal) => {
+  const original = await importOriginal<typeof import('node:module')>();
+  return {
+    ...original,
+    createRequire: () =>
+      Object.assign((id: string) => id, {
+        resolve: (name: string) => {
+          const hit = FAKE_ROOTS[name];
+          if (hit) return hit;
+          throw new Error(`Cannot find module '${name}'`);
+        },
+        cache: {},
+        extensions: {},
+        main: undefined,
+      }),
+  };
+});
+
+const { resolveForgePackage, getForgeAliases, forgeDedupePlugin } =
+  await import('../src/utils/forge-dedupe-plugin.js');
 
 // ---------------------------------------------------------------------------
 // resolveForgePackage()
@@ -30,10 +63,10 @@ describe('resolveForgePackage()', () => {
 });
 
 // ---------------------------------------------------------------------------
-// forgeAliases
+// getForgeAliases()
 // ---------------------------------------------------------------------------
 
-describe('forgeAliases', () => {
+describe('getForgeAliases()', () => {
   const expectedKeys = [
     '@forge/core',
     '@forge/core/dom',
@@ -44,21 +77,23 @@ describe('forgeAliases', () => {
   ];
 
   it('contains an entry for every expected @forge/* specifier', () => {
+    const aliases = getForgeAliases();
     for (const key of expectedKeys) {
-      expect(forgeAliases).toHaveProperty(key);
+      expect(aliases).toHaveProperty(key);
     }
   });
 
   it('every alias is an absolute path', () => {
-    for (const [key, value] of Object.entries(forgeAliases)) {
+    for (const [key, value] of Object.entries(getForgeAliases())) {
       expect(path.isAbsolute(value), `alias for ${key} should be absolute`).toBe(true);
     }
   });
 
   it('all @forge/core subpath aliases share the same dist directory', () => {
-    const coreDir = path.dirname(forgeAliases['@forge/core']!);
+    const aliases = getForgeAliases();
+    const coreDir = path.dirname(aliases['@forge/core']!);
     for (const key of ['@forge/core/dom', '@forge/core/reactivity', '@forge/core/di']) {
-      expect(path.dirname(forgeAliases[key]!)).toBe(coreDir);
+      expect(path.dirname(aliases[key]!)).toBe(coreDir);
     }
   });
 });
