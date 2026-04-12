@@ -374,6 +374,12 @@ export async function runDev(args: string[]): Promise<void> {
   process.on('SIGINT', () => {
     console.log('\n[forge dev] Stopping...');
     fsWatcher.close();
+    // Close all open SSE connections so server.close() callback fires immediately.
+    for (const client of clients) {
+      try { client.destroy(); } catch { /* ignore */ }
+    }
+    clients.clear();
+    server.closeAllConnections();
     server.close(() => process.exit(0));
   });
 }
