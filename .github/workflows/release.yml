@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      # Matches independent project tags: @forge/core@1.2.3, @forge/cli@1.2.3, etc.
+      - '@forge/*@[0-9]*.[0-9]*.[0-9]*'
+
+jobs:
+  release:
+    name: Publish to npm & GitHub Releases
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # required to create GitHub Releases
+      id-token: write   # required for npm provenance
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build all packages
+        run: npx nx run-many --target=build --exclude=docs,hello-world
+
+      - name: Publish to npm
+        # nx release publish runs the nx-release-publish target on each project.
+        # Build already done above; the dependsOn in nx.json ensures correct order.
+        run: npx nx release publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
