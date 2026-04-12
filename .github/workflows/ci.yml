@@ -46,7 +46,7 @@ jobs:
         run: npm ci
 
       - name: Build counter-app
-        run: cd examples/counter-app && npx forge build
+        run: cd examples/counter-app && npm run build
 
   test:
     name: Test
