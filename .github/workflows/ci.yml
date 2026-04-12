@@ -49,3 +49,11 @@ jobs:
 
       - name: Run affected unit tests
         run: npx nx affected --target=test --base=origin/main --head=HEAD --exclude=docs,hello-world
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 5
