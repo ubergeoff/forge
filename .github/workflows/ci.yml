@@ -61,7 +61,6 @@ jobs:
   e2e:
     name: E2E (counter-app)
     runs-on: ubuntu-latest
-    needs: build-counter-app
 
     steps:
       - name: Checkout
