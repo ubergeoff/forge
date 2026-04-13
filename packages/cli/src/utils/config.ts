@@ -1,5 +1,5 @@
 // =============================================================================
-// @vorra/cli — Config loader
+// @forge/cli — Config loader
 // Loads forge.config.js / .mjs / .cjs from the project root.
 // TypeScript configs require a TS loader (tsx, ts-node) to be active.
 // =============================================================================

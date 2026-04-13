@@ -1,5 +1,5 @@
 // =============================================================================
-// @vorra/forms — Built-in Validators
+// @forge/forms — Built-in Validators
 // =============================================================================
 
 import type { ValidatorFn, ValidationErrors } from './types.js';

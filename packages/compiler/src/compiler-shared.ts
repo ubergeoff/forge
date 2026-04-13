@@ -1,5 +1,5 @@
 // =============================================================================
-// @vorra/compiler — Shared compiler internals (browser-safe, no Node.js deps)
+// @forge/compiler — Shared compiler internals (browser-safe, no Node.js deps)
 // Contains all types, the template parser, code generator, and compileSFC.
 // Both compiler.ts (Node.js) and browser.ts import from here.
 // =============================================================================
@@ -759,7 +759,7 @@ export function compileSFC(
   const rootVar = gen.walkNode(elementRoots[0]!);
 
   const domFns = [...gen.usedDomFns].sort().join(', ');
-  const domImportLine = domFns ? `import { ${domFns} } from '@vorra/core/dom';` : '';
+  const domImportLine = domFns ? `import { ${domFns} } from '@forge/core/dom';` : '';
 
   const factoryLines: string[] = [];
   if (bodyContent) {
@@ -775,7 +775,7 @@ export function compileSFC(
 
   const parts: string[] = [];
   parts.push(`// Forge compiled component: ${descriptor.filename}`);
-  parts.push(`import { runInContext } from '@vorra/core';`);
+  parts.push(`import { runInContext } from '@forge/core';`);
   if (domImportLine) parts.push(domImportLine);
   for (const imp of hoistedImports) parts.push(imp);
   parts.push('');

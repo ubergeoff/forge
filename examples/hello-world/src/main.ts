@@ -1,7 +1,7 @@
 import 'forge:css';
-import { bootstrapApp } from '@vorra/core';
-import { mountComponent, createComponent } from '@vorra/core/dom';
-import { provideRouter } from '@vorra/router';
+import { bootstrapApp } from '@forge/core';
+import { mountComponent, createComponent } from '@forge/core/dom';
+import { provideRouter } from '@forge/router';
 import App from './App.forge';
 import HomePage from './pages/HomePage.forge';
 import ForPage from './pages/ForPage.forge';

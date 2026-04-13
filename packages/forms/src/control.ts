@@ -1,9 +1,9 @@
 // =============================================================================
-// @vorra/forms — FormControl
+// @forge/forms — FormControl
 // =============================================================================
 
-import { signal, computed } from '@vorra/core';
-import type { ReadonlySignal } from '@vorra/core';
+import { signal, computed } from '@forge/core';
+import type { ReadonlySignal } from '@forge/core';
 import type { ValidationErrors, ValidatorFn, AsyncValidatorFn, FormStatus } from './types.js';
 
 // ---------------------------------------------------------------------------

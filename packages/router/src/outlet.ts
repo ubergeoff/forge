@@ -1,17 +1,17 @@
 // =============================================================================
-// @vorra/router — RouterOutlet
+// @forge/router — RouterOutlet
 // Reactively mounts / unmounts the active route's component into a container.
 // =============================================================================
 
-import { effect } from '@vorra/core';
-import type { ComponentContext } from '@vorra/core';
+import { effect } from '@forge/core';
+import type { ComponentContext } from '@forge/core';
 import {
   createElement,
   insert,
   remove,
   createComponent,
   destroyComponent,
-} from '@vorra/core/dom';
+} from '@forge/core/dom';
 import type { Router } from './router.js';
 import type { ComponentFactory, LazyComponentLoader } from './types.js';
 import { isLazyComponent } from './types.js';

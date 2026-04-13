@@ -1,5 +1,5 @@
 {
-  "name": "@vorra/router",
+  "name": "@forge/router",
   "version": "0.3.0",
   "description": "Forge router — signal-driven client-side routing",
   "license": "MIT",
@@ -40,7 +40,7 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@vorra/core": "*"
+    "@forge/core": "*"
   },
   "devDependencies": {
     "rolldown": "*",

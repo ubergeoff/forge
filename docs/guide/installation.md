@@ -24,15 +24,15 @@ npm init -y
 ### 2. Install the packages
 
 ```bash
-npm install @vorra/core @vorra/compiler @vorra/router @vorra/forms
-npm install --save-dev @vorra/cli typescript
+npm install @forge/core @forge/compiler @forge/router @forge/forms
+npm install --save-dev @forge/cli typescript
 ```
 
 ### 3. Create `forge.config.ts`
 
 ```ts
 // forge.config.ts
-import { defineConfig } from '@vorra/cli'
+import { defineConfig } from '@forge/cli'
 
 export default defineConfig({
   entry: 'src/main.ts',
@@ -62,8 +62,8 @@ export default defineConfig({
 
 ```ts
 // src/main.ts
-import { bootstrapApp } from '@vorra/core'
-import { createComponent, mountComponent } from '@vorra/core/dom'
+import { bootstrapApp } from '@forge/core'
+import { createComponent, mountComponent } from '@forge/core/dom'
 import App from './App.forge'
 
 const injector = bootstrapApp([])
@@ -76,7 +76,7 @@ mountComponent(App, document.getElementById('app')!, ctx)
 ```forge
 <!-- src/App.forge -->
 <script lang="ts">
-import { signal } from '@vorra/core'
+import { signal } from '@forge/core'
 
 const message = signal('Hello from Forge!')
 </script>
@@ -148,14 +148,14 @@ my-forge-app/
 ## Adding the Router
 
 ```bash
-npm install @vorra/router
+npm install @forge/router
 ```
 
 ```ts
 // src/main.ts
-import { bootstrapApp } from '@vorra/core'
-import { provideRouter } from '@vorra/router'
-import { createComponent, mountComponent } from '@vorra/core/dom'
+import { bootstrapApp } from '@forge/core'
+import { provideRouter } from '@forge/router'
+import { createComponent, mountComponent } from '@forge/core/dom'
 import App from './App.forge'
 import Home from './pages/Home.forge'
 import About from './pages/About.forge'

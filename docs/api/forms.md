@@ -1,9 +1,9 @@
-# @vorra/forms
+# @forge/forms
 
 Reactive, signal-based form controls for Forge. Every form state value is a signal — validation, touched/dirty status, and the value itself — making your templates naturally reactive.
 
 ```bash
-npm install @vorra/forms
+npm install @forge/forms
 ```
 
 ## formControl()
@@ -20,7 +20,7 @@ function formControl<T>(
 
 **Example:**
 ```ts
-import { formControl, Validators } from '@vorra/forms'
+import { formControl, Validators } from '@forge/forms'
 
 const email = formControl('', [Validators.required, Validators.email])
 ```
@@ -259,7 +259,7 @@ function compose(...validators: ValidatorFn[]): ValidatorFn
 
 **Example:**
 ```ts
-import { compose, Validators } from '@vorra/forms'
+import { compose, Validators } from '@forge/forms'
 
 const nameValidator = compose(
   Validators.required,

@@ -1,5 +1,5 @@
 // =============================================================================
-// @vorra/cli — Test Suite (Vitest)
+// @forge/cli — Test Suite (Vitest)
 // =============================================================================
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';

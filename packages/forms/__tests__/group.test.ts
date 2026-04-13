@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { formGroup } from '../src/group.js';
 import { formControl } from '../src/control.js';
 import { Validators } from '../src/validators.js';
-import { effect } from '@vorra/core';
+import { effect } from '@forge/core';
 
 function makeLoginForm() {
   return formGroup({

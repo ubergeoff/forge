@@ -8,7 +8,7 @@
 
 ### 🚀 Features
 
-- **forms:** add @vorra/forms package with reactive form controls ([bbb7bb6](https://github.com/ubergeoff/forge/commit/bbb7bb6))
+- **forms:** add @forge/forms package with reactive form controls ([bbb7bb6](https://github.com/ubergeoff/forge/commit/bbb7bb6))
 
 ### 🧱 Updated Dependencies
 

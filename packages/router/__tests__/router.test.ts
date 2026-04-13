@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Router } from '../src/router.js';
 import { provideRouter, ROUTER, ROUTES } from '../src/router.js';
-import { bootstrapApp, resetRootInjector, inject, runInContext } from '@vorra/core';
+import { bootstrapApp, resetRootInjector, inject, runInContext } from '@forge/core';
 import type { RouteConfig } from '../src/types.js';
 
 // ---------------------------------------------------------------------------

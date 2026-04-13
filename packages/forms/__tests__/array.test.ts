@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { formArray } from '../src/array.js';
 import { formControl } from '../src/control.js';
 import { Validators } from '../src/validators.js';
-import { effect } from '@vorra/core';
+import { effect } from '@forge/core';
 
 describe('formArray — initial state', () => {
   it('initialises with provided controls', () => {

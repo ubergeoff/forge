@@ -18,7 +18,7 @@ export default defineConfig([
       entryFileNames: '[name].js',
       sourcemap: true,
     },
-    external: ['@vorra/core'],
+    external: ['@forge/core'],
   },
   // CJS build
   {
@@ -29,6 +29,6 @@ export default defineConfig([
       entryFileNames: '[name].cjs',
       sourcemap: true,
     },
-    external: ['@vorra/core'],
+    external: ['@forge/core'],
   },
 ]);

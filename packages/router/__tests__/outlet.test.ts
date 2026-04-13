@@ -2,9 +2,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createRouterOutlet } from '../src/outlet.js';
 import { Router, provideRouter } from '../src/router.js';
-import { bootstrapApp, resetRootInjector } from '@vorra/core';
-import { createComponent, destroyComponent } from '@vorra/core/dom';
-import type { ComponentContext } from '@vorra/core';
+import { bootstrapApp, resetRootInjector } from '@forge/core';
+import { createComponent, destroyComponent } from '@forge/core/dom';
+import type { ComponentContext } from '@forge/core';
 import type { RouteConfig } from '../src/types.js';
 
 function makeSetup(routes: RouteConfig[]) {

@@ -13,9 +13,9 @@ import { describe, it, expect, vi } from 'vitest';
 // ---------------------------------------------------------------------------
 
 const FAKE_ROOTS: Record<string, string> = {
-  '@vorra/core':   '/fake/node_modules/@vorra/core/dist/index.cjs',
-  '@vorra/forms':  '/fake/node_modules/@vorra/forms/dist/index.cjs',
-  '@vorra/router': '/fake/node_modules/@vorra/router/dist/index.cjs',
+  '@forge/core':   '/fake/node_modules/@forge/core/dist/index.cjs',
+  '@forge/forms':  '/fake/node_modules/@forge/forms/dist/index.cjs',
+  '@forge/router': '/fake/node_modules/@forge/router/dist/index.cjs',
 };
 
 vi.mock('node:module', async (importOriginal) => {
@@ -45,19 +45,19 @@ const { resolveForgePackage, getForgeAliases, forgeDedupePlugin } =
 
 describe('resolveForgePackage()', () => {
   it('returns an absolute path ending with the requested subpath', () => {
-    const result = resolveForgePackage('@vorra/core');
+    const result = resolveForgePackage('@forge/core');
     expect(path.isAbsolute(result)).toBe(true);
     expect(result.endsWith(path.join('dist', 'index.js'))).toBe(true);
   });
 
   it('accepts a custom subpath', () => {
-    const result = resolveForgePackage('@vorra/core', 'dist/dom.js');
+    const result = resolveForgePackage('@forge/core', 'dist/dom.js');
     expect(result.endsWith(path.join('dist', 'dom.js'))).toBe(true);
   });
 
   it('resolves to the same package root for different subpaths', () => {
-    const index = resolveForgePackage('@vorra/core');
-    const dom   = resolveForgePackage('@vorra/core', 'dist/dom.js');
+    const index = resolveForgePackage('@forge/core');
+    const dom   = resolveForgePackage('@forge/core', 'dist/dom.js');
     expect(path.dirname(index)).toBe(path.dirname(dom));
   });
 });
@@ -68,15 +68,15 @@ describe('resolveForgePackage()', () => {
 
 describe('getForgeAliases()', () => {
   const expectedKeys = [
-    '@vorra/core',
-    '@vorra/core/dom',
-    '@vorra/core/reactivity',
-    '@vorra/core/di',
-    '@vorra/forms',
-    '@vorra/router',
+    '@forge/core',
+    '@forge/core/dom',
+    '@forge/core/reactivity',
+    '@forge/core/di',
+    '@forge/forms',
+    '@forge/router',
   ];
 
-  it('contains an entry for every expected @vorra/* specifier', () => {
+  it('contains an entry for every expected @forge/* specifier', () => {
     const aliases = getForgeAliases();
     for (const key of expectedKeys) {
       expect(aliases).toHaveProperty(key);
@@ -89,10 +89,10 @@ describe('getForgeAliases()', () => {
     }
   });
 
-  it('all @vorra/core subpath aliases share the same dist directory', () => {
+  it('all @forge/core subpath aliases share the same dist directory', () => {
     const aliases = getForgeAliases();
-    const coreDir = path.dirname(aliases['@vorra/core']!);
-    for (const key of ['@vorra/core/dom', '@vorra/core/reactivity', '@vorra/core/di']) {
+    const coreDir = path.dirname(aliases['@forge/core']!);
+    for (const key of ['@forge/core/dom', '@forge/core/reactivity', '@forge/core/di']) {
       expect(path.dirname(aliases[key]!)).toBe(coreDir);
     }
   });
@@ -105,33 +105,33 @@ describe('getForgeAliases()', () => {
 describe('forgeDedupePlugin.resolveId()', () => {
   const resolveId = forgeDedupePlugin.resolveId as (id: string) => unknown;
 
-  it('redirects @vorra/core to an absolute dist path', () => {
-    const result = resolveId('@vorra/core') as { id: string; external: boolean };
+  it('redirects @forge/core to an absolute dist path', () => {
+    const result = resolveId('@forge/core') as { id: string; external: boolean };
     expect(result).toBeDefined();
     expect(path.isAbsolute(result.id)).toBe(true);
     expect(result.id).toContain(path.join('dist', 'index.js'));
     expect(result.external).toBe(false);
   });
 
-  it('redirects @vorra/core/dom', () => {
-    const result = resolveId('@vorra/core/dom') as { id: string; external: boolean };
+  it('redirects @forge/core/dom', () => {
+    const result = resolveId('@forge/core/dom') as { id: string; external: boolean };
     expect(result.id).toContain(path.join('dist', 'dom.js'));
     expect(result.external).toBe(false);
   });
 
-  it('redirects @vorra/forms', () => {
-    const result = resolveId('@vorra/forms') as { id: string; external: boolean };
+  it('redirects @forge/forms', () => {
+    const result = resolveId('@forge/forms') as { id: string; external: boolean };
     expect(result).toBeDefined();
     expect(path.isAbsolute((result as { id: string }).id)).toBe(true);
   });
 
-  it('returns undefined for non-@vorra specifiers', () => {
+  it('returns undefined for non-@forge specifiers', () => {
     expect(resolveId('react')).toBeUndefined();
     expect(resolveId('./local-module')).toBeUndefined();
     expect(resolveId('rolldown')).toBeUndefined();
   });
 
-  it('returns undefined for @vorra specifiers not in the alias map', () => {
-    expect(resolveId('@vorra/unknown-package')).toBeUndefined();
+  it('returns undefined for @forge specifiers not in the alias map', () => {
+    expect(resolveId('@forge/unknown-package')).toBeUndefined();
   });
 });

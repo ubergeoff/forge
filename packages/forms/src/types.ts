@@ -1,5 +1,5 @@
 // =============================================================================
-// @vorra/forms — Shared Types
+// @forge/forms — Shared Types
 // =============================================================================
 
 /** Map of validation error keys to error detail values. */

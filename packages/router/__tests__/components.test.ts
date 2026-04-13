@@ -2,9 +2,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { RouterLink, RouterOutlet } from '../src/components.js';
 import { Router, provideRouter, ROUTER } from '../src/router.js';
-import { bootstrapApp, resetRootInjector } from '@vorra/core';
-import { createComponent, destroyComponent } from '@vorra/core/dom';
-import type { ComponentContext } from '@vorra/core';
+import { bootstrapApp, resetRootInjector } from '@forge/core';
+import { createComponent, destroyComponent } from '@forge/core/dom';
+import type { ComponentContext } from '@forge/core';
 
 function makeSetup() {
   const routes = [{ path: '/home' }, { path: '/about' }];

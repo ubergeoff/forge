@@ -61,9 +61,9 @@ describe('compileSFC — createElement', () => {
     expect(result.code).toContain("createElement('div')");
   });
 
-  it('imports createElement from @vorra/core/dom', () => {
+  it('imports createElement from @forge/core/dom', () => {
     const result = compile(forge({ template: '<span></span>' }));
-    expect(result.code).toContain("from '@vorra/core/dom'");
+    expect(result.code).toContain("from '@forge/core/dom'");
     expect(result.code).toMatch(/import\s*\{[^}]*createElement[^}]*\}/);
   });
 
@@ -77,9 +77,9 @@ describe('compileSFC — createElement', () => {
     expect(result.code).toContain('return _e0;');
   });
 
-  it('always imports runInContext from @vorra/core', () => {
+  it('always imports runInContext from @forge/core', () => {
     const result = compile(forge({ template: '<div></div>' }));
-    expect(result.code).toContain("import { runInContext } from '@vorra/core';");
+    expect(result.code).toContain("import { runInContext } from '@forge/core';");
   });
 
   it('wraps the factory body in runInContext(ctx.injector, ...)', () => {
@@ -111,7 +111,7 @@ describe('compileSFC — setAttr (static)', () => {
     expect(result.code).toContain(`setAttr(_e0, 'id', 'nav')`);
   });
 
-  it('imports setAttr from @vorra/core/dom when used', () => {
+  it('imports setAttr from @forge/core/dom when used', () => {
     const result = compile(forge({ template: '<div class="x"></div>' }));
     expect(result.code).toMatch(/import\s*\{[^}]*setAttr[^}]*\}/);
   });
@@ -169,7 +169,7 @@ describe('compileSFC — listen (event)', () => {
     expect(result.code).toContain('ctx.effects.push(listen(');
   });
 
-  it('imports listen from @vorra/core/dom', () => {
+  it('imports listen from @forge/core/dom', () => {
     const result = compile(forge({ template: '<button @click={fn}>x</button>' }));
     expect(result.code).toMatch(/import\s*\{[^}]*listen[^}]*\}/);
   });
@@ -304,7 +304,7 @@ describe('compileSFC — nested elements and insert ordering', () => {
 describe('compileSFC — script block', () => {
   it('hoists import statements to module scope', () => {
     const source = forge({
-      script: "import { signal } from '@vorra/core';",
+      script: "import { signal } from '@forge/core';",
       template: '<div></div>',
     });
     const result = compile(source);
@@ -330,7 +330,7 @@ describe('compileSFC — script block', () => {
   it('compiles a realistic counter component end-to-end', () => {
     const source = forge({
       script: [
-        "import { signal } from '@vorra/core';",
+        "import { signal } from '@forge/core';",
         'const count = signal(0);',
         'function increment() { count.update(n => n + 1); }',
       ].join('\n'),
@@ -349,10 +349,10 @@ describe('compileSFC — script block', () => {
     // Module header
     expect(code).toContain('// Forge compiled component: counter.forge');
     // runInContext always present
-    expect(code).toContain("import { runInContext } from '@vorra/core';");
+    expect(code).toContain("import { runInContext } from '@forge/core';");
     expect(code).toContain('return runInContext(ctx.injector, () => {');
     // Imports hoisted
-    expect(code).toContain("import { signal } from '@vorra/core';");
+    expect(code).toContain("import { signal } from '@forge/core';");
     // DOM functions imported
     expect(code).toMatch(/import\s*\{[^}]*bindText[^}]*\}/);
     // Script body inside factory
@@ -375,7 +375,7 @@ describe('compileSFC — DI injection context', () => {
   it('compiles inject() in a script block without manual runInContext', () => {
     const source = forge({
       script: [
-        "import { inject } from '@vorra/core';",
+        "import { inject } from '@forge/core';",
         "import { CounterService } from './counter.service.js';",
         'const svc = inject(CounterService);',
       ].join('\n'),
@@ -419,10 +419,10 @@ describe('compileSFC — @for directive', () => {
     expect(result.code).toContain('bindList(');
   });
 
-  it('imports bindList from @vorra/core/dom', () => {
+  it('imports bindList from @forge/core/dom', () => {
     const result = compile(forge({ template: '<ul><li @for={item of items()}>{item.name}</li></ul>' }));
     expect(result.code).toMatch(/import\s*\{[^}]*bindList[^}]*\}/);
-    expect(result.code).toContain("from '@vorra/core/dom'");
+    expect(result.code).toContain("from '@forge/core/dom'");
   });
 
   it('passes the iterable getter to bindList', () => {
@@ -529,7 +529,7 @@ describe('compileSFC — child components (.forge imports)', () => {
     expect(result.code).not.toContain("createElement('MyButton')");
   });
 
-  it('imports mountChild from @vorra/core/dom when a child component is used', () => {
+  it('imports mountChild from @forge/core/dom when a child component is used', () => {
     const source = forge({
       script: "import Card from './card.forge'",
       template: '<div><Card /></div>',
@@ -540,7 +540,7 @@ describe('compileSFC — child components (.forge imports)', () => {
 
   it('does NOT treat lowercase non-.forge imports as components', () => {
     const source = forge({
-      script: "import { signal } from '@vorra/core'",
+      script: "import { signal } from '@forge/core'",
       template: '<div><signal /></div>',
     });
     const result = compile(source);
@@ -550,7 +550,7 @@ describe('compileSFC — child components (.forge imports)', () => {
 
   it('treats PascalCase named imports from non-.forge modules as component factories', () => {
     const source = forge({
-      script: "import { RouterLink } from '@vorra/router'",
+      script: "import { RouterLink } from '@forge/router'",
       template: '<div><RouterLink href="/" label="Home" /></div>',
     });
     const result = compile(source);
@@ -561,7 +561,7 @@ describe('compileSFC — child components (.forge imports)', () => {
 
   it('does NOT treat ALL_CAPS named imports as component factories', () => {
     const source = forge({
-      script: "import { ROUTER } from '@vorra/router'",
+      script: "import { ROUTER } from '@forge/router'",
       template: '<div></div>',
     });
     const result = compile(source);

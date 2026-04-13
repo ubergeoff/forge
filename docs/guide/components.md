@@ -31,8 +31,8 @@ The script block is plain TypeScript (or JavaScript). Variables, functions, and 
 
 ```forge
 <script lang="ts">
-import { signal, computed, effect } from '@vorra/core'
-import { inject } from '@vorra/core'
+import { signal, computed, effect } from '@forge/core'
+import { inject } from '@forge/core'
 import { UserService } from './user.service'
 
 // DI resolution — runs once when the component is mounted
@@ -122,7 +122,7 @@ Forge components are created by the DOM runtime's `mountComponent` / `mountChild
 Register cleanup callbacks inside a service or component that's instantiated within a DI context:
 
 ```ts
-import { onDestroy } from '@vorra/core'
+import { onDestroy } from '@forge/core'
 
 // Inside a service constructor or component script
 onDestroy(() => {
@@ -156,7 +156,7 @@ declare const props: { name: () => string }
 ```forge
 <!-- src/App.forge -->
 <script lang="ts">
-import { signal } from '@vorra/core'
+import { signal } from '@forge/core'
 import Greeting from './Greeting.forge'
 
 const username = signal('Alice')

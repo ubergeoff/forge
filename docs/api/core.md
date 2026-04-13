@@ -1,9 +1,9 @@
-# @vorra/core
+# @forge/core
 
 The reactive foundation of Forge. Provides signals, computed values, effects, batching, dependency injection, and the DOM runtime.
 
 ```bash
-npm install @vorra/core
+npm install @forge/core
 ```
 
 ## Reactivity
@@ -36,7 +36,7 @@ function signal<T>(
 
 **Example:**
 ```ts
-import { signal } from '@vorra/core'
+import { signal } from '@forge/core'
 
 const count = signal(0)
 count()           // → 0
@@ -66,7 +66,7 @@ function computed<T>(
 
 **Example:**
 ```ts
-import { signal, computed } from '@vorra/core'
+import { signal, computed } from '@forge/core'
 
 const price = signal(100)
 const tax = computed(() => price() * 0.2)
@@ -101,7 +101,7 @@ interface EffectHandle {
 
 **Example:**
 ```ts
-import { signal, effect } from '@vorra/core'
+import { signal, effect } from '@forge/core'
 
 const title = signal('Forge')
 
@@ -128,7 +128,7 @@ Effects only run once after the outermost `batch()` completes, not after each wr
 
 **Example:**
 ```ts
-import { signal, effect, batch } from '@vorra/core'
+import { signal, effect, batch } from '@forge/core'
 
 const x = signal(0)
 const y = signal(0)
@@ -153,7 +153,7 @@ function untrack<T>(fn: () => T): T
 
 **Example:**
 ```ts
-import { signal, effect, untrack } from '@vorra/core'
+import { signal, effect, untrack } from '@forge/core'
 
 const trigger = signal(0)
 const data = signal('value')
@@ -230,7 +230,7 @@ interface InjectableOptions {
 
 **Example:**
 ```ts
-import { Injectable } from '@vorra/core'
+import { Injectable } from '@forge/core'
 
 @Injectable({ providedIn: 'root' })
 class UserService {
@@ -280,7 +280,7 @@ class InjectionToken<T> {
 
 **Example:**
 ```ts
-import { InjectionToken } from '@vorra/core'
+import { InjectionToken } from '@forge/core'
 
 export const API_URL = new InjectionToken<string>('API_URL', {
   providedIn: 'root',
@@ -303,7 +303,7 @@ Must be called during component mounting or service instantiation.
 
 **Example:**
 ```ts
-import { inject } from '@vorra/core'
+import { inject } from '@forge/core'
 
 const service = inject(UserService)
 const url = inject(API_URL)
@@ -340,7 +340,7 @@ function bootstrapApp(providers?: Provider<unknown>[]): Injector
 
 **Example:**
 ```ts
-import { bootstrapApp } from '@vorra/core'
+import { bootstrapApp } from '@forge/core'
 
 const injector = bootstrapApp([
   { provide: API_URL, useValue: 'https://api.example.com' },
@@ -407,7 +407,7 @@ interface ExistingProvider<T> {
 
 ## DOM Runtime
 
-Exported from `@vorra/core/dom`. Used by the compiled template output; you typically do not call these directly.
+Exported from `@forge/core/dom`. Used by the compiled template output; you typically do not call these directly.
 
 ### createElement()
 

@@ -1,9 +1,9 @@
 // =============================================================================
-// CounterService — demonstrates @vorra/core DI + signals
+// CounterService — demonstrates @forge/core DI + signals
 // =============================================================================
 
-import { Injectable, onDestroy } from '@vorra/core';
-import { signal, computed, effect } from '@vorra/core';
+import { Injectable, onDestroy } from '@forge/core';
+import { signal, computed, effect } from '@forge/core';
 
 @Injectable({ providedIn: 'root' })
 export class CounterService {

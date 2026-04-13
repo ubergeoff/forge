@@ -1,5 +1,5 @@
 // =============================================================================
-// @vorra/compiler/browser — Browser-safe entry point
+// @forge/compiler/browser — Browser-safe entry point
 // Exports parseSFC + compileSFC pre-configured with the regex TS stripper.
 // Does NOT export the Rolldown plugin (plugin.ts uses node:fs / node:path).
 // Imports ONLY from parser.ts and compiler-shared.ts — never from compiler.ts

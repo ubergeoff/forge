@@ -1,5 +1,5 @@
 // =============================================================================
-// @vorra/cli — forge dev
+// @forge/cli — forge dev
 // Development server: Rolldown one-shot builds + fs.watch for source changes +
 // Server-Sent Events (SSE) for component-level HMR.
 //
@@ -22,7 +22,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { build } from 'rolldown';
 import type { RolldownPlugin, OutputOptions } from 'rolldown';
-import { forgePlugin, generateScopeId } from '@vorra/compiler';
+import { forgePlugin, generateScopeId } from '@forge/compiler';
 import { loadConfig } from '../utils/config.js';
 import { forgeDedupePlugin } from '../utils/forge-dedupe-plugin.js';
 
@@ -40,7 +40,7 @@ const HMR_ENDPOINT = '/__forge_hmr';
  *
  * 'hmr-update' — one or more .forge chunks changed; each is re-imported with
  *   a cache-busting timestamp. The new chunk calls window.__forge_hmr.accept()
- *   which triggers the in-place component swap implemented in @vorra/core.
+ *   which triggers the in-place component swap implemented in @forge/core.
  *
  * 'reload' — a non-component file changed; fall back to a full page reload.
  */
@@ -126,7 +126,7 @@ export async function runDev(args: string[]): Promise<void> {
 
   const userPlugins = (config.plugins ?? []) as RolldownPlugin[];
   // Replace the __forge_dev compile-time constant with `true` so the HMR
-  // runtime block in @vorra/core/dom.ts is included (and dead code in
+  // runtime block in @forge/core/dom.ts is included (and dead code in
   // production builds is tree-shaken when the constant is `false`).
   // Rolldown's programmatic build() API does not accept a top-level `define`
   // option, so we use a minimal transform plugin instead.
@@ -212,8 +212,8 @@ export async function runDev(args: string[]): Promise<void> {
         if (id.endsWith('.forge')) {
           return path.relative(cwd, id).replace(/\\/g, '/').replace('.forge', '');
         }
-        // Bundle all @vorra/* runtime into a single stable shared chunk.
-        if (id.includes(path.join('node_modules', '@vorra'))) {
+        // Bundle all @forge/* runtime into a single stable shared chunk.
+        if (id.includes(path.join('node_modules', '@forge'))) {
           return 'forge-runtime';
         }
         return undefined;

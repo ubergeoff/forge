@@ -1,5 +1,5 @@
 {
-  "name": "@vorra/cli",
+  "name": "@forge/cli",
   "version": "0.3.0",
   "description": "Forge CLI — forge new / forge dev / forge build",
   "license": "MIT",
@@ -43,7 +43,7 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@vorra/compiler": "*",
+    "@forge/compiler": "*",
     "rolldown": "*"
   },
   "devDependencies": {

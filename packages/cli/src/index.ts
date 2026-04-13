@@ -1,5 +1,5 @@
 // =============================================================================
-// @vorra/cli — Public API
+// @forge/cli — Public API
 // =============================================================================
 
 /**
@@ -67,7 +67,7 @@ export interface ForgeConfig {
  * @example
  * ```js
  * // forge.config.js
- * import { defineConfig } from '@vorra/cli';
+ * import { defineConfig } from '@forge/cli';
  *
  * export default defineConfig({
  *   entry: 'src/main.ts',

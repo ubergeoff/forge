@@ -1,5 +1,5 @@
 // =============================================================================
-// @vorra/cli — forge build
+// @forge/cli — forge build
 // Runs a one-shot Rolldown production build with the Forge plugin.
 // =============================================================================
 
@@ -7,7 +7,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { rolldown } from 'rolldown';
 import type { RolldownPlugin } from 'rolldown';
-import { forgePlugin } from '@vorra/compiler';
+import { forgePlugin } from '@forge/compiler';
 import { loadConfig } from '../utils/config.js';
 import { forgeDedupePlugin } from '../utils/forge-dedupe-plugin.js';
 

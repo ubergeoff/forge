@@ -56,11 +56,11 @@ export default defineConfig({
         {
           text: 'API Reference',
           items: [
-            { text: '@vorra/core', link: '/api/core' },
-            { text: '@vorra/compiler', link: '/api/compiler' },
-            { text: '@vorra/router', link: '/api/router' },
-            { text: '@vorra/forms', link: '/api/forms' },
-            { text: '@vorra/cli', link: '/api/cli' },
+            { text: '@forge/core', link: '/api/core' },
+            { text: '@forge/compiler', link: '/api/compiler' },
+            { text: '@forge/router', link: '/api/router' },
+            { text: '@forge/forms', link: '/api/forms' },
+            { text: '@forge/cli', link: '/api/cli' },
           ],
         },
       ],

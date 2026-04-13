@@ -17,11 +17,11 @@
     "composite": true,
     "baseUrl": ".",
     "paths": {
-      "@vorra/core": ["packages/core/src/index.ts"],
-      "@vorra/compiler": ["packages/compiler/src/index.ts"],
-      "@vorra/cli": ["packages/cli/src/index.ts"],
-      "@vorra/router": ["packages/router/src/index.ts"],
-      "@vorra/forms": ["packages/forms/src/index.ts"]
+      "@forge/core": ["packages/core/src/index.ts"],
+      "@forge/compiler": ["packages/compiler/src/index.ts"],
+      "@forge/cli": ["packages/cli/src/index.ts"],
+      "@forge/router": ["packages/router/src/index.ts"],
+      "@forge/forms": ["packages/forms/src/index.ts"]
     }
   },
   "exclude": ["**/node_modules", "**/dist"]

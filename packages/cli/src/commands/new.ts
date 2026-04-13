@@ -1,5 +1,5 @@
 // =============================================================================
-// @vorra/cli — forge new
+// @forge/cli — forge new
 // Scaffolds a new Forge application in a subdirectory of cwd.
 // =============================================================================
 
@@ -112,11 +112,11 @@ function tplPackageJson(name: string): string {
         typecheck: 'forge typecheck',
       },
       dependencies: {
-        '@vorra/core': '^0.1.0',
+        '@forge/core': '^0.1.0',
       },
       devDependencies: {
-        '@vorra/cli': '^0.1.0',
-        '@vorra/compiler': '^0.1.0',
+        '@forge/cli': '^0.1.0',
+        '@forge/compiler': '^0.1.0',
         rolldown: '^0.14.0',
         typescript: '^5.4.0',
       },
@@ -153,7 +153,7 @@ function tplTsconfig(): string {
 
 function tplForgeConfig(): string {
   return `// forge.config.js
-import { defineConfig } from '@vorra/cli';
+import { defineConfig } from '@forge/cli';
 
 export default defineConfig({
   entry: 'src/main.ts',
@@ -189,7 +189,7 @@ dist/
 
 function tplEnvDts(): string {
   return `// Type declarations for .forge single-file components.
-import type { ComponentContext } from '@vorra/core';
+import type { ComponentContext } from '@forge/core';
 
 declare module '*.forge' {
   const component: (ctx: ComponentContext) => Node;
@@ -199,8 +199,8 @@ declare module '*.forge' {
 }
 
 function tplMainTs(): string {
-  return `import { bootstrapApp } from '@vorra/core';
-import { createComponent, mountComponent } from '@vorra/core';
+  return `import { bootstrapApp } from '@forge/core';
+import { createComponent, mountComponent } from '@forge/core';
 import App from './App.forge';
 
 const appEl = document.getElementById('app');
@@ -214,7 +214,7 @@ mountComponent(App, appEl, ctx);
 
 function tplAppForge(): string {
   return `<script>
-import { signal } from '@vorra/core';
+import { signal } from '@forge/core';
 
 const count = signal(0);
 

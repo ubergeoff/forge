@@ -12,7 +12,7 @@ async function transform(code: string, id: string) {
 
 const SIMPLE_FORGE = `
 <script>
-import { signal } from '@vorra/core';
+import { signal } from '@forge/core';
 const count = signal(0);
 </script>
 <template>
@@ -109,15 +109,15 @@ describe('forgePlugin() — generated code', () => {
     expect(result.code).toContain('// Forge compiled component: src/Counter.forge');
   });
 
-  it('emits an import from @vorra/core/dom for used DOM functions', async () => {
+  it('emits an import from @forge/core/dom for used DOM functions', async () => {
     const result = await transform(SIMPLE_FORGE, 'src/Counter.forge') as { code: string };
-    expect(result.code).toContain("from '@vorra/core/dom'");
+    expect(result.code).toContain("from '@forge/core/dom'");
   });
 
   it('hoists import statements from the <script> block to module scope', async () => {
     const result = await transform(SIMPLE_FORGE, 'src/Counter.forge') as { code: string };
     // The signal import should appear before the factory function.
-    const importIdx = result.code.indexOf("import { signal } from '@vorra/core'");
+    const importIdx = result.code.indexOf("import { signal } from '@forge/core'");
     const factoryIdx = result.code.indexOf('export default function');
     expect(importIdx).toBeGreaterThan(-1);
     expect(factoryIdx).toBeGreaterThan(-1);
