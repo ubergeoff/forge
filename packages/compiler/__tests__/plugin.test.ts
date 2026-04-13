@@ -374,7 +374,7 @@ describe('vorraPlugin({ postcss }) — PostCSS integration', () => {
 describe('vorraPlugin() — error handling', () => {
   it('rejects when <template> has no root element', async () => {
     const src = '<template>   </template>';
-    await expect(transform(src, 'Empty.vorra')).rejects.toThrow('[Forge Plugin]');
+    await expect(transform(src, 'Empty.vorra')).rejects.toThrow('[Vorra Plugin]');
     await expect(transform(src, 'Empty.vorra')).rejects.toThrow('Compilation failed');
   });
 

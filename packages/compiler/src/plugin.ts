@@ -105,7 +105,7 @@ export interface VorraPluginObject {
 // ---------------------------------------------------------------------------
 
 /** Prefix that marks synthetic style modules produced per .vorra file. */
-const VIRTUAL_PREFIX = '\0forge-style:vorra-style:';
+const VIRTUAL_PREFIX = '\0vorra-style:';
 
 /**
  * The public import specifier that applications use to trigger CSS entry
