@@ -21,11 +21,11 @@ A `.forge` file has three optional blocks:
 
 ## Step 2: Add reactive state
 
-Import `signal` from `@forge/core` and create a reactive counter:
+Import `signal` from `@vorra/core` and create a reactive counter:
 
 ```forge
 <script lang="ts">
-import { signal } from '@forge/core'
+import { signal } from '@vorra/core'
 
 const count = signal(0)
 </script>
@@ -45,7 +45,7 @@ Use `@click` to bind a click event handler:
 
 ```forge
 <script lang="ts">
-import { signal } from '@forge/core'
+import { signal } from '@vorra/core'
 
 const count = signal(0)
 
@@ -70,7 +70,7 @@ Use `computed` to derive values from signals. Computed values are lazy — they 
 
 ```forge
 <script lang="ts">
-import { signal, computed } from '@forge/core'
+import { signal, computed } from '@vorra/core'
 
 const count = signal(0)
 const doubled = computed(() => count() * 2)
@@ -109,7 +109,7 @@ Add a `<style scoped>` block. The `scoped` attribute ensures styles only apply t
 
 ```forge
 <script lang="ts">
-import { signal, computed } from '@forge/core'
+import { signal, computed } from '@vorra/core'
 
 const count = signal(0)
 const doubled = computed(() => count() * 2)
@@ -192,8 +192,8 @@ Notice `class:even={isEven()}` — this is a conditional class binding that adds
 In your `src/main.ts`:
 
 ```ts
-import { bootstrapApp } from '@forge/core'
-import { createComponent, mountComponent } from '@forge/core/dom'
+import { bootstrapApp } from '@vorra/core'
+import { createComponent, mountComponent } from '@vorra/core/dom'
 import Counter from './Counter.forge'
 
 const injector = bootstrapApp([])

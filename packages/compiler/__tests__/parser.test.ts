@@ -64,7 +64,7 @@ describe('parseSFC — basic block detection', () => {
 
 describe('parseSFC — content extraction', () => {
   it('extracts script content verbatim', () => {
-    const inner = "\nimport { signal } from '@forge/core';\nexport const count = signal(0);\n";
+    const inner = "\nimport { signal } from '@vorra/core';\nexport const count = signal(0);\n";
     const d = parseSFC(`<script>${inner}</script>`, 'x.forge');
     expect(d.script?.content).toBe(inner);
   });
@@ -237,7 +237,7 @@ describe('parseSFC — real-world fixture', () => {
   it('parses a realistic counter component', () => {
     const source = src(
       '<script lang="ts">',
-      "  import { signal } from '@forge/core';",
+      "  import { signal } from '@vorra/core';",
       '  const count = signal(0);',
       "  function increment() { count.update(n => n + 1); }",
       '</script>',

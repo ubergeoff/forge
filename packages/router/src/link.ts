@@ -1,5 +1,5 @@
 // =============================================================================
-// @forge/router — createRouterLink
+// @vorra/router — createRouterLink
 // Creates an <a> element that navigates via the Router instead of the browser.
 // =============================================================================
 

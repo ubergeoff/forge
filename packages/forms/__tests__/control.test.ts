@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { formControl } from '../src/control.js';
 import { Validators } from '../src/validators.js';
-import { effect } from '@forge/core';
+import { effect } from '@vorra/core';
 
 describe('formControl — initial state', () => {
   it('returns the initial value', () => {

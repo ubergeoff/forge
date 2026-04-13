@@ -1,11 +1,11 @@
-# @forge/cli
+# @vorra/cli
 
 The Forge command-line interface. Provides `forge new`, `forge dev`, `forge build`, and `forge typecheck` commands.
 
 ```bash
-npm install --save-dev @forge/cli
+npm install --save-dev @vorra/cli
 # or globally:
-npm install -g @forge/cli
+npm install -g @vorra/cli
 ```
 
 ## Commands
@@ -123,7 +123,7 @@ interface ForgeConfig {
 
 ```ts
 // forge.config.ts
-import { defineConfig } from '@forge/cli'
+import { defineConfig } from '@vorra/cli'
 
 export default defineConfig({
   entry: 'src/main.ts',
@@ -150,10 +150,10 @@ The CLI reads `forge.config.ts` (or `forge.config.js`) from the current working 
 You can invoke CLI commands programmatically:
 
 ```ts
-import { runDev } from '@forge/cli/commands/dev'
-import { runBuild } from '@forge/cli/commands/build'
-import { runNew } from '@forge/cli/commands/new'
-import { runTypecheck } from '@forge/cli/commands/typecheck'
+import { runDev } from '@vorra/cli/commands/dev'
+import { runBuild } from '@vorra/cli/commands/build'
+import { runNew } from '@vorra/cli/commands/new'
+import { runTypecheck } from '@vorra/cli/commands/typecheck'
 
 await runDev(['--port', '4000'])
 await runBuild(['--outDir', 'public'])

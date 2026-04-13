@@ -20,7 +20,7 @@
 
 - add VitePress docs site and split compiler for browser builds ([9169132](https://github.com/ubergeoff/forge/commit/9169132))
 - **compiler:** add [formControl] directive for two-way form binding ([ba28f25](https://github.com/ubergeoff/forge/commit/ba28f25))
-- **forms:** add @forge/forms package with reactive form controls ([bbb7bb6](https://github.com/ubergeoff/forge/commit/bbb7bb6))
+- **forms:** add @vorra/forms package with reactive form controls ([bbb7bb6](https://github.com/ubergeoff/forge/commit/bbb7bb6))
 - add reactivity showcase page and TypeScript support in .forge scripts ([51cd852](https://github.com/ubergeoff/forge/commit/51cd852))
 
 ### 🩹 Fixes

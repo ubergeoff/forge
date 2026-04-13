@@ -1,8 +1,8 @@
 // =============================================================================
-// @forge/router — shared types
+// @vorra/router — shared types
 // =============================================================================
 
-import type { ComponentContext } from '@forge/core';
+import type { ComponentContext } from '@vorra/core';
 
 // ---------------------------------------------------------------------------
 // Component factory types

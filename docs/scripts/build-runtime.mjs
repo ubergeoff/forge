@@ -1,5 +1,5 @@
 /**
- * Bundles @forge/core, @forge/core/dom and @forge/forms into standalone
+ * Bundles @vorra/core, @vorra/core/dom and @vorra/forms into standalone
  * ESM files in docs/public/forge/. These are served as static assets by
  * VitePress and referenced via import maps in the playground iframe.
  *
@@ -16,12 +16,12 @@ const outDir = path.join(__dirname, '../public/forge')
 
 await fs.mkdir(outDir, { recursive: true })
 
-// Bundle everything into ONE file. This is critical: @forge/core and
-// @forge/core/dom both import from reactivity.js. If they're separate bundles
+// Bundle everything into ONE file. This is critical: @vorra/core and
+// @vorra/core/dom both import from reactivity.js. If they're separate bundles
 // they each get their own copy of the scheduler, breaking signal→effect wiring.
 // Mapping both import-map entries to the same file fixes this.
-// forge.js — single bundle containing ALL of @forge/core (reactivity + di + dom).
-// Both "@forge/core" and "@forge/core/dom" map to this file in the import map
+// forge.js — single bundle containing ALL of @vorra/core (reactivity + di + dom).
+// Both "@vorra/core" and "@vorra/core/dom" map to this file in the import map
 // so signals and effects share one scheduler instance.
 console.log('Bundling forge…')
 const forgeBundle = await rolldown({
@@ -34,19 +34,19 @@ await forgeBundle.write({
   inlineDynamicImports: true,
 })
 
-// forms.js — externals @forge/core so it shares the same forge.js instance.
-// The `paths` option rewrites "@forge/core" imports to the correct browser URL.
+// forms.js — externals @vorra/core so it shares the same forge.js instance.
+// The `paths` option rewrites "@vorra/core" imports to the correct browser URL.
 console.log('Bundling forms…')
 const formsBundle = await rolldown({
   input: path.resolve(__dirname, '../../packages/forms/dist/index.js'),
   treeshake: true,
-  external: ['@forge/core'],
+  external: ['@vorra/core'],
 })
 await formsBundle.write({
   format: 'esm',
   file: path.join(outDir, 'forms.js'),
   inlineDynamicImports: true,
-  paths: { '@forge/core': '/forge/forge.js' },
+  paths: { '@vorra/core': '/forge/forge.js' },
 })
 
 console.log('Forge runtime bundles written to docs/public/forge/')

@@ -1,9 +1,9 @@
-# @forge/router
+# @vorra/router
 
 Signal-driven client-side router for Forge applications. Built on the History API with reactive route state exposed as signals.
 
 ```bash
-npm install @forge/router
+npm install @vorra/router
 ```
 
 ## provideRouter()
@@ -16,8 +16,8 @@ function provideRouter(routes: RouteConfig[]): Provider<unknown>[]
 
 **Example:**
 ```ts
-import { bootstrapApp } from '@forge/core'
-import { provideRouter } from '@forge/router'
+import { bootstrapApp } from '@vorra/core'
+import { provideRouter } from '@vorra/router'
 
 bootstrapApp([
   ...provideRouter([
@@ -100,8 +100,8 @@ Remove the `popstate` listener. Call when the application is unmounted (primaril
 ## ROUTER token
 
 ```ts
-import { ROUTER } from '@forge/router'
-import { inject } from '@forge/core'
+import { ROUTER } from '@vorra/router'
+import { inject } from '@vorra/core'
 
 const router = inject(ROUTER)
 ```
@@ -111,8 +111,8 @@ const router = inject(ROUTER)
 ## ROUTES token
 
 ```ts
-import { ROUTES } from '@forge/router'
-import { inject } from '@forge/core'
+import { ROUTES } from '@vorra/router'
+import { inject } from '@vorra/core'
 
 const routes = inject(ROUTES)  // → RouteConfig[]
 ```
@@ -184,7 +184,7 @@ function lazy(
 
 **Example:**
 ```ts
-import { lazy } from '@forge/router'
+import { lazy } from '@vorra/router'
 
 const routes = [
   { path: '/dashboard', component: lazy(() => import('./pages/Dashboard.forge')) },

@@ -9,7 +9,7 @@ const nodeBuiltins = [
   'node:child_process',
 ];
 
-const external = ['@forge/compiler', '@forge/core', 'rolldown', ...nodeBuiltins];
+const external = ['@vorra/compiler', '@vorra/core', 'rolldown', ...nodeBuiltins];
 
 export default defineConfig([
   // ESM build — includes the bin entrypoint
