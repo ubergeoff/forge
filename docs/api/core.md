@@ -1,6 +1,6 @@
 # @vorra/core
 
-The reactive foundation of Forge. Provides signals, computed values, effects, batching, dependency injection, and the DOM runtime.
+The reactive foundation of Vorra. Provides signals, computed values, effects, batching, dependency injection, and the DOM runtime.
 
 ```bash
 npm install @vorra/core
@@ -103,7 +103,7 @@ interface EffectHandle {
 ```ts
 import { signal, effect } from '@vorra/core'
 
-const title = signal('Forge')
+const title = signal('Vorra')
 
 const handle = effect(() => {
   document.title = title()

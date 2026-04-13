@@ -1,6 +1,6 @@
 # @vorra/router
 
-Signal-driven client-side router for Forge applications. Built on the History API with reactive route state exposed as signals.
+Signal-driven client-side router for Vorra applications. Built on the History API with reactive route state exposed as signals.
 
 ```bash
 npm install @vorra/router
@@ -187,8 +187,8 @@ function lazy(
 import { lazy } from '@vorra/router'
 
 const routes = [
-  { path: '/dashboard', component: lazy(() => import('./pages/Dashboard.forge')) },
-  { path: '/admin', component: lazy(() => import('./pages/Admin.forge')) },
+  { path: '/dashboard', component: lazy(() => import('./pages/Dashboard.vorra')) },
+  { path: '/admin', component: lazy(() => import('./pages/Admin.vorra')) },
 ]
 ```
 

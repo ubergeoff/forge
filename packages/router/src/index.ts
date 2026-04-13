@@ -11,7 +11,7 @@ export { createRouterOutlet } from './outlet.js';
 // RouterLink
 export { createRouterLink } from './link.js';
 
-// Component factories for use in .forge templates
+// Component factories for use in .vorra templates
 export { RouterLink, RouterOutlet } from './components.js';
 
 // Lazy loading helper

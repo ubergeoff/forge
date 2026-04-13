@@ -1,20 +1,20 @@
 # Introduction
 
-## What is Forge?
+## What is Vorra?
 
-Forge is a compiled, signal-first JavaScript framework for building enterprise web applications. It takes the best ideas from established frameworks and combines them into a cohesive, high-performance whole:
+Vorra is a compiled, signal-first JavaScript framework for building enterprise web applications. It takes the best ideas from established frameworks and combines them into a cohesive, high-performance whole:
 
 - **Angular's structure** — hierarchical dependency injection, decorators, and a clear module system that scales to large teams
 - **SolidJS's speed** — fine-grained reactivity with no Virtual DOM overhead; DOM updates are surgical and direct
 - **Vue's elegance** — Single File Components that co-locate your script, template, and styles in one place
 
-Forge compiles `.forge` SFCs at build time using the Rolldown-powered compiler pipeline. There is no runtime template interpreter — your templates become plain JavaScript functions that call directly into the DOM runtime.
+Vorra compiles `.vorra` SFCs at build time using the Rolldown-powered compiler pipeline. There is no runtime template interpreter — your templates become plain JavaScript functions that call directly into the DOM runtime.
 
 ## Core Philosophy
 
 ### Signals Over Virtual DOM
 
-The Virtual DOM was a clever workaround for the complexity of tracking what changed. Forge takes a different approach: **signals** are the source of truth for reactive state. When a signal changes, only the DOM nodes that read that signal are updated — no diffing, no tree traversal, no component re-renders.
+The Virtual DOM was a clever workaround for the complexity of tracking what changed. Vorra takes a different approach: **signals** are the source of truth for reactive state. When a signal changes, only the DOM nodes that read that signal are updated — no diffing, no tree traversal, no component re-renders.
 
 ```ts
 import { signal, computed, effect } from '@vorra/core'
@@ -33,7 +33,7 @@ count.set(5)
 
 ### Dependency Injection for Structure
 
-Large applications need a way to share services across the component tree without prop drilling or global singletons. Forge's DI system — inspired by Angular's — lets you declare services with `@Injectable`, resolve them with `inject()`, and scope them to the right level of the injector hierarchy.
+Large applications need a way to share services across the component tree without prop drilling or global singletons. Vorra's DI system — inspired by Angular's — lets you declare services with `@Injectable`, resolve them with `inject()`, and scope them to the right level of the injector hierarchy.
 
 ```ts
 import { Injectable, inject } from '@vorra/core'
@@ -54,9 +54,9 @@ const auth = inject(AuthService)
 
 ### Single File Components for Developer Experience
 
-`.forge` files keep everything about a component together. The compiler splits the file into blocks, strips TypeScript, compiles the template, and outputs a JavaScript module — no extra config required.
+`.vorra` files keep everything about a component together. The compiler splits the file into blocks, strips TypeScript, compiles the template, and outputs a JavaScript module — no extra config required.
 
-```forge
+```vorra
 <script lang="ts">
 import { signal } from '@vorra/core'
 
@@ -83,7 +83,7 @@ button {
 
 ## Quick 5-Minute Example
 
-Let's build a simple counter to see how Forge fits together.
+Let's build a simple counter to see how Vorra fits together.
 
 ### 1. Create a signal
 
@@ -111,7 +111,7 @@ doubled()  // → 0, re-evaluates lazily when count changes
 
 ### 3. Create a component
 
-```forge
+```vorra
 <script lang="ts">
 import { signal, computed } from '@vorra/core'
 
@@ -157,17 +157,17 @@ button {
 // src/main.ts
 import { bootstrapApp } from '@vorra/core'
 import { createComponent, mountComponent } from '@vorra/core/dom'
-import Counter from './Counter.forge'
+import Counter from './Counter.vorra'
 
 const injector = bootstrapApp([])
 const ctx = createComponent(injector)
 mountComponent(Counter, document.getElementById('app')!, ctx)
 ```
 
-That's it. No compiler configuration needed — `forge dev` handles everything.
+That's it. No compiler configuration needed — `vorra dev` handles everything.
 
 ## Next Steps
 
-- [Installation](/guide/installation) — set up a new Forge project
+- [Installation](/guide/installation) — set up a new Vorra project
 - [Your First Component](/guide/your-first-component) — step-by-step walkthrough
 - [Reactivity](/guide/reactivity) — deep dive into signals, computed, and effects

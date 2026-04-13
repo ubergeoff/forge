@@ -2,11 +2,11 @@
   "name": "hello-world",
   "version": "0.0.1",
   "private": true,
-  "description": "Minimal Forge hello-world app — demonstrates forge dev with HMR",
+  "description": "Minimal Vorra hello-world app — demonstrates vorra dev with HMR",
   "type": "module",
   "scripts": {
-    "dev": "forge dev",
-    "build": "forge build"
+    "dev": "vorra dev",
+    "build": "vorra build"
   },
   "dependencies": {
     "@vorra/core": "*",

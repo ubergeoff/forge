@@ -1,5 +1,5 @@
 <script lang="ts">
-import { signal } from '@forge/core';
+import { signal } from '@vorra/core';
 
 const count = signal(0);
 

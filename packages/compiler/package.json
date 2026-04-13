@@ -1,16 +1,16 @@
 {
   "name": "@vorra/compiler",
   "version": "0.3.0",
-  "description": "Forge compiler — .forge SFC parser and template compiler",
+  "description": "Vorra compiler — .vorra SFC parser and template compiler",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ubergeoff/forge.git",
+    "url": "https://github.com/ubergeoff/vorra.git",
     "directory": "packages/compiler"
   },
-  "homepage": "https://github.com/ubergeoff/forge/tree/main/packages/compiler#readme",
+  "homepage": "https://github.com/ubergeoff/vorra/tree/main/packages/compiler#readme",
   "keywords": [
-    "forge",
+    "vorra",
     "compiler",
     "sfc",
     "template",

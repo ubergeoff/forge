@@ -1,5 +1,5 @@
 // =============================================================================
-// @vorra/cli — forge dev
+// @vorra/cli — vorra dev
 // Development server: Rolldown one-shot builds + fs.watch for source changes +
 // Server-Sent Events (SSE) for component-level HMR.
 //
@@ -9,11 +9,11 @@
 // Instead we use Node's built-in fs.watch() restricted to source files only.
 //
 // HMR strategy:
-//   - Each .forge file is split into its own output chunk (stable name).
-//   - fs.watch tracks which .forge files changed during a quiet period.
-//   - If ONLY .forge files changed, an 'hmr-update' SSE event is sent so the
+//   - Each .vorra file is split into its own output chunk (stable name).
+//   - fs.watch tracks which .vorra files changed during a quiet period.
+//   - If ONLY .vorra files changed, an 'hmr-update' SSE event is sent so the
 //     browser can hot-swap individual components without a full page reload.
-//   - If any non-.forge source file also changed, a full 'reload' is sent
+//   - If any non-.vorra source file also changed, a full 'reload' is sent
 //     (e.g. a service dependency changed — the whole app must restart).
 // =============================================================================
 
@@ -22,32 +22,32 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { build } from 'rolldown';
 import type { RolldownPlugin, OutputOptions } from 'rolldown';
-import { forgePlugin, generateScopeId } from '@vorra/compiler';
+import { vorraPlugin, generateScopeId } from '@vorra/compiler';
 import { loadConfig } from '../utils/config.js';
-import { forgeDedupePlugin } from '../utils/forge-dedupe-plugin.js';
+import { vorraDedupePlugin } from '../utils/vorra-dedupe-plugin.js';
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const HMR_ENDPOINT = '/__forge_hmr';
+const HMR_ENDPOINT = '/__vorra_hmr';
 
 /**
  * Injected before </body> in every HTML response.
  *
- * Sets up window.__forge_hmr with an instance registry, then opens an SSE
+ * Sets up window.__vorra_hmr with an instance registry, then opens an SSE
  * connection to receive either component-level HMR updates or full reloads.
  *
- * 'hmr-update' — one or more .forge chunks changed; each is re-imported with
- *   a cache-busting timestamp. The new chunk calls window.__forge_hmr.accept()
+ * 'hmr-update' — one or more .vorra chunks changed; each is re-imported with
+ *   a cache-busting timestamp. The new chunk calls window.__vorra_hmr.accept()
  *   which triggers the in-place component swap implemented in @vorra/core.
  *
  * 'reload' — a non-component file changed; fall back to a full page reload.
  */
 const HMR_CLIENT_SCRIPT = `<script type="module">
 (function () {
-  if (!window.__forge_hmr) window.__forge_hmr = {};
-  var hmr = window.__forge_hmr;
+  if (!window.__vorra_hmr) window.__vorra_hmr = {};
+  var hmr = window.__vorra_hmr;
   if (!hmr.instances) hmr.instances = new Map();
 
   var es = new EventSource('${HMR_ENDPOINT}');
@@ -55,16 +55,16 @@ const HMR_CLIENT_SCRIPT = `<script type="module">
   es.addEventListener('hmr-update', function (e) {
     var data = JSON.parse(e.data);
     data.updates.forEach(function (update) {
-      console.log('[forge hmr] updating component ' + update.id);
+      console.log('[vorra hmr] updating component ' + update.id);
       import(update.url + '?t=' + Date.now()).catch(function (err) {
-        console.error('[forge hmr] failed to load update, falling back to reload', err);
+        console.error('[vorra hmr] failed to load update, falling back to reload', err);
         location.reload();
       });
     });
   });
 
   es.addEventListener('reload', function () {
-    console.log('[forge hmr] full reload');
+    console.log('[vorra hmr] full reload');
     location.reload();
   });
 
@@ -93,9 +93,9 @@ const MIME: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 /**
- * Starts the forge development server.
+ * Starts the vorra development server.
  *
- * CLI flags (override forge.config.js):
+ * CLI flags (override vorra.config.js):
  *   --port <number>   Dev server port (default: 3000)
  *   --entry <path>    Entry file (default: src/main.ts)
  *   --outDir <path>   Output directory (default: dist)
@@ -116,7 +116,7 @@ export async function runDev(args: string[]): Promise<void> {
   const entry =
     (entryIdx !== -1 ? args[entryIdx + 1] : undefined) ?? config.entry ?? 'src/main.ts';
   const outDir =
-    (outDirIdx !== -1 ? args[outDirIdx + 1] : undefined) ?? config.devOutDir ?? '.forge';
+    (outDirIdx !== -1 ? args[outDirIdx + 1] : undefined) ?? config.devOutDir ?? '.vorra';
 
   const entryAbs = path.join(cwd, entry);
   const outDirAbs = path.join(cwd, outDir);
@@ -125,26 +125,26 @@ export async function runDev(args: string[]): Promise<void> {
   const outDirRel = path.relative(cwd, outDirAbs).replace(/\\/g, '/');
 
   const userPlugins = (config.plugins ?? []) as RolldownPlugin[];
-  // Replace the __forge_dev compile-time constant with `true` so the HMR
+  // Replace the __vorra_dev compile-time constant with `true` so the HMR
   // runtime block in @vorra/core/dom.ts is included (and dead code in
   // production builds is tree-shaken when the constant is `false`).
   // Rolldown's programmatic build() API does not accept a top-level `define`
   // option, so we use a minimal transform plugin instead.
   const devDefinePlugin: RolldownPlugin = {
-    name: 'forge-dev-define',
+    name: 'vorra-dev-define',
     transform(code: string) {
-      if (!code.includes('__forge_dev')) return null;
-      // Strip TypeScript `declare const __forge_dev` ambient declarations so that
+      if (!code.includes('__vorra_dev')) return null;
+      // Strip TypeScript `declare const __vorra_dev` ambient declarations so that
       // Rolldown resolving workspace packages to their TypeScript source (via root
       // tsconfig `paths`) doesn't produce invalid syntax like `declare const true`.
-      let result = code.replace(/declare\s+const\s+__forge_dev\b[^\n]*\n?/g, '');
-      result = result.replaceAll('__forge_dev', 'true');
+      let result = code.replace(/declare\s+const\s+__vorra_dev\b[^\n]*\n?/g, '');
+      result = result.replaceAll('__vorra_dev', 'true');
       return { code: result };
     },
   };
   const plugins: RolldownPlugin[] = [
-    forgeDedupePlugin,
-    forgePlugin({
+    vorraDedupePlugin,
+    vorraPlugin({
       hmr: true,
       ...(config.css ? { css: path.join(cwd, config.css) } : {}),
       ...(config.postcss ? { postcss: config.postcss } : {}),
@@ -182,10 +182,10 @@ export async function runDev(args: string[]): Promise<void> {
   // component-level HMR update or a full page reload.
   // -------------------------------------------------------------------------
 
-  /** Absolute paths of .forge files that changed since the last build. */
-  const changedForgeFiles = new Set<string>();
-  /** True if any non-.forge source file changed since the last build. */
-  let hasNonForgeChanges = false;
+  /** Absolute paths of .vorra files that changed since the last build. */
+  const changedVorraFiles = new Set<string>();
+  /** True if any non-.vorra source file changed since the last build. */
+  let hasNonVorraChanges = false;
 
   // -------------------------------------------------------------------------
   // One-shot Rolldown build
@@ -194,7 +194,7 @@ export async function runDev(args: string[]): Promise<void> {
   let isBuilding = false;
   let pendingRebuild = false;
 
-  // Each .forge component gets its own output chunk (stable name so the
+  // Each .vorra component gets its own output chunk (stable name so the
   // browser can cache-bust with ?t=timestamp on HMR update).
   // manualChunks is part of Rolldown's Rollup-compatible surface but is not
   // in its native OutputOptions type yet; cast through unknown to suppress.
@@ -207,14 +207,14 @@ export async function runDev(args: string[]): Promise<void> {
     chunkFileNames: '[name].js',
     ...(({
       manualChunks(id: string): string | undefined {
-        // Each .forge component becomes its own chunk so only the changed
+        // Each .vorra component becomes its own chunk so only the changed
         // component needs to be re-fetched on HMR update.
-        if (id.endsWith('.forge')) {
-          return path.relative(cwd, id).replace(/\\/g, '/').replace('.forge', '');
+        if (id.endsWith('.vorra')) {
+          return path.relative(cwd, id).replace(/\\/g, '/').replace('.vorra', '');
         }
         // Bundle all @vorra/* runtime into a single stable shared chunk.
         if (id.includes(path.join('node_modules', '@vorra'))) {
-          return 'forge-runtime';
+          return 'vorra-runtime';
         }
         return undefined;
       },
@@ -232,10 +232,10 @@ export async function runDev(args: string[]): Promise<void> {
 
     // Snapshot and clear the change sets before the async build starts so
     // any edits made during the build are captured in the next cycle.
-    const currentForgeChanges = new Set(changedForgeFiles);
-    const currentHasNonForge = hasNonForgeChanges;
-    changedForgeFiles.clear();
-    hasNonForgeChanges = false;
+    const currentVorraChanges = new Set(changedVorraFiles);
+    const currentHasNonVorra = hasNonVorraChanges;
+    changedVorraFiles.clear();
+    hasNonVorraChanges = false;
 
     try {
       await build({
@@ -244,24 +244,24 @@ export async function runDev(args: string[]): Promise<void> {
         output: devOutput,
       });
 
-      if (currentForgeChanges.size > 0 && !currentHasNonForge) {
-        // Only .forge files changed — perform component-level HMR.
-        const updates = Array.from(currentForgeChanges).map((filePath) => {
+      if (currentVorraChanges.size > 0 && !currentHasNonVorra) {
+        // Only .vorra files changed — perform component-level HMR.
+        const updates = Array.from(currentVorraChanges).map((filePath) => {
           const id = generateScopeId(filePath);
-          const rel = path.relative(cwd, filePath).replace(/\\/g, '/').replace('.forge', '');
+          const rel = path.relative(cwd, filePath).replace(/\\/g, '/').replace('.vorra', '');
           // URL the browser will request; the static server resolves it from outDirAbs.
           const url = `/${path.join(outDir, rel).replace(/\\/g, '/')}.js`;
           return { id, url };
         });
-        console.log(`[forge hmr] Hot-updating ${updates.length} component(s)...`);
+        console.log(`[vorra hmr] Hot-updating ${updates.length} component(s)...`);
         broadcast('hmr-update', JSON.stringify({ updates }));
       } else {
-        // Non-.forge source changed (service, utility, config, etc.) — full reload.
-        console.log('[forge dev] Rebuilt — notifying clients...');
+        // Non-.vorra source changed (service, utility, config, etc.) — full reload.
+        console.log('[vorra dev] Rebuilt — notifying clients...');
         broadcast('reload', '{}');
       }
     } catch {
-      console.error('[forge dev] Build error — check the terminal above for details.');
+      console.error('[vorra dev] Build error — check the terminal above for details.');
     } finally {
       isBuilding = false;
       if (pendingRebuild) {
@@ -301,10 +301,10 @@ export async function runDev(args: string[]): Promise<void> {
     // ignored entirely, including the debounce, so it cannot cause a spurious
     // empty rebuild that falls to the full-reload branch.
     const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs', '.cjs', '.json', '.html', '.css'];
-    if (filename.endsWith('.forge')) {
-      changedForgeFiles.add(path.resolve(cwd, filename));
+    if (filename.endsWith('.vorra')) {
+      changedVorraFiles.add(path.resolve(cwd, filename));
     } else if (SOURCE_EXTENSIONS.some((ext) => filename.endsWith(ext))) {
-      hasNonForgeChanges = true;
+      hasNonVorraChanges = true;
     } else {
       // Not a source file we care about — skip debounce entirely.
       return;
@@ -323,13 +323,13 @@ export async function runDev(args: string[]): Promise<void> {
   const devScriptSrc = `/${outDir}/${entryName}.js`;
 
   // Initial build on startup.
-  console.log(`[forge dev] Server:  http://localhost:${port}`);
-  console.log(`[forge dev] Entry:   ${entry}`);
-  console.log(`[forge dev] Output:  ${outDir}/`);
-  console.log('[forge dev] HMR:     enabled');
-  console.log('[forge dev] Building...');
+  console.log(`[vorra dev] Server:  http://localhost:${port}`);
+  console.log(`[vorra dev] Entry:   ${entry}`);
+  console.log(`[vorra dev] Output:  ${outDir}/`);
+  console.log('[vorra dev] HMR:     enabled');
+  console.log('[vorra dev] Building...');
   await runBuild();
-  console.log('[forge dev] Watching for changes...\n');
+  console.log('[vorra dev] Watching for changes...\n');
 
   // -------------------------------------------------------------------------
   // HTTP server
@@ -379,7 +379,7 @@ export async function runDev(args: string[]): Promise<void> {
   // -------------------------------------------------------------------------
 
   process.on('SIGINT', () => {
-    console.log('\n[forge dev] Stopping...');
+    console.log('\n[vorra dev] Stopping...');
     fsWatcher.close();
     // Close all open SSE connections so server.close() callback fires immediately.
     for (const client of clients) {

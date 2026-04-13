@@ -11,5 +11,5 @@ export type { CompileResult, CompileError, CompileSFCOptions } from './compiler.
 export { compileSFC, generateScopeId } from './compiler.js';
 
 // Step 6: Rolldown plugin (complete)
-export type { ForgePluginObject } from './plugin.js';
-export { forgePlugin } from './plugin.js';
+export type { VorraPluginObject } from './plugin.js';
+export { vorraPlugin } from './plugin.js';

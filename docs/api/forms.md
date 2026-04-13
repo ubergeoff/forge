@@ -1,6 +1,6 @@
 # @vorra/forms
 
-Reactive, signal-based form controls for Forge. Every form state value is a signal — validation, touched/dirty status, and the value itself — making your templates naturally reactive.
+Reactive, signal-based form controls for Vorra. Every form state value is a signal — validation, touched/dirty status, and the value itself — making your templates naturally reactive.
 
 ```bash
 npm install @vorra/forms

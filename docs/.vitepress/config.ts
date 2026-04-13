@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'Forge',
+  title: 'Vorra',
   description: 'A compiled, signal-first JavaScript framework for enterprise applications.',
   ignoreDeadLinks: true,
 
@@ -19,7 +19,7 @@ export default defineConfig({
       {
         text: 'v0.1.0',
         items: [
-          { text: 'Changelog', link: 'https://github.com/your-org/forge/blob/main/CHANGELOG.md' },
+          { text: 'Changelog', link: 'https://github.com/your-org/vorra/blob/main/CHANGELOG.md' },
         ],
       },
     ],
@@ -67,12 +67,12 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/your-org/forge' },
+      { icon: 'github', link: 'https://github.com/your-org/vorra' },
     ],
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024-present Forge Contributors',
+      copyright: 'Copyright © 2024-present Vorra Contributors',
     },
 
     search: {

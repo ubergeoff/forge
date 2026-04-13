@@ -4,9 +4,9 @@ In this guide we'll build a counter component step by step, introducing signals,
 
 ## Step 1: Create the file
 
-Create `src/Counter.forge`. The `.forge` extension tells the compiler this is a Single File Component.
+Create `src/Counter.vorra`. The `.vorra` extension tells the compiler this is a Single File Component.
 
-```forge
+```vorra
 <script lang="ts">
 </script>
 
@@ -14,7 +14,7 @@ Create `src/Counter.forge`. The `.forge` extension tells the compiler this is a 
 </template>
 ```
 
-A `.forge` file has three optional blocks:
+A `.vorra` file has three optional blocks:
 - `<script lang="ts">` — your component logic (TypeScript or JavaScript)
 - `<template>` — the HTML-like template
 - `<style scoped>` — styles scoped to this component
@@ -23,7 +23,7 @@ A `.forge` file has three optional blocks:
 
 Import `signal` from `@vorra/core` and create a reactive counter:
 
-```forge
+```vorra
 <script lang="ts">
 import { signal } from '@vorra/core'
 
@@ -43,7 +43,7 @@ const count = signal(0)
 
 Use `@click` to bind a click event handler:
 
-```forge
+```vorra
 <script lang="ts">
 import { signal } from '@vorra/core'
 
@@ -68,7 +68,7 @@ function increment() {
 
 Use `computed` to derive values from signals. Computed values are lazy — they only re-evaluate when one of their signal dependencies changes, and only when read:
 
-```forge
+```vorra
 <script lang="ts">
 import { signal, computed } from '@vorra/core'
 
@@ -107,7 +107,7 @@ function reset() {
 
 Add a `<style scoped>` block. The `scoped` attribute ensures styles only apply to this component's elements:
 
-```forge
+```vorra
 <script lang="ts">
 import { signal, computed } from '@vorra/core'
 
@@ -194,7 +194,7 @@ In your `src/main.ts`:
 ```ts
 import { bootstrapApp } from '@vorra/core'
 import { createComponent, mountComponent } from '@vorra/core/dom'
-import Counter from './Counter.forge'
+import Counter from './Counter.vorra'
 
 const injector = bootstrapApp([])
 const ctx = createComponent(injector)
@@ -206,7 +206,7 @@ mountComponent(Counter, document.getElementById('app')!, ctx)
 Edit the counter live in your browser:
 
 <ClientOnly>
-  <ForgePlayground height="520px" />
+  <VorraPlayground height="520px" />
 </ClientOnly>
 
 ## What you learned

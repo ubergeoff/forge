@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { forgePlugin } from '../src/plugin.js';
+import { vorraPlugin } from '../src/plugin.js';
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 async function transform(code: string, id: string) {
-  const plugin = forgePlugin();
+  const plugin = vorraPlugin();
   return plugin.transform(code, id);
 }
 
@@ -24,24 +24,24 @@ const count = signal(0);
 // Plugin identity
 // ---------------------------------------------------------------------------
 
-describe('forgePlugin() — identity', () => {
-  it('returns a plugin object with name "forge"', () => {
-    const plugin = forgePlugin();
-    expect(plugin.name).toBe('forge');
+describe('vorraPlugin() — identity', () => {
+  it('returns a plugin object with name "vorra"', () => {
+    const plugin = vorraPlugin();
+    expect(plugin.name).toBe('vorra');
   });
 
   it('exposes a transform function', () => {
-    const plugin = forgePlugin();
+    const plugin = vorraPlugin();
     expect(typeof plugin.transform).toBe('function');
   });
 
   it('exposes a resolveId function', () => {
-    const plugin = forgePlugin();
+    const plugin = vorraPlugin();
     expect(typeof plugin.resolveId).toBe('function');
   });
 
   it('exposes a load function', () => {
-    const plugin = forgePlugin();
+    const plugin = vorraPlugin();
     expect(typeof plugin.load).toBe('function');
   });
 });
@@ -50,7 +50,7 @@ describe('forgePlugin() — identity', () => {
 // File filtering
 // ---------------------------------------------------------------------------
 
-describe('forgePlugin() — file filtering', () => {
+describe('vorraPlugin() — file filtering', () => {
   it('returns null for .ts files', async () => {
     expect(await transform('export const x = 1;', 'src/main.ts')).toBeNull();
   });
@@ -67,12 +67,12 @@ describe('forgePlugin() — file filtering', () => {
     expect(await transform('<div/>', 'src/App.svelte')).toBeNull();
   });
 
-  it('processes .forge files', async () => {
-    expect(await transform(SIMPLE_FORGE, 'src/Counter.forge')).not.toBeNull();
+  it('processes .vorra files', async () => {
+    expect(await transform(SIMPLE_FORGE, 'src/Counter.vorra')).not.toBeNull();
   });
 
-  it('processes .forge files regardless of directory depth', async () => {
-    const result = await transform(SIMPLE_FORGE, 'src/components/deep/Foo.forge');
+  it('processes .vorra files regardless of directory depth', async () => {
+    const result = await transform(SIMPLE_FORGE, 'src/components/deep/Foo.vorra');
     expect(result).not.toBeNull();
   });
 });
@@ -81,20 +81,20 @@ describe('forgePlugin() — file filtering', () => {
 // Output shape
 // ---------------------------------------------------------------------------
 
-describe('forgePlugin() — output shape', () => {
+describe('vorraPlugin() — output shape', () => {
   it('returns an object with a code property', async () => {
-    const result = await transform(SIMPLE_FORGE, 'src/Counter.forge');
+    const result = await transform(SIMPLE_FORGE, 'src/Counter.vorra');
     expect(result).toMatchObject({ code: expect.any(String) });
   });
 
   it('does not include a map property when no source map is produced', async () => {
-    const result = await transform(SIMPLE_FORGE, 'src/Counter.forge');
+    const result = await transform(SIMPLE_FORGE, 'src/Counter.vorra');
     // compileSFC currently never produces a map — the key should be absent.
     expect(result).not.toHaveProperty('map');
   });
 
   it('generated code is a non-empty string', async () => {
-    const result = await transform(SIMPLE_FORGE, 'src/Counter.forge');
+    const result = await transform(SIMPLE_FORGE, 'src/Counter.vorra');
     expect((result as { code: string }).code.length).toBeGreaterThan(0);
   });
 });
@@ -103,19 +103,19 @@ describe('forgePlugin() — output shape', () => {
 // Generated code correctness
 // ---------------------------------------------------------------------------
 
-describe('forgePlugin() — generated code', () => {
+describe('vorraPlugin() — generated code', () => {
   it('emits the compiled header comment with the filename', async () => {
-    const result = await transform(SIMPLE_FORGE, 'src/Counter.forge') as { code: string };
-    expect(result.code).toContain('// Forge compiled component: src/Counter.forge');
+    const result = await transform(SIMPLE_FORGE, 'src/Counter.vorra') as { code: string };
+    expect(result.code).toContain('// Vorra compiled component: src/Counter.vorra');
   });
 
   it('emits an import from @vorra/core/dom for used DOM functions', async () => {
-    const result = await transform(SIMPLE_FORGE, 'src/Counter.forge') as { code: string };
+    const result = await transform(SIMPLE_FORGE, 'src/Counter.vorra') as { code: string };
     expect(result.code).toContain("from '@vorra/core/dom'");
   });
 
   it('hoists import statements from the <script> block to module scope', async () => {
-    const result = await transform(SIMPLE_FORGE, 'src/Counter.forge') as { code: string };
+    const result = await transform(SIMPLE_FORGE, 'src/Counter.vorra') as { code: string };
     // The signal import should appear before the factory function.
     const importIdx = result.code.indexOf("import { signal } from '@vorra/core'");
     const factoryIdx = result.code.indexOf('export default function');
@@ -125,17 +125,17 @@ describe('forgePlugin() — generated code', () => {
   });
 
   it('exports a default factory function', async () => {
-    const result = await transform(SIMPLE_FORGE, 'src/Counter.forge') as { code: string };
+    const result = await transform(SIMPLE_FORGE, 'src/Counter.vorra') as { code: string };
     expect(result.code).toContain('export default function(ctx, props = {})');
   });
 
   it('emits createElement for the root element', async () => {
-    const result = await transform(SIMPLE_FORGE, 'src/Counter.forge') as { code: string };
+    const result = await transform(SIMPLE_FORGE, 'src/Counter.vorra') as { code: string };
     expect(result.code).toContain("createElement('div')");
   });
 
   it('emits bindText for an interpolation', async () => {
-    const result = await transform(SIMPLE_FORGE, 'src/Counter.forge') as { code: string };
+    const result = await transform(SIMPLE_FORGE, 'src/Counter.vorra') as { code: string };
     expect(result.code).toContain('bindText(');
   });
 
@@ -144,7 +144,7 @@ describe('forgePlugin() — generated code', () => {
 <template>
   <button class="btn" type="button">Click</button>
 </template>`.trim();
-    const result = await transform(src, 'Btn.forge') as { code: string };
+    const result = await transform(src, 'Btn.vorra') as { code: string };
     expect(result.code).toContain("setAttr(_e0, 'class', 'btn')");
     expect(result.code).toContain("setAttr(_e0, 'type', 'button')");
   });
@@ -154,7 +154,7 @@ describe('forgePlugin() — generated code', () => {
 <template>
   <a :href={url()}>link</a>
 </template>`.trim();
-    const result = await transform(src, 'Link.forge') as { code: string };
+    const result = await transform(src, 'Link.vorra') as { code: string };
     expect(result.code).toContain("bindAttr(");
     expect(result.code).toContain("'href'");
   });
@@ -164,7 +164,7 @@ describe('forgePlugin() — generated code', () => {
 <template>
   <button @click={handleClick}>go</button>
 </template>`.trim();
-    const result = await transform(src, 'Btn.forge') as { code: string };
+    const result = await transform(src, 'Btn.vorra') as { code: string };
     expect(result.code).toContain("listen(");
     expect(result.code).toContain("'click'");
   });
@@ -174,7 +174,7 @@ describe('forgePlugin() — generated code', () => {
 <template>
   <span :show={visible()}>hi</span>
 </template>`.trim();
-    const result = await transform(src, 'Span.forge') as { code: string };
+    const result = await transform(src, 'Span.vorra') as { code: string };
     expect(result.code).toContain('bindShow(');
   });
 
@@ -183,7 +183,7 @@ describe('forgePlugin() — generated code', () => {
 <template>
   <div class:active={isActive()}>x</div>
 </template>`.trim();
-    const result = await transform(src, 'Div.forge') as { code: string };
+    const result = await transform(src, 'Div.vorra') as { code: string };
     expect(result.code).toContain('bindClass(');
     expect(result.code).toContain("'active'");
   });
@@ -193,7 +193,7 @@ describe('forgePlugin() — generated code', () => {
 <template>
   <input .value={text()} />
 </template>`.trim();
-    const result = await transform(src, 'Input.forge') as { code: string };
+    const result = await transform(src, 'Input.vorra') as { code: string };
     expect(result.code).toContain('bindProp(');
     expect(result.code).toContain("'value'");
   });
@@ -221,102 +221,102 @@ const FORGE_WITH_SCOPED_CSS = `
 </style>
 `.trim();
 
-describe('forgePlugin() — CSS style blocks', () => {
-  it('inlines CSS injection code into the transform result for .forge files with a <style> block', async () => {
-    const plugin = forgePlugin();
-    const result = await plugin.transform(FORGE_WITH_CSS, 'src/Box.forge') as { code: string };
+describe('vorraPlugin() — CSS style blocks', () => {
+  it('inlines CSS injection code into the transform result for .vorra files with a <style> block', async () => {
+    const plugin = vorraPlugin();
+    const result = await plugin.transform(FORGE_WITH_CSS, 'src/Box.vorra') as { code: string };
     // Styles are inlined directly — no virtual import generated.
-    expect(result.code).not.toContain('forge-style');
+    expect(result.code).not.toContain('vorra-style');
     expect(result.code).toContain('document.createElement');
   });
 
   it('does NOT inject any CSS when there are no <style> blocks', async () => {
-    const plugin = forgePlugin();
-    const result = await plugin.transform(SIMPLE_FORGE, 'src/Counter.forge') as { code: string };
-    expect(result.code).not.toContain('forge-style');
+    const plugin = vorraPlugin();
+    const result = await plugin.transform(SIMPLE_FORGE, 'src/Counter.vorra') as { code: string };
+    expect(result.code).not.toContain('vorra-style');
     expect(result.code).not.toContain('document.createElement(\'style\')');
   });
 
   it('inlined code contains the raw CSS', async () => {
-    const plugin = forgePlugin();
-    const result = await plugin.transform(FORGE_WITH_CSS, 'src/Box.forge') as { code: string };
+    const plugin = vorraPlugin();
+    const result = await plugin.transform(FORGE_WITH_CSS, 'src/Box.vorra') as { code: string };
     expect(result.code).toContain('color: red');
   });
 
   it('inlined code guards against SSR with typeof document check', async () => {
-    const plugin = forgePlugin();
-    const result = await plugin.transform(FORGE_WITH_CSS, 'src/Box.forge') as { code: string };
+    const plugin = vorraPlugin();
+    const result = await plugin.transform(FORGE_WITH_CSS, 'src/Box.vorra') as { code: string };
     expect(result.code).toContain('typeof document');
   });
 
   it('scoped styles add attribute selector to CSS rules in the inlined code', async () => {
-    const plugin = forgePlugin();
-    const result = await plugin.transform(FORGE_WITH_SCOPED_CSS, 'src/Scoped.forge') as { code: string };
-    expect(result.code).toMatch(/\[data-v-forge-[0-9a-f]+\]/);
+    const plugin = vorraPlugin();
+    const result = await plugin.transform(FORGE_WITH_SCOPED_CSS, 'src/Scoped.vorra') as { code: string };
+    expect(result.code).toMatch(/\[data-v-vorra-[0-9a-f]+\]/);
   });
 
   it('scoped transform stamps data-v attribute on template elements', async () => {
-    const plugin = forgePlugin();
-    const result = await plugin.transform(FORGE_WITH_SCOPED_CSS, 'src/Scoped.forge') as { code: string };
-    expect(result.code).toMatch(/data-v-forge-[0-9a-f]+/);
+    const plugin = vorraPlugin();
+    const result = await plugin.transform(FORGE_WITH_SCOPED_CSS, 'src/Scoped.vorra') as { code: string };
+    expect(result.code).toMatch(/data-v-vorra-[0-9a-f]+/);
   });
 
   it('unscoped styles do NOT add attribute selectors', async () => {
-    const plugin = forgePlugin();
-    const result = await plugin.transform(FORGE_WITH_CSS, 'src/Box.forge') as { code: string };
+    const plugin = vorraPlugin();
+    const result = await plugin.transform(FORGE_WITH_CSS, 'src/Box.vorra') as { code: string };
     expect(result.code).not.toMatch(/\[data-v-/);
   });
 
   it('resolveId claims virtual style IDs (used for standalone .scss files)', () => {
-    const plugin = forgePlugin();
-    const id = '\0forge-style:src/Box.forge';
+    const plugin = vorraPlugin();
+    const id = '\0vorra-style:src/Box.vorra';
     expect(plugin.resolveId(id)).toBe(id);
   });
 
   it('resolveId returns null for non-virtual IDs', () => {
-    const plugin = forgePlugin();
+    const plugin = vorraPlugin();
     expect(plugin.resolveId('src/main.ts')).toBeNull();
     expect(plugin.resolveId('./styles.css')).toBeNull();
   });
 
   it('load returns null for unknown IDs', async () => {
-    const plugin = forgePlugin();
+    const plugin = vorraPlugin();
     expect(await plugin.load('src/main.ts')).toBeNull();
   });
 
   it('load returns empty code for a virtual style ID (styles are now inlined, not stored)', async () => {
-    const plugin = forgePlugin();
-    await plugin.transform(FORGE_WITH_CSS, 'src/Box.forge');
-    // The virtualStyles map is no longer populated for .forge files.
-    const mod = await plugin.load('\0forge-style:src/Box.forge') as { code: string };
+    const plugin = vorraPlugin();
+    await plugin.transform(FORGE_WITH_CSS, 'src/Box.vorra');
+    // The virtualStyles map is no longer populated for .vorra files.
+    const mod = await plugin.load('\0vorra-style:src/Box.vorra') as { code: string };
     expect(mod.code).toBe('');
   });
 });
 
 // ---------------------------------------------------------------------------
-// .css file handling — new forge:css virtual module approach
+// .css file handling — new vorra:css virtual module approach
 // ---------------------------------------------------------------------------
 
-describe('forgePlugin() — .css file handling', () => {
+describe('vorraPlugin() — .css file handling', () => {
   it('returns null from transform for .css files (Rolldown handles them natively)', async () => {
-    const plugin = forgePlugin();
+    const plugin = vorraPlugin();
     expect(await plugin.transform('.box { color: red; }', 'src/style.css')).toBeNull();
   });
 
-  it('resolveId maps "forge:css" to the internal virtual ID', () => {
-    const plugin = forgePlugin();
-    expect(plugin.resolveId('forge:css')).toBe('\0forge:css');
+  it('resolveId maps "vorra:css" to the internal virtual ID', () => {
+    const plugin = vorraPlugin();
+    expect(plugin.resolveId('vorra:css')).toBe('\0vorra:css');
   });
 
   it('load returns empty code for the CSS virtual module when no css option is set', async () => {
-    const plugin = forgePlugin();
-    const result = await plugin.load('\0forge:css') as { code: string };
+    const plugin = vorraPlugin();
+    const result = await plugin.load('\0vorra:css') as { code: string };
     expect(result).not.toBeNull();
     expect(result.code).toBe('');
   });
 
-  it('still returns null for non-.css, non-.forge files', async () => {
-    const plugin = forgePlugin();
+  it('still returns null for non-.css, non-.vorra files', async () => {
+    const plugin = vorraPlugin();
     expect(await plugin.transform('export {}', 'src/main.ts')).toBeNull();
   });
 });
@@ -325,19 +325,19 @@ describe('forgePlugin() — .css file handling', () => {
 // PostCSS integration
 // ---------------------------------------------------------------------------
 
-describe('forgePlugin({ postcss }) — PostCSS integration', () => {
+describe('vorraPlugin({ postcss }) — PostCSS integration', () => {
   it('accepts a postcss option without throwing', () => {
-    expect(() => forgePlugin({ postcss: { plugins: [] } })).not.toThrow();
+    expect(() => vorraPlugin({ postcss: { plugins: [] } })).not.toThrow();
   });
 
-  it('does not transform .css files via transform (PostCSS is applied via forge:css virtual module)', async () => {
+  it('does not transform .css files via transform (PostCSS is applied via vorra:css virtual module)', async () => {
     const appendComment = {
       postcssPlugin: 'test-append',
       Once(root: { append: (node: object) => void }) {
         root.append({ text: 'processed by test' });
       },
     };
-    const plugin = forgePlugin({ postcss: { plugins: [appendComment] } });
+    const plugin = vorraPlugin({ postcss: { plugins: [appendComment] } });
     // .css files are no longer handled by transform; Rolldown intercepts them.
     expect(await plugin.transform('.box { color: red; }', 'src/style.css')).toBeNull();
   });
@@ -349,20 +349,20 @@ describe('forgePlugin({ postcss }) — PostCSS integration', () => {
         root.append({ text: 'postcss-was-here' });
       },
     };
-    const plugin = forgePlugin({ postcss: { plugins: [appendComment] } });
+    const plugin = vorraPlugin({ postcss: { plugins: [appendComment] } });
     const src = `
 <template><div class="box">hi</div></template>
 <style scoped>.box { color: red; }</style>
 `.trim();
-    const result = await plugin.transform(src, 'src/Box.forge') as { code: string };
+    const result = await plugin.transform(src, 'src/Box.vorra') as { code: string };
     expect(result.code).toContain('postcss-was-here');
     // Scoping still applied after PostCSS.
-    expect(result.code).toMatch(/\[data-v-forge-[0-9a-f]+\]/);
+    expect(result.code).toMatch(/\[data-v-vorra-[0-9a-f]+\]/);
   });
 
   it('works without postcss option (default behaviour unchanged)', async () => {
-    const plugin = forgePlugin();
-    const result = await plugin.transform(FORGE_WITH_CSS, 'src/Box.forge') as { code: string };
+    const plugin = vorraPlugin();
+    const result = await plugin.transform(FORGE_WITH_CSS, 'src/Box.vorra') as { code: string };
     expect(result.code).toContain('color: red');
   });
 });
@@ -371,26 +371,26 @@ describe('forgePlugin({ postcss }) — PostCSS integration', () => {
 // Error handling
 // ---------------------------------------------------------------------------
 
-describe('forgePlugin() — error handling', () => {
+describe('vorraPlugin() — error handling', () => {
   it('rejects when <template> has no root element', async () => {
     const src = '<template>   </template>';
-    await expect(transform(src, 'Empty.forge')).rejects.toThrow('[Forge Plugin]');
-    await expect(transform(src, 'Empty.forge')).rejects.toThrow('Compilation failed');
+    await expect(transform(src, 'Empty.vorra')).rejects.toThrow('[Forge Plugin]');
+    await expect(transform(src, 'Empty.vorra')).rejects.toThrow('Compilation failed');
   });
 
   it('rejects when <script> block is unclosed', async () => {
     const src = '<script>const x = 1;';
-    await expect(transform(src, 'Bad.forge')).rejects.toThrow('[Forge Parser]');
+    await expect(transform(src, 'Bad.vorra')).rejects.toThrow('[Vorra Parser]');
   });
 
   it('error message includes the filename', async () => {
     const src = '<template></template>'; // no root element
-    await expect(transform(src, 'src/Broken.forge')).rejects.toThrow('src/Broken.forge');
+    await expect(transform(src, 'src/Broken.vorra')).rejects.toThrow('src/Broken.vorra');
   });
 
   it('does not reject for a warning-only case (no template)', async () => {
     const src = '<script>export const x = 1;</script>';
     // Missing template produces a warning, not an error — should not reject.
-    await expect(transform(src, 'NoTemplate.forge')).resolves.not.toThrow();
+    await expect(transform(src, 'NoTemplate.vorra')).resolves.not.toThrow();
   });
 });

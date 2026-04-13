@@ -1,5 +1,5 @@
 // =============================================================================
-// Forge DI System — Test Suite (Vitest)
+// Vorra DI System — Test Suite (Vitest)
 // =============================================================================
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -231,7 +231,7 @@ describe('Injector hierarchy', () => {
 describe('inject() context guards', () => {
     it('throws when called outside injection context', () => {
         const TOKEN = new InjectionToken('TOKEN');
-        expect(() => inject(TOKEN)).toThrow('[Forge DI] inject() called outside');
+        expect(() => inject(TOKEN)).toThrow('[Vorra DI] inject() called outside');
     });
     it('returns null for optional missing token', () => {
         const TOKEN = new InjectionToken('MISSING');
@@ -242,7 +242,7 @@ describe('inject() context guards', () => {
     it('throws for non-optional missing token', () => {
         const TOKEN = new InjectionToken('MISSING');
         const injector = bootstrapApp();
-        expect(() => runInContext(injector, () => inject(TOKEN))).toThrow('[Forge DI] No provider found');
+        expect(() => runInContext(injector, () => inject(TOKEN))).toThrow('[Vorra DI] No provider found');
     });
 });
 // ---------------------------------------------------------------------------
@@ -311,7 +311,7 @@ describe('onDestroy()', () => {
         expect(spy).toHaveBeenCalledTimes(1);
     });
     it('throws when called outside injection context', () => {
-        expect(() => onDestroy(() => { })).toThrow('[Forge DI] onDestroy() must be called within an injection context.');
+        expect(() => onDestroy(() => { })).toThrow('[Vorra DI] onDestroy() must be called within an injection context.');
     });
 });
 // ---------------------------------------------------------------------------

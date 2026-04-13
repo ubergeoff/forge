@@ -77,9 +77,9 @@ describe('RouterOutlet component factory', () => {
     resetRootInjector();
   });
 
-  it('returns a div with data-forge-outlet attribute', () => {
+  it('returns a div with data-vorra-outlet attribute', () => {
     const outlet = RouterOutlet(parentCtx, {}) as HTMLElement;
     expect(outlet.tagName).toBe('DIV');
-    expect(outlet.hasAttribute('data-forge-outlet')).toBe(true);
+    expect(outlet.hasAttribute('data-vorra-outlet')).toBe(true);
   });
 });

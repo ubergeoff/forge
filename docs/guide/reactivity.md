@@ -1,6 +1,6 @@
 # Reactivity
 
-Forge's reactivity system is the engine that makes your UI respond to state changes without a Virtual DOM. It is implemented in `@vorra/core` as a push-pull system built on three primitives: `signal`, `computed`, and `effect`.
+Vorra's reactivity system is the engine that makes your UI respond to state changes without a Virtual DOM. It is implemented in `@vorra/core` as a push-pull system built on three primitives: `signal`, `computed`, and `effect`.
 
 ## signal()
 
@@ -135,7 +135,7 @@ effect(() => {
 
 ### Effects and the DOM
 
-The Forge DOM runtime uses effects internally to keep DOM nodes in sync with signals. When you write `{count()}` in a template, the compiler generates a `bindText` call that creates an effect watching `count`. You usually do not need to write effects for DOM updates — the template compiler handles that.
+The Vorra DOM runtime uses effects internally to keep DOM nodes in sync with signals. When you write `{count()}` in a template, the compiler generates a `bindText` call that creates an effect watching `count`. You usually do not need to write effects for DOM updates — the template compiler handles that.
 
 Use effects for non-DOM side effects: logging, network requests, WebSocket subscriptions, localStorage sync, etc.
 

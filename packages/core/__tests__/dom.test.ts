@@ -381,7 +381,7 @@ describe('mountComponent', () => {
 // ---------------------------------------------------------------------------
 
 describe('HMR — mountChild instance registration', () => {
-  it('registers an instance in window.__forge_hmr.instances when factory has __hmrId', () => {
+  it('registers an instance in window.__vorra_hmr.instances when factory has __hmrId', () => {
     const app = bootstrapApp();
     const parentCtx = createComponent(app);
 
@@ -391,31 +391,31 @@ describe('HMR — mountChild instance registration', () => {
       setAttr(el, 'id', 'child');
       return el;
     };
-    (factory as Record<string, unknown>)['__hmrId'] = 'forge-test01';
+    (factory as Record<string, unknown>)['__hmrId'] = 'vorra-test01';
 
     // Set up a fake global HMR runtime (normally done by dom.ts at startup
-    // when __forge_dev is true, but that constant is undefined in tests).
+    // when __vorra_dev is true, but that constant is undefined in tests).
     const instances = new Map<string, unknown[]>();
-    (window as Record<string, unknown>)['__forge_hmr'] = { instances };
+    (window as Record<string, unknown>)['__vorra_hmr'] = { instances };
 
     mountChild(factory, parentCtx);
 
-    expect(instances.has('forge-test01')).toBe(true);
-    expect(instances.get('forge-test01')).toHaveLength(1);
+    expect(instances.has('vorra-test01')).toBe(true);
+    expect(instances.get('vorra-test01')).toHaveLength(1);
 
     destroyComponent(parentCtx);
-    delete (window as Record<string, unknown>)['__forge_hmr'];
+    delete (window as Record<string, unknown>)['__vorra_hmr'];
     app.destroy();
   });
 
-  it('does not throw when window.__forge_hmr is absent (production)', () => {
+  it('does not throw when window.__vorra_hmr is absent (production)', () => {
     const app = bootstrapApp();
     const parentCtx = createComponent(app);
 
     const factory = (ctx: ReturnType<typeof createComponent>) => createElement('div');
-    (factory as Record<string, unknown>)['__hmrId'] = 'forge-test02';
+    (factory as Record<string, unknown>)['__hmrId'] = 'vorra-test02';
 
-    // No __forge_hmr global — must not throw.
+    // No __vorra_hmr global — must not throw.
     expect(() => mountChild(factory, parentCtx)).not.toThrow();
 
     destroyComponent(parentCtx);
@@ -429,7 +429,7 @@ describe('HMR — hmrAccept swaps component instances', () => {
     const parentCtx = createComponent(app);
     const container = createElement('div');
 
-    const COMP_ID = 'forge-swap01';
+    const COMP_ID = 'vorra-swap01';
 
     // Original factory renders a <span>.
     const originalFactory = (ctx: ReturnType<typeof createComponent>) => {
@@ -439,7 +439,7 @@ describe('HMR — hmrAccept swaps component instances', () => {
 
     // Set up fake HMR registry.
     const instances = new Map<string, unknown[]>();
-    (window as Record<string, unknown>)['__forge_hmr'] = { instances };
+    (window as Record<string, unknown>)['__vorra_hmr'] = { instances };
 
     const node = mountChild(originalFactory, parentCtx);
     insert(container, node);
@@ -456,7 +456,7 @@ describe('HMR — hmrAccept swaps component instances', () => {
     expect(container.children[0]?.tagName.toLowerCase()).toBe('button');
 
     destroyComponent(parentCtx);
-    delete (window as Record<string, unknown>)['__forge_hmr'];
+    delete (window as Record<string, unknown>)['__vorra_hmr'];
     app.destroy();
   });
 
@@ -464,13 +464,13 @@ describe('HMR — hmrAccept swaps component instances', () => {
     const app = bootstrapApp();
     const parentCtx = createComponent(app);
 
-    const COMP_ID = 'forge-skip01';
+    const COMP_ID = 'vorra-skip01';
 
     const factory = (ctx: ReturnType<typeof createComponent>) => createElement('p');
     (factory as Record<string, unknown>)['__hmrId'] = COMP_ID;
 
     const instances = new Map<string, unknown[]>();
-    (window as Record<string, unknown>)['__forge_hmr'] = { instances };
+    (window as Record<string, unknown>)['__vorra_hmr'] = { instances };
 
     // Mount but never insert into a parent — node.parentNode will be null.
     mountChild(factory, parentCtx);
@@ -481,7 +481,7 @@ describe('HMR — hmrAccept swaps component instances', () => {
     expect(() => hmrAccept(COMP_ID, newFactory)).not.toThrow();
 
     destroyComponent(parentCtx);
-    delete (window as Record<string, unknown>)['__forge_hmr'];
+    delete (window as Record<string, unknown>)['__vorra_hmr'];
     app.destroy();
   });
 
@@ -490,7 +490,7 @@ describe('HMR — hmrAccept swaps component instances', () => {
     const parentCtx = createComponent(app);
     const container = createElement('div');
 
-    const COMP_ID = 'forge-effect01';
+    const COMP_ID = 'vorra-effect01';
     let effectDestroyed = false;
 
     const originalFactory = (ctx: ReturnType<typeof createComponent>) => {
@@ -502,7 +502,7 @@ describe('HMR — hmrAccept swaps component instances', () => {
     (originalFactory as Record<string, unknown>)['__hmrId'] = COMP_ID;
 
     const instances = new Map<string, unknown[]>();
-    (window as Record<string, unknown>)['__forge_hmr'] = { instances };
+    (window as Record<string, unknown>)['__vorra_hmr'] = { instances };
 
     const node = mountChild(originalFactory, parentCtx);
     insert(container, node);
@@ -515,7 +515,7 @@ describe('HMR — hmrAccept swaps component instances', () => {
     expect(effectDestroyed).toBe(true);
 
     destroyComponent(parentCtx);
-    delete (window as Record<string, unknown>)['__forge_hmr'];
+    delete (window as Record<string, unknown>)['__vorra_hmr'];
     app.destroy();
   });
 });

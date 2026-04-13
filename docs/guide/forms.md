@@ -36,7 +36,7 @@ name.errors()   // → null
 
 Use the `[formControl]` directive for two-way binding:
 
-```forge
+```vorra
 <script lang="ts">
 import { formControl, Validators } from '@vorra/forms'
 
@@ -256,7 +256,7 @@ username.errors()   // → { usernameTaken: true } or null
 
 ## Complete Login Form Example
 
-```forge
+```vorra
 <script lang="ts">
 import { formControl, formGroup, Validators } from '@vorra/forms'
 import { inject } from '@vorra/core'

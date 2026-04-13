@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from '@forge/cli';
+import { defineConfig } from '@vorra/cli';
 import tailwindcss from '@tailwindcss/postcss';
 
 export default defineConfig({

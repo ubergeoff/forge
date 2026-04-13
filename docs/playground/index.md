@@ -4,13 +4,13 @@ title: Playground
 ---
 
 <script setup>
-import ForgePlayground from '../.vitepress/theme/components/ForgePlayground.vue'
+import VorraPlayground from '../.vitepress/theme/components/VorraPlayground.vue'
 </script>
 
-# Forge Playground
+# Vorra Playground
 
-Write and run Forge components live in your browser.
+Write and run Vorra components live in your browser.
 
 <ClientOnly>
-  <ForgePlayground height="600px" />
+  <VorraPlayground height="600px" />
 </ClientOnly>

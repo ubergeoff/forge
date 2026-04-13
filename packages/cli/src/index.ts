@@ -3,10 +3,10 @@
 // =============================================================================
 
 /**
- * User-facing configuration for a Forge project.
- * Returned by `defineConfig()` and loaded by `forge dev` / `forge build`.
+ * User-facing configuration for a Vorra project.
+ * Returned by `defineConfig()` and loaded by `vorra dev` / `vorra build`.
  */
-export interface ForgeConfig {
+export interface VorraConfig {
   /** Application entry point. Defaults to `'src/main.ts'`. */
   entry?: string;
   /** Output directory. Defaults to `'dist'`. */
@@ -14,21 +14,21 @@ export interface ForgeConfig {
   /** Dev server port. Defaults to `3000`. */
   port?: number;
   /**
-   * Output directory used by `forge dev`. Defaults to `'.forge'`.
+   * Output directory used by `vorra dev`. Defaults to `'.vorra'`.
    * Kept separate from `outDir` so dev artifacts never pollute the production
-   * build folder. Add `.forge/` to your `.gitignore`.
+   * build folder. Add `.vorra/` to your `.gitignore`.
    */
   devOutDir?: string;
-  /** Additional Rolldown plugins appended after the built-in forge plugin. */
+  /** Additional Rolldown plugins appended after the built-in vorra plugin. */
   plugins?: unknown[];
   /**
    * Emit source map files alongside build output.
-   * Defaults to `false` for `forge build` (production).
-   * `forge dev` always enables source maps regardless of this setting.
+   * Defaults to `false` for `vorra build` (production).
+   * `vorra dev` always enables source maps regardless of this setting.
    *
    * @example
    * ```js
-   * // forge.config.js — enable source maps for a debug/staging build
+   * // vorra.config.js — enable source maps for a debug/staging build
    * export default defineConfig({ sourcemap: true });
    * ```
    */
@@ -36,11 +36,11 @@ export interface ForgeConfig {
   /**
    * Absolute or relative path to a CSS entry file processed through PostCSS
    * (e.g. a Tailwind CSS file using `@import "tailwindcss"`). Import the
-   * virtual module `"forge:css"` from your entry point to inject it:
+   * virtual module `"vorra:css"` from your entry point to inject it:
    *
    * ```ts
    * // src/main.ts
-   * import 'forge:css';
+   * import 'vorra:css';
    * ```
    */
   css?: string;
@@ -50,7 +50,7 @@ export interface ForgeConfig {
    *
    * @example
    * ```js
-   * // forge.config.js
+   * // vorra.config.js
    * import tailwindcss from '@tailwindcss/postcss';
    * export default defineConfig({
    *   css: './src/tailwind.css',
@@ -62,11 +62,11 @@ export interface ForgeConfig {
 }
 
 /**
- * Type-safe helper for writing `forge.config.js`.
+ * Type-safe helper for writing `vorra.config.js`.
  *
  * @example
  * ```js
- * // forge.config.js
+ * // vorra.config.js
  * import { defineConfig } from '@vorra/cli';
  *
  * export default defineConfig({
@@ -76,6 +76,6 @@ export interface ForgeConfig {
  * });
  * ```
  */
-export function defineConfig(config: ForgeConfig): ForgeConfig {
+export function defineConfig(config: VorraConfig): VorraConfig {
   return config;
 }

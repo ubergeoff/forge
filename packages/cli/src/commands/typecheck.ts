@@ -1,5 +1,5 @@
 // =============================================================================
-// @vorra/cli — forge typecheck
+// @vorra/cli — vorra typecheck
 // Delegates to `tsc --build` in the project root.
 // =============================================================================
 
@@ -13,7 +13,7 @@ import { spawnSync } from 'node:child_process';
 export function runTypecheck(args: string[]): void {
   const noEmit = args.includes('--emit') ? [] : ['--noEmit'];
 
-  console.log('[forge typecheck] Running tsc --build...');
+  console.log('[vorra typecheck] Running tsc --build...');
 
   const result = spawnSync('tsc', ['--build', ...noEmit], {
     stdio: 'inherit',
@@ -22,7 +22,7 @@ export function runTypecheck(args: string[]): void {
   });
 
   if (result.error !== undefined) {
-    console.error('[Forge CLI] Failed to run tsc:', result.error.message);
+    console.error('[Vorra CLI] Failed to run tsc:', result.error.message);
     process.exit(1);
     return;
   }

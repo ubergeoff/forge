@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: "Forge"
+  name: "Vorra"
   text: "Signal-First JavaScript Framework"
   tagline: Angular's structure. SolidJS's speed. Vue's elegance.
   actions:
@@ -14,7 +14,7 @@ hero:
       link: /playground/
     - theme: alt
       text: View on GitHub
-      link: https://github.com/your-org/forge
+      link: https://github.com/your-org/vorra
 
 features:
   - icon: ⚡
@@ -27,7 +27,7 @@ features:
 
   - icon: 📦
     title: Single File Components
-    details: Co-locate your script, template, and styles in a single .forge file. Scoped styles, TypeScript support, and reactive directives included.
+    details: Co-locate your script, template, and styles in a single .vorra file. Scoped styles, TypeScript support, and reactive directives included.
 
   - icon: 🔌
     title: Batteries Included
@@ -35,7 +35,7 @@ features:
 
   - icon: 🦀
     title: Rolldown-Powered Builds
-    details: Forge uses the Rust-based Rolldown bundler for blazing-fast builds with full ESM and CJS output.
+    details: Vorra uses the Rust-based Rolldown bundler for blazing-fast builds with full ESM and CJS output.
 
   - icon: 🧪
     title: Fully Tested

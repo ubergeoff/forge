@@ -2,7 +2,7 @@
 // @vorra/compiler — Rolldown Plugin (Step 6)
 // Wires the SFC parser + template compiler into the Rolldown build pipeline.
 // CSS and SCSS support:
-//   - <style> and <style lang="scss"> blocks in .forge files are extracted,
+//   - <style> and <style lang="scss"> blocks in .vorra files are extracted,
 //     compiled (if SCSS), and injected via a virtual CSS module.
 //   - <style scoped> stamps data-v-{scopeId} on every template element and
 //     rewrites CSS selectors to match.
@@ -23,21 +23,21 @@ import type { CompileSFCOptions } from './compiler.js';
 // ---------------------------------------------------------------------------
 
 /**
- * Options for the Forge Rolldown plugin.
+ * Options for the Vorra Rolldown plugin.
  */
-export interface ForgePluginOptions {
+export interface VorraPluginOptions {
   /**
    * Absolute or relative path to a CSS entry file (e.g. a Tailwind CSS file
    * using `@import "tailwindcss"`). The file is processed through PostCSS
    * when `postcss` is also configured, then injected into the page at runtime
    * via a `<style>` element.
    *
-   * Import the virtual module `"forge:css"` from your entry point to trigger
+   * Import the virtual module `"vorra:css"` from your entry point to trigger
    * injection:
    *
    * ```ts
    * // src/main.ts
-   * import 'forge:css';
+   * import 'vorra:css';
    * ```
    *
    * Because Rolldown's built-in CSS extraction intercepts `.css` imports
@@ -46,7 +46,7 @@ export interface ForgePluginOptions {
    *
    * @example
    * ```ts
-   * forgePlugin({
+   * vorraPlugin({
    *   css: './src/tailwind.css',
    *   postcss: { plugins: [tailwindcss()] },
    * })
@@ -56,7 +56,7 @@ export interface ForgePluginOptions {
 
   /**
    * Optional PostCSS configuration. When provided, all CSS (including
-   * `<style>` blocks in `.forge` files) is processed through PostCSS before
+   * `<style>` blocks in `.vorra` files) is processed through PostCSS before
    * injection. Required for Tailwind CSS and other PostCSS plugins.
    *
    * @example
@@ -64,7 +64,7 @@ export interface ForgePluginOptions {
    * import tailwindcss from 'tailwindcss';
    * import autoprefixer from 'autoprefixer';
    *
-   * forgePlugin({ postcss: { plugins: [tailwindcss(), autoprefixer()] } })
+   * vorraPlugin({ postcss: { plugins: [tailwindcss(), autoprefixer()] } })
    * ```
    */
   postcss?: {
@@ -72,11 +72,11 @@ export interface ForgePluginOptions {
   };
 
   /**
-   * Enable Hot Module Replacement (HMR) support. When true, compiled `.forge`
+   * Enable Hot Module Replacement (HMR) support. When true, compiled `.vorra`
    * components include self-registration code that allows the dev server to
    * hot-swap component instances without a full page reload.
    *
-   * Set automatically by `forge dev`; do not set in production builds.
+   * Set automatically by `vorra dev`; do not set in production builds.
    */
   hmr?: boolean;
 }
@@ -86,11 +86,11 @@ export interface ForgePluginOptions {
 // ---------------------------------------------------------------------------
 
 /**
- * The subset of the Rolldown/Rollup plugin interface used by the Forge plugin.
+ * The subset of the Rolldown/Rollup plugin interface used by the Vorra plugin.
  * Kept minimal so this package does not need a hard dep on rolldown's types.
  * `transform` is always async to support optional PostCSS processing.
  */
-export interface ForgePluginObject {
+export interface VorraPluginObject {
   name: string;
   resolveId(id: string): string | null;
   load(id: string): Promise<{ code: string } | null>;
@@ -104,18 +104,18 @@ export interface ForgePluginObject {
 // Virtual module prefixes
 // ---------------------------------------------------------------------------
 
-/** Prefix that marks synthetic style modules produced per .forge file. */
-const VIRTUAL_PREFIX = '\0forge-style:';
+/** Prefix that marks synthetic style modules produced per .vorra file. */
+const VIRTUAL_PREFIX = '\0forge-style:vorra-style:';
 
 /**
  * The public import specifier that applications use to trigger CSS entry
  * injection. Resolved to `CSS_VIRTUAL_ID` by the plugin so it never carries
  * a `.css` extension that Rolldown would intercept as a CSS asset.
  */
-const CSS_IMPORT_SPECIFIER = 'forge:css';
+const CSS_IMPORT_SPECIFIER = 'vorra:css';
 
 /** Internal virtual module ID for the CSS entry injection module. */
-const CSS_VIRTUAL_ID = '\0forge:css';
+const CSS_VIRTUAL_ID = '\0vorra:css';
 
 // ---------------------------------------------------------------------------
 // SCSS compilation
@@ -139,7 +139,7 @@ function getSass(): SassCompiler {
     return _sass;
   } catch {
     throw new Error(
-      `[Forge Compiler] SCSS requires the 'sass' package — run: npm i -D sass`,
+      `[Vorra Compiler] SCSS requires the 'sass' package — run: npm i -D sass`,
     );
   }
 }
@@ -180,7 +180,7 @@ function getPostCSS(): PostCSSFactory {
     return _postcss;
   } catch {
     throw new Error(
-      `[Forge Compiler] PostCSS requires the 'postcss' package — run: npm i -D postcss`,
+      `[Vorra Compiler] PostCSS requires the 'postcss' package — run: npm i -D postcss`,
     );
   }
 }
@@ -254,7 +254,7 @@ function buildStyleModule(css: string): string {
 /**
  * Returns a Rolldown (Rollup-compatible) plugin that:
  *
- * 1. Transforms `.forge` SFC files into plain JavaScript modules.
+ * 1. Transforms `.vorra` SFC files into plain JavaScript modules.
  * 2. Extracts `<style>` / `<style lang="scss">` blocks into virtual CSS
  *    modules that inject a `<style>` element at runtime.
  * 3. Applies CSS scoping when `<style scoped>` is present.
@@ -264,17 +264,17 @@ function buildStyleModule(css: string): string {
  * ```ts
  * // rolldown.config.ts — with Tailwind CSS
  * import { defineConfig } from 'rolldown';
- * import { forgePlugin } from '@vorra/compiler';
+ * import { vorraPlugin } from '@vorra/compiler';
  * import tailwindcss from 'tailwindcss';
  * import autoprefixer from 'autoprefixer';
  *
  * export default defineConfig({
  *   input: 'src/main.ts',
- *   plugins: [forgePlugin({ postcss: { plugins: [tailwindcss(), autoprefixer()] } })],
+ *   plugins: [vorraPlugin({ postcss: { plugins: [tailwindcss(), autoprefixer()] } })],
  * });
  * ```
  */
-export function forgePlugin(options?: ForgePluginOptions): ForgePluginObject {
+export function vorraPlugin(options?: VorraPluginOptions): VorraPluginObject {
   /**
    * Maps virtual module IDs → their JS injection code.
    * Populated by `transform`, consumed by `load`.
@@ -282,7 +282,7 @@ export function forgePlugin(options?: ForgePluginOptions): ForgePluginObject {
   const virtualStyles = new Map<string, string>();
 
   return {
-    name: 'forge',
+    name: 'vorra',
 
     // -------------------------------------------------------------------------
     // resolveId — claim ownership of virtual style module IDs
@@ -299,7 +299,7 @@ export function forgePlugin(options?: ForgePluginOptions): ForgePluginObject {
     // -------------------------------------------------------------------------
 
     async load(id: string) {
-      // Virtual style modules produced by .forge SFC compilation.
+      // Virtual style modules produced by .vorra SFC compilation.
       if (id.startsWith(VIRTUAL_PREFIX)) {
         const moduleCode = virtualStyles.get(id) ?? '';
         return { code: moduleCode };
@@ -331,12 +331,12 @@ export function forgePlugin(options?: ForgePluginOptions): ForgePluginObject {
     },
 
     // -------------------------------------------------------------------------
-    // transform — .css imports and .forge SFCs
+    // transform — .css imports and .vorra SFCs
     // -------------------------------------------------------------------------
 
     async transform(code: string, id: string) {
-      // ---- .forge SFC files ------------------------------------------------
-      if (!id.endsWith('.forge')) return null;
+      // ---- .vorra SFC files ------------------------------------------------
+      if (!id.endsWith('.vorra')) return null;
 
       // Step 1 — parse the SFC source into block descriptors.
       const descriptor = parseSFC(code, id);
@@ -349,7 +349,7 @@ export function forgePlugin(options?: ForgePluginOptions): ForgePluginObject {
       if (result.errors.length > 0) {
         const messages = result.errors.map(e => e.message).join('\n');
         throw new Error(
-          `[Forge Plugin] Compilation failed for "${id}":\n${messages}`,
+          `[Vorra Plugin] Compilation failed for "${id}":\n${messages}`,
         );
       }
 

@@ -29,11 +29,11 @@ describe('createRouterOutlet', () => {
     resetRootInjector();
   });
 
-  it('returns a div with data-forge-outlet attribute', () => {
+  it('returns a div with data-vorra-outlet attribute', () => {
     ({ router, parentCtx } = makeSetup([{ path: '/home' }]));
     const outlet = createRouterOutlet(router, parentCtx);
     expect(outlet.tagName).toBe('DIV');
-    expect(outlet.hasAttribute('data-forge-outlet')).toBe(true);
+    expect(outlet.hasAttribute('data-vorra-outlet')).toBe(true);
   });
 
   it('mounts a component when a matching route is active', async () => {

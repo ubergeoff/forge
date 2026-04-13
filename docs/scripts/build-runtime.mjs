@@ -1,6 +1,6 @@
 /**
  * Bundles @vorra/core, @vorra/core/dom and @vorra/forms into standalone
- * ESM files in docs/public/forge/. These are served as static assets by
+ * ESM files in docs/public/vorra/. These are served as static assets by
  * VitePress and referenced via import maps in the playground iframe.
  *
  * Run before `vitepress build` or `vitepress dev` via the prebuild script.
@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url'
 import fs from 'fs/promises'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const outDir = path.join(__dirname, '../public/forge')
+const outDir = path.join(__dirname, '../public/vorra')')
 
 await fs.mkdir(outDir, { recursive: true })
 
@@ -23,14 +23,14 @@ await fs.mkdir(outDir, { recursive: true })
 // forge.js — single bundle containing ALL of @vorra/core (reactivity + di + dom).
 // Both "@vorra/core" and "@vorra/core/dom" map to this file in the import map
 // so signals and effects share one scheduler instance.
-console.log('Bundling forge…')
-const forgeBundle = await rolldown({
+console.log('Bundling vorra…')
+const vorraBundle = await rolldown({
   input: path.resolve(__dirname, '../../packages/core/dist/index.js'),
   treeshake: true,
 })
-await forgeBundle.write({
+await vorraBundle.write({
   format: 'esm',
-  file: path.join(outDir, 'forge.js'),
+  file: path.join(outDir, 'vorra.js'),
   inlineDynamicImports: true,
 })
 
@@ -49,4 +49,4 @@ await formsBundle.write({
   paths: { '@vorra/core': '/forge/forge.js' },
 })
 
-console.log('Forge runtime bundles written to docs/public/forge/')
+console.log('Forge runtime bundles written to docs/public/vorra/')

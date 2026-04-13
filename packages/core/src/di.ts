@@ -1,5 +1,5 @@
 // =============================================================================
-// Forge DI System
+// Vorra DI System
 // Injectable / InjectionToken / inject() / Injector / runInContext()
 // =============================================================================
 
@@ -190,7 +190,7 @@ export class Injector {
     if (result === NOT_FOUND) {
       if (optional) return null;
       throw new Error(
-        `[Forge DI] No provider found for ${tokenName(token)}. ` +
+        `[Vorra DI] No provider found for ${tokenName(token)}. ` +
         `Did you forget @Injectable() or to add it to your providers array?`
       );
     }
@@ -206,7 +206,7 @@ export class Injector {
     // 2. Circular dependency guard
     if (this.resolving.has(token)) {
       throw new Error(
-        `[Forge DI] Circular dependency detected while resolving ${tokenName(token)}.`
+        `[Vorra DI] Circular dependency detected while resolving ${tokenName(token)}.`
       );
     }
 
@@ -411,7 +411,7 @@ export function inject<T>(
 ): T | null {
   if (!activeInjector) {
     throw new Error(
-      `[Forge DI] inject() called outside of an injection context. ` +
+      `[Vorra DI] inject() called outside of an injection context. ` +
       `inject() can only be used during component or service construction.`
     );
   }
@@ -450,7 +450,7 @@ function tokenName(token: Token<unknown>): string {
  */
 export function onDestroy(fn: () => void): void {
   if (!activeInjector) {
-    throw new Error('[Forge DI] onDestroy() must be called within an injection context.');
+    throw new Error('[Vorra DI] onDestroy() must be called within an injection context.');
   }
   // Attach the cleanup to a sentinel object in the injector under a unique token
   const token = new InjectionToken<DestroyRef>(`__destroyRef__`);

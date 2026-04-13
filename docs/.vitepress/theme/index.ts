@@ -1,11 +1,11 @@
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
-import ForgePlayground from './components/ForgePlayground.vue'
+import VorraPlayground from './components/VorraPlayground.vue'
 import './styles/custom.css'
 
 export default {
   extends: DefaultTheme,
   enhanceApp({ app }) {
-    app.component('ForgePlayground', ForgePlayground)
+    app.component('VorraPlayground', VorraPlayground)
   },
 } satisfies Theme

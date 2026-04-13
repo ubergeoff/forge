@@ -1,5 +1,5 @@
 // =============================================================================
-// Forge Reactivity Core — Test Suite (Vitest)
+// Vorra Reactivity Core — Test Suite (Vitest)
 // =============================================================================
 import { describe, it, expect, vi } from 'vitest';
 import { signal, computed, effect, batch, untrack, isSignal, } from '../src/reactivity.js';

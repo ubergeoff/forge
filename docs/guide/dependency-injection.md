@@ -1,6 +1,6 @@
 # Dependency Injection
 
-Forge's DI system provides a hierarchical, type-safe way to share services across your application. It is modelled after Angular's DI but simplified for the Forge component model.
+Vorra's DI system provides a hierarchical, type-safe way to share services across your application. It is modelled after Angular's DI but simplified for the Vorra component model.
 
 ## Core Concepts
 
@@ -43,7 +43,7 @@ class CounterService {
 
 ## @Inject
 
-When a class has constructor dependencies, declare them with `@Inject`. This is required because Forge does not rely on `emitDecoratorMetadata`:
+When a class has constructor dependencies, declare them with `@Inject`. This is required because Vorra does not rely on `emitDecoratorMetadata`:
 
 ```ts
 import { Injectable, Inject, inject } from '@vorra/core'
@@ -238,7 +238,7 @@ export interface Todo {
 
 export const STORAGE_KEY = new InjectionToken<string>('STORAGE_KEY', {
   providedIn: 'root',
-  factory: () => 'forge-todos',
+  factory: () => 'vorra-todos',
 })
 
 @Injectable({ providedIn: 'root' })
@@ -277,8 +277,8 @@ export class TodoService {
 }
 ```
 
-```forge
-<!-- components/TodoList.forge -->
+```vorra
+<!-- components/TodoList.vorra -->
 <script lang="ts">
 import { inject } from '@vorra/core'
 import { signal } from '@vorra/core'

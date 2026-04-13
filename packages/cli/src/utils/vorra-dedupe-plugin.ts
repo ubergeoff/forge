@@ -1,5 +1,5 @@
 // =============================================================================
-// forge-dedupe-plugin
+// vorra-dedupe-plugin
 // Forces all @vorra/* imports to their canonical dist entry points so that
 // Rolldown always bundles a single module instance, regardless of whether the
 // import comes from TypeScript source (resolved via tsconfig paths → src/) or
@@ -23,7 +23,7 @@ const _require = createRequire(import.meta.url);
  * `pkg/package.json` directly (which would require the package's `exports`
  * field to allow that subpath).
  */
-export function resolveForgePackage(name: string, subpath = 'dist/index.js'): string {
+export function resolveVorraPackage(name: string, subpath = 'dist/index.js'): string {
   const mainCjs = _require.resolve(name); // → packages/*/dist/index.cjs
   const pkgRoot = path.dirname(path.dirname(mainCjs)); // strip dist/index.cjs
   return path.join(pkgRoot, subpath);
@@ -37,15 +37,15 @@ export function resolveForgePackage(name: string, subpath = 'dist/index.js'): st
  */
 let _aliases: Record<string, string> | undefined;
 
-export function getForgeAliases(): Record<string, string> {
+export function getVorraAliases(): Record<string, string> {
   if (_aliases === undefined) {
     _aliases = {
-      '@vorra/core':            resolveForgePackage('@vorra/core'),
-      '@vorra/core/dom':        resolveForgePackage('@vorra/core', 'dist/dom.js'),
-      '@vorra/core/reactivity': resolveForgePackage('@vorra/core', 'dist/reactivity.js'),
-      '@vorra/core/di':         resolveForgePackage('@vorra/core', 'dist/di.js'),
-      '@vorra/forms':           resolveForgePackage('@vorra/forms'),
-      '@vorra/router':          resolveForgePackage('@vorra/router'),
+      '@vorra/core':            resolveVorraPackage('@vorra/core'),
+      '@vorra/core/dom':        resolveVorraPackage('@vorra/core', 'dist/dom.js'),
+      '@vorra/core/reactivity': resolveVorraPackage('@vorra/core', 'dist/reactivity.js'),
+      '@vorra/core/di':         resolveVorraPackage('@vorra/core', 'dist/di.js'),
+      '@vorra/forms':           resolveVorraPackage('@vorra/forms'),
+      '@vorra/router':          resolveVorraPackage('@vorra/router'),
     };
   }
   return _aliases;
@@ -57,10 +57,10 @@ export function getForgeAliases(): Record<string, string> {
  * including those inside pre-built dist files — unlike `resolve.alias` which
  * Rolldown skips for files it considers already-resolved.
  */
-export const forgeDedupePlugin: RolldownPlugin = {
-  name: 'forge-dedupe',
+export const vorraDedupePlugin: RolldownPlugin = {
+  name: 'vorra-dedupe',
   resolveId(id: string) {
-    const resolved = getForgeAliases()[id];
+    const resolved = getVorraAliases()[id];
     if (resolved !== undefined) {
       return { id: resolved, external: false };
     }

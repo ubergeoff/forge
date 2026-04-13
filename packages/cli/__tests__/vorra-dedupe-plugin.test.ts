@@ -1,5 +1,5 @@
 // =============================================================================
-// forge-dedupe-plugin — unit tests
+// vorra-dedupe-plugin — unit tests
 // =============================================================================
 
 import * as path from 'node:path';
@@ -36,37 +36,37 @@ vi.mock('node:module', async (importOriginal) => {
   };
 });
 
-const { resolveForgePackage, getForgeAliases, forgeDedupePlugin } =
-  await import('../src/utils/forge-dedupe-plugin.js');
+const { resolveVorraPackage, getVorraAliases, vorraDedupePlugin } =
+  await import('../src/utils/vorra-dedupe-plugin.js');
 
 // ---------------------------------------------------------------------------
-// resolveForgePackage()
+// resolveVorraPackage()
 // ---------------------------------------------------------------------------
 
-describe('resolveForgePackage()', () => {
+describe('resolveVorraPackage()', () => {
   it('returns an absolute path ending with the requested subpath', () => {
-    const result = resolveForgePackage('@vorra/core');
+    const result = resolveVorraPackage('@vorra/core');
     expect(path.isAbsolute(result)).toBe(true);
     expect(result.endsWith(path.join('dist', 'index.js'))).toBe(true);
   });
 
   it('accepts a custom subpath', () => {
-    const result = resolveForgePackage('@vorra/core', 'dist/dom.js');
+    const result = resolveVorraPackage('@vorra/core', 'dist/dom.js');
     expect(result.endsWith(path.join('dist', 'dom.js'))).toBe(true);
   });
 
   it('resolves to the same package root for different subpaths', () => {
-    const index = resolveForgePackage('@vorra/core');
-    const dom   = resolveForgePackage('@vorra/core', 'dist/dom.js');
+    const index = resolveVorraPackage('@vorra/core');
+    const dom   = resolveVorraPackage('@vorra/core', 'dist/dom.js');
     expect(path.dirname(index)).toBe(path.dirname(dom));
   });
 });
 
 // ---------------------------------------------------------------------------
-// getForgeAliases()
+// getVorraAliases()
 // ---------------------------------------------------------------------------
 
-describe('getForgeAliases()', () => {
+describe('getVorraAliases()', () => {
   const expectedKeys = [
     '@vorra/core',
     '@vorra/core/dom',
@@ -77,20 +77,20 @@ describe('getForgeAliases()', () => {
   ];
 
   it('contains an entry for every expected @vorra/* specifier', () => {
-    const aliases = getForgeAliases();
+    const aliases = getVorraAliases();
     for (const key of expectedKeys) {
       expect(aliases).toHaveProperty(key);
     }
   });
 
   it('every alias is an absolute path', () => {
-    for (const [key, value] of Object.entries(getForgeAliases())) {
+    for (const [key, value] of Object.entries(getVorraAliases())) {
       expect(path.isAbsolute(value), `alias for ${key} should be absolute`).toBe(true);
     }
   });
 
   it('all @vorra/core subpath aliases share the same dist directory', () => {
-    const aliases = getForgeAliases();
+    const aliases = getVorraAliases();
     const coreDir = path.dirname(aliases['@vorra/core']!);
     for (const key of ['@vorra/core/dom', '@vorra/core/reactivity', '@vorra/core/di']) {
       expect(path.dirname(aliases[key]!)).toBe(coreDir);
@@ -99,11 +99,11 @@ describe('getForgeAliases()', () => {
 });
 
 // ---------------------------------------------------------------------------
-// forgeDedupePlugin — resolveId hook
+// vorraDedupePlugin — resolveId hook
 // ---------------------------------------------------------------------------
 
-describe('forgeDedupePlugin.resolveId()', () => {
-  const resolveId = forgeDedupePlugin.resolveId as (id: string) => unknown;
+describe('vorraDedupePlugin.resolveId()', () => {
+  const resolveId = vorraDedupePlugin.resolveId as (id: string) => unknown;
 
   it('redirects @vorra/core to an absolute dist path', () => {
     const result = resolveId('@vorra/core') as { id: string; external: boolean };

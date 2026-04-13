@@ -1,6 +1,6 @@
 <script lang="ts">
-import { inject } from '@forge/core';
-import { ROUTER } from '@forge/router';
+import { inject } from '@vorra/core';
+import { ROUTER } from '@vorra/router';
 
 const router = inject(ROUTER);
 const params  = router.params;
@@ -13,7 +13,7 @@ function goHome() { router.navigate('/'); }
   <div class="max-w-xl mx-auto mt-8 px-4">
     <div class="flex items-center gap-4 mb-6">
       <button class="text-sm px-3 py-1.5 rounded-md bg-transparent text-gray-500 border border-gray-300 cursor-pointer hover:bg-gray-100 hover:text-gray-700 transition-colors" @click={goHome}>← Home</button>
-      <h2 class="m-0 text-xl font-semibold text-gray-700">About Forge</h2>
+      <h2 class="m-0 text-xl font-semibold text-gray-700">About Vorra</h2>
     </div>
 
     <div class="text-gray-600 leading-relaxed">
@@ -25,10 +25,10 @@ function goHome() { router.navigate('/'); }
 
       <h3 class="text-gray-800 font-semibold mt-5 mb-2">Core packages</h3>
       <ul class="pl-6 space-y-1">
-        <li><code class="bg-gray-100 px-1.5 py-0.5 rounded text-sm">@forge/core</code> — signals, DI, DOM runtime</li>
-        <li><code class="bg-gray-100 px-1.5 py-0.5 rounded text-sm">@forge/compiler</code> — .forge SFC parser + template compiler</li>
-        <li><code class="bg-gray-100 px-1.5 py-0.5 rounded text-sm">@forge/cli</code> — dev server and build tooling</li>
-        <li><code class="bg-gray-100 px-1.5 py-0.5 rounded text-sm">@forge/router</code> — signal-driven client-side router</li>
+        <li><code class="bg-gray-100 px-1.5 py-0.5 rounded text-sm">@vorra/core</code> — signals, DI, DOM runtime</li>
+        <li><code class="bg-gray-100 px-1.5 py-0.5 rounded text-sm">@vorra/compiler</code> — .vorra SFC parser + template compiler</li>
+        <li><code class="bg-gray-100 px-1.5 py-0.5 rounded text-sm">@vorra/cli</code> — dev server and build tooling</li>
+        <li><code class="bg-gray-100 px-1.5 py-0.5 rounded text-sm">@vorra/router</code> — signal-driven client-side router</li>
       </ul>
 
       <div class="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-md text-sm">

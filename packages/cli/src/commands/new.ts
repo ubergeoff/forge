@@ -1,6 +1,6 @@
 // =============================================================================
-// @vorra/cli — forge new
-// Scaffolds a new Forge application in a subdirectory of cwd.
+// @vorra/cli — vorra new
+// Scaffolds a new Vorra application in a subdirectory of cwd.
 // =============================================================================
 
 import * as fs from 'node:fs';
@@ -9,32 +9,32 @@ import * as path from 'node:path';
 /**
  * Scaffolds a new project.
  *
- * Usage: forge new <project-name>
+ * Usage: vorra new <project-name>
  *
  * Creates the following structure:
  *   <name>/
  *     .gitignore
  *     index.html
- *     forge.config.js
+ *     vorra.config.js
  *     package.json
  *     tsconfig.json
  *     src/
  *       env.d.ts
  *       main.ts
- *       App.forge
+ *       App.vorra
  */
 export function runNew(args: string[]): void {
   const name = args[0];
 
   if (!name) {
-    console.error('[Forge CLI] Usage: forge new <project-name>');
+    console.error('[Vorra CLI] Usage: vorra new <project-name>');
     process.exit(1);
     return;
   }
 
   if (!/^[a-z][a-z0-9-]*$/.test(name)) {
     console.error(
-      '[Forge CLI] Project name must be lowercase letters/digits/hyphens, starting with a letter.',
+      '[Vorra CLI] Project name must be lowercase letters/digits/hyphens, starting with a letter.',
     );
     process.exit(1);
     return;
@@ -43,12 +43,12 @@ export function runNew(args: string[]): void {
   const projectDir = path.join(process.cwd(), name);
 
   if (fs.existsSync(projectDir)) {
-    console.error(`[Forge CLI] Directory "${name}" already exists.`);
+    console.error(`[Vorra CLI] Directory "${name}" already exists.`);
     process.exit(1);
     return;
   }
 
-  console.log(`\n  Scaffolding Forge app: ${name}\n`);
+  console.log(`\n  Scaffolding Vorra app: ${name}\n`);
 
   // Create directory tree.
   fs.mkdirSync(path.join(projectDir, 'src'), { recursive: true });
@@ -56,22 +56,22 @@ export function runNew(args: string[]): void {
   // Write each template file.
   write(projectDir, 'package.json', tplPackageJson(name));
   write(projectDir, 'tsconfig.json', tplTsconfig());
-  write(projectDir, 'forge.config.js', tplForgeConfig());
+  write(projectDir, 'vorra.config.js', tplVorraConfig());
   write(projectDir, 'index.html', tplIndexHtml(name));
   write(projectDir, '.gitignore', tplGitignore());
   write(projectDir, 'src/env.d.ts', tplEnvDts());
   write(projectDir, 'src/main.ts', tplMainTs());
-  write(projectDir, 'src/App.forge', tplAppForge());
+  write(projectDir, 'src/App.vorra', tplAppVorra());
 
   const files = [
     'package.json',
     'tsconfig.json',
-    'forge.config.js',
+    'vorra.config.js',
     'index.html',
     '.gitignore',
     'src/env.d.ts',
     'src/main.ts',
-    'src/App.forge',
+    'src/App.vorra',
   ];
 
   for (const f of files) {
@@ -107,9 +107,9 @@ function tplPackageJson(name: string): string {
       private: true,
       type: 'module',
       scripts: {
-        dev: 'forge dev',
-        build: 'forge build',
-        typecheck: 'forge typecheck',
+        dev: 'vorra dev',
+        build: 'vorra build',
+        typecheck: 'vorra typecheck',
       },
       dependencies: {
         '@vorra/core': '^0.1.0',
@@ -151,8 +151,8 @@ function tplTsconfig(): string {
   );
 }
 
-function tplForgeConfig(): string {
-  return `// forge.config.js
+function tplVorraConfig(): string {
+  return `// vorra.config.js
 import { defineConfig } from '@vorra/cli';
 
 export default defineConfig({
@@ -173,7 +173,7 @@ function tplIndexHtml(name: string): string {
   </head>
   <body>
     <div id="app"></div>
-    <!-- entry script injected automatically by forge dev / forge build -->
+    <!-- entry script injected automatically by vorra dev / forge build -->
   </body>
 </html>
 `;
@@ -182,16 +182,16 @@ function tplIndexHtml(name: string): string {
 function tplGitignore(): string {
   return `node_modules/
 dist/
-.forge/
+.vorra/
 *.tsbuildinfo
 `;
 }
 
 function tplEnvDts(): string {
-  return `// Type declarations for .forge single-file components.
+  return `// Type declarations for .vorra single-file components.
 import type { ComponentContext } from '@vorra/core';
 
-declare module '*.forge' {
+declare module '*.vorra' {
   const component: (ctx: ComponentContext) => Node;
   export default component;
 }
@@ -201,7 +201,7 @@ declare module '*.forge' {
 function tplMainTs(): string {
   return `import { bootstrapApp } from '@vorra/core';
 import { createComponent, mountComponent } from '@vorra/core';
-import App from './App.forge';
+import App from './App.vorra';
 
 const appEl = document.getElementById('app');
 if (appEl === null) throw new Error('[App] #app element not found in index.html');
@@ -212,7 +212,7 @@ mountComponent(App, appEl, ctx);
 `;
 }
 
-function tplAppForge(): string {
+function tplAppVorra(): string {
   return `<script>
 import { signal } from '@vorra/core';
 
@@ -225,7 +225,7 @@ function increment(): void {
 
 <template>
   <div class="app">
-    <h1>Welcome to Forge ⚡</h1>
+    <h1>Welcome to Vorra ⚡</h1>
     <p class="counter">Count: {count()}</p>
     <button @click="increment">Increment</button>
   </div>

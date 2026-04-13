@@ -1,9 +1,9 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
 
-// Forge's [formControl] binding wires value updates via the native 'input'
+// Vorra's [formControl] binding wires value updates via the native 'input'
 // event, and touched state via 'blur'. Playwright's fill() + locator.blur()
 // go through CDP and create events in Playwright's own frame context, not the
-// page's JS context — so Forge's addEventListener handlers never fire.
+// page's JS context — so Vorra's addEventListener handlers never fire.
 //
 // The fix: use locator.evaluate() to create and dispatch events directly
 // inside the page's JS context, where they are indistinguishable from real

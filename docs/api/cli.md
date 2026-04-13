@@ -1,6 +1,6 @@
 # @vorra/cli
 
-The Forge command-line interface. Provides `forge new`, `forge dev`, `forge build`, and `forge typecheck` commands.
+The Vorra command-line interface. Provides `vorra new`, `vorra dev`, `vorra build`, and `vorra typecheck` commands.
 
 ```bash
 npm install --save-dev @vorra/cli
@@ -10,34 +10,34 @@ npm install -g @vorra/cli
 
 ## Commands
 
-### forge new \<name\>
+### vorra new \<name\>
 
-Scaffold a new Forge application in a directory named `<name>`.
+Scaffold a new Vorra application in a directory named `<name>`.
 
 ```bash
-forge new my-app
-forge new my-app --port 4000
+vorra new my-app
+vorra new my-app --port 4000
 ```
 
 Creates:
-- `package.json` with Forge dependencies
+- `package.json` with Vorra dependencies
 - `tsconfig.json` with recommended TypeScript settings
-- `forge.config.ts` with default configuration
+- `vorra.config.ts` with default configuration
 - `index.html`
 - `src/main.ts` — application entry point
-- `src/App.forge` — root component
+- `src/App.vorra` — root component
 
 ---
 
-### forge dev
+### vorra dev
 
 Start the development server with hot reload.
 
 ```bash
-forge dev
-forge dev --port 4000
-forge dev --entry src/index.ts
-forge dev --outDir public
+vorra dev
+vorra dev --port 4000
+vorra dev --entry src/index.ts
+vorra dev --outDir public
 ```
 
 **Flags:**
@@ -50,20 +50,20 @@ forge dev --outDir public
 
 **Behavior:**
 - Serves `index.html` for all routes (single-page app mode)
-- Watches `.forge` files, TypeScript, and CSS for changes
+- Watches `.vorra` files, TypeScript, and CSS for changes
 - Reloads the browser on save
-- Processes `.forge` SFCs via the Forge Rolldown plugin
+- Processes `.vorra` SFCs via the Vorra Rolldown plugin
 
 ---
 
-### forge build
+### vorra build
 
 Build for production.
 
 ```bash
-forge build
-forge build --entry src/main.ts
-forge build --outDir dist
+vorra build
+vorra build --entry src/main.ts
+vorra build --outDir dist
 ```
 
 **Flags:**
@@ -81,12 +81,12 @@ forge build --outDir dist
 
 ---
 
-### forge typecheck
+### vorra typecheck
 
 Run TypeScript type checking without emitting files.
 
 ```bash
-forge typecheck
+vorra typecheck
 ```
 
 Exits with code `0` on success, `1` on type errors. Suitable for CI pipelines.
@@ -95,16 +95,16 @@ Exits with code `0` on success, `1` on type errors. Suitable for CI pipelines.
 
 ## defineConfig()
 
-Type-safe configuration helper for `forge.config.ts`.
+Type-safe configuration helper for `vorra.config.ts`.
 
 ```ts
-function defineConfig(config: ForgeConfig): ForgeConfig
+function defineConfig(config: VorraConfig): VorraConfig
 ```
 
-### ForgeConfig
+### VorraConfig
 
 ```ts
-interface ForgeConfig {
+interface VorraConfig {
   /** Application entry file. Default: 'src/main.ts' */
   entry?: string
 
@@ -122,7 +122,7 @@ interface ForgeConfig {
 **Example:**
 
 ```ts
-// forge.config.ts
+// vorra.config.ts
 import { defineConfig } from '@vorra/cli'
 
 export default defineConfig({
@@ -136,11 +136,11 @@ export default defineConfig({
 
 ## Config Resolution
 
-The CLI reads `forge.config.ts` (or `forge.config.js`) from the current working directory. Command-line flags take precedence over config file values.
+The CLI reads `vorra.config.ts` (or `vorra.config.js`) from the current working directory. Command-line flags take precedence over config file values.
 
 **Resolution order (highest to lowest priority):**
 1. CLI flags (`--port`, `--entry`, `--outDir`)
-2. `forge.config.ts` values
+2. `vorra.config.ts` values
 3. Built-in defaults
 
 ---
@@ -166,24 +166,24 @@ runTypecheck([])
 ## Global Help
 
 ```bash
-forge --help
-forge --version
+vorra --help
+vorra --version
 ```
 
 ```
-  Forge — compiled signal-first framework for enterprise apps
+  Vorra — compiled signal-first framework for enterprise apps
 
-  Usage: forge <command> [options]
+  Usage: vorra <command> [options]
 
   Commands:
-    new <name>          Scaffold a new Forge application
+    new <name>          Scaffold a new Vorra application
     dev                 Start the development server (with live reload)
     build               Build for production
     typecheck           Run TypeScript type checking
 
   Options:
     --help, -h          Show this help message
-    --version, -v       Show the Forge version
+    --version, -v       Show the Vorra version
 
   Flags per command:
     dev   --port <n>    Dev server port (default: 3000)

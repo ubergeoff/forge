@@ -1,6 +1,6 @@
 <script lang="ts">
-import { computed, signal } from '@forge/core';
-import { formControl, formGroup, formArray, Validators } from '@forge/forms';
+import { computed, signal } from '@vorra/core';
+import { formControl, formGroup, formArray, Validators } from '@vorra/forms';
 
 // ---------------------------------------------------------------------------
 // Demo 1: FormControl + FormGroup — Login
@@ -85,7 +85,7 @@ function removeLastSkill() {
 
     <div class="text-center mb-14">
       <h1 class="text-3xl font-bold text-gray-900 mb-2">Forms Showcase</h1>
-      <p class="text-gray-500 text-sm">Signal-driven forms via <span class="font-mono text-indigo-600">@forge/forms</span> — live validation, no re-renders.</p>
+      <p class="text-gray-500 text-sm">Signal-driven forms via <span class="font-mono text-indigo-600">@vorra/forms</span> — live validation, no re-renders.</p>
     </div>
 
     <!-- ------------------------------------------------------------------ -->

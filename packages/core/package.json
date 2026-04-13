@@ -1,16 +1,16 @@
 {
   "name": "@vorra/core",
   "version": "0.3.0",
-  "description": "Forge core — reactivity primitives and dependency injection",
+  "description": "Vorra core — reactivity primitives and dependency injection",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ubergeoff/forge.git",
+    "url": "https://github.com/ubergeoff/vorra.git",
     "directory": "packages/core"
   },
-  "homepage": "https://github.com/ubergeoff/forge/tree/main/packages/core#readme",
+  "homepage": "https://github.com/ubergeoff/vorra/tree/main/packages/core#readme",
   "keywords": [
-    "forge",
+    "vorra",
     "signals",
     "reactivity",
     "dependency-injection",

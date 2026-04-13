@@ -1,7 +1,7 @@
 <script lang="ts">
-import { inject } from '@forge/core';
-import { ROUTER } from '@forge/router';
-import CounterComponent from '../components/counter.forge';
+import { inject } from '@vorra/core';
+import { ROUTER } from '@vorra/router';
+import CounterComponent from '../components/counter.vorra';
 
 const router = inject(ROUTER);
 

@@ -1,16 +1,16 @@
 {
   "name": "@vorra/forms",
   "version": "0.3.0",
-  "description": "Forge forms — signal-based reactive forms",
+  "description": "Vorra forms — signal-based reactive forms",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ubergeoff/forge.git",
+    "url": "https://github.com/ubergeoff/vorra.git",
     "directory": "packages/forms"
   },
-  "homepage": "https://github.com/ubergeoff/forge/tree/main/packages/forms#readme",
+  "homepage": "https://github.com/ubergeoff/vorra/tree/main/packages/forms#readme",
   "keywords": [
-    "forge",
+    "vorra",
     "forms",
     "signals",
     "reactive-forms",

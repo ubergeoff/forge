@@ -15,21 +15,21 @@ npm install @vorra/router
 ```ts
 // src/routes.ts
 import { lazy } from '@vorra/router'
-import HomeComponent from './pages/Home.forge'
-import AboutComponent from './pages/About.forge'
+import HomeComponent from './pages/Home.vorra'
+import AboutComponent from './pages/About.vorra'
 
 export const routes = [
   { path: '/', component: HomeComponent, title: 'Home' },
   { path: '/about', component: AboutComponent, title: 'About' },
 
   // Named params
-  { path: '/users/:id', component: lazy(() => import('./pages/UserDetail.forge')) },
+  { path: '/users/:id', component: lazy(() => import('./pages/UserDetail.vorra')) },
 
   // Redirect
   { path: '/home', redirectTo: '/' },
 
   // Wildcard (404)
-  { path: '**', component: lazy(() => import('./pages/NotFound.forge')) },
+  { path: '**', component: lazy(() => import('./pages/NotFound.vorra')) },
 ]
 ```
 
@@ -40,7 +40,7 @@ export const routes = [
 import { bootstrapApp } from '@vorra/core'
 import { provideRouter } from '@vorra/router'
 import { createComponent, mountComponent } from '@vorra/core/dom'
-import App from './App.forge'
+import App from './App.vorra'
 import { routes } from './routes'
 
 const injector = bootstrapApp([
@@ -53,8 +53,8 @@ mountComponent(App, document.getElementById('app')!, ctx)
 
 ### 3. Add a RouterOutlet to your App component
 
-```forge
-<!-- src/App.forge -->
+```vorra
+<!-- src/App.vorra -->
 <script lang="ts">
 import { inject } from '@vorra/core'
 import { ROUTER } from '@vorra/router'
@@ -103,7 +103,7 @@ interface RouteConfig {
 
 Inject the `ROUTER` token to navigate programmatically and read route state:
 
-```forge
+```vorra
 <script lang="ts">
 import { inject } from '@vorra/core'
 import { ROUTER } from '@vorra/router'
@@ -148,7 +148,7 @@ router.forward()  // equivalent to window.history.forward()
 
 Use `RouterLink` for declarative navigation. It renders an `<a>` tag and handles clicks with `history.pushState` (no full page reload):
 
-```forge
+```vorra
 <script lang="ts">
 import RouterLink from '@vorra/router/link'
 </script>
@@ -173,11 +173,11 @@ const routes = [
   { path: '/', component: HomeComponent },
   {
     path: '/dashboard',
-    component: lazy(() => import('./pages/Dashboard.forge')),
+    component: lazy(() => import('./pages/Dashboard.vorra')),
   },
   {
     path: '/admin',
-    component: lazy(() => import('./pages/Admin.forge')),
+    component: lazy(() => import('./pages/Admin.vorra')),
   },
 ]
 ```
@@ -188,7 +188,7 @@ The `lazy()` helper marks the loader function with a `__lazy: true` symbol so `R
 
 The `Router` exposes reactive signals you can read in any component:
 
-```forge
+```vorra
 <script lang="ts">
 import { inject, computed } from '@vorra/core'
 import { ROUTER } from '@vorra/router'
@@ -249,7 +249,7 @@ const requiredRoles = computed(() => {
 
 ## Programmatic Guard Pattern
 
-Forge's router does not have built-in guards, but you can implement them with effects:
+Vorra's router does not have built-in guards, but you can implement them with effects:
 
 ```ts
 import { effect } from '@vorra/core'

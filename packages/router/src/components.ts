@@ -1,7 +1,7 @@
 // =============================================================================
 // @vorra/router — RouterLink & RouterOutlet component factories
 // Thin wrappers that conform to the (ctx, props) => Node factory contract so
-// they can be used directly in .forge templates as child components.
+// they can be used directly in .vorra templates as child components.
 // =============================================================================
 
 import { inject, runInContext } from '@vorra/core';
