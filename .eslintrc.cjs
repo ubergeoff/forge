@@ -19,5 +19,5 @@ module.exports = {
     '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
     'no-console': ['warn', { allow: ['warn', 'error'] }],
   },
-  ignorePatterns: ['dist/', 'node_modules/', '*.js', '*.mjs'],
+  ignorePatterns: ['dist/', 'node_modules/', '*.js', '*.mjs', '**/e2e/**', '**/playwright.config.ts'],
 };

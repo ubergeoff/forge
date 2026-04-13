@@ -9,6 +9,7 @@ import { rolldown } from 'rolldown';
 import type { RolldownPlugin } from 'rolldown';
 import { forgePlugin } from '@forge/compiler';
 import { loadConfig } from '../utils/config.js';
+import { forgeDedupePlugin } from '../utils/forge-dedupe-plugin.js';
 
 /**
  * Runs a production build.
@@ -35,6 +36,7 @@ export async function runBuild(args: string[]): Promise<void> {
   const entryName = path.basename(entry, path.extname(entry));
   const userPlugins = (config.plugins ?? []) as RolldownPlugin[];
   const plugins: RolldownPlugin[] = [
+    forgeDedupePlugin as RolldownPlugin,
     forgePlugin({
       ...(config.css ? { css: path.join(cwd, config.css) } : {}),
       ...(config.postcss ? { postcss: config.postcss } : {}),
