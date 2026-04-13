@@ -46,7 +46,7 @@ jobs:
         run: npm ci
 
       - name: Build forge packages
-        run: npx nx run-many --target=build --projects=core,compiler,router,cli
+        run: npx nx run-many --target=build --projects=core,compiler,router,forms,cli
 
       - name: Build counter-app
         run: cd examples/counter-app && node ../../packages/cli/dist/bin.js build
@@ -100,7 +100,7 @@ jobs:
         run: npm ci
 
       - name: Build forge packages
-        run: npx nx run-many --target=build --projects=core,compiler,router,cli
+        run: npx nx run-many --target=build --projects=core,compiler,router,forms,cli
 
       - name: Build counter-app
         run: cd examples/counter-app && node ../../packages/cli/dist/bin.js build
