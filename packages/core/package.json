@@ -1,6 +1,6 @@
 {
   "name": "@vorra/core",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Vorra core — reactivity primitives and dependency injection",
   "license": "MIT",
   "repository": {
