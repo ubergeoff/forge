@@ -12,20 +12,17 @@
 // =============================================================================
 
 import * as path from 'node:path';
-import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import type { RolldownPlugin } from 'rolldown';
-
-const _require = createRequire(import.meta.url);
 
 /**
  * Resolves an `@vorra/*` package to an absolute path inside its `dist/`
- * directory. Uses the CJS main entry as an anchor so we never need to access
- * `pkg/package.json` directly (which would require the package's `exports`
- * field to allow that subpath).
+ * directory. Uses import.meta.resolve() (stable since Node 20) to locate
+ * the package's ESM main entry, then walks up to the package root.
  */
 export function resolveVorraPackage(name: string, subpath = 'dist/index.js'): string {
-  const mainCjs = _require.resolve(name); // → packages/*/dist/index.cjs
-  const pkgRoot = path.dirname(path.dirname(mainCjs)); // strip dist/index.cjs
+  const mainUrl = import.meta.resolve(name); // → file:///…/dist/index.js
+  const pkgRoot = path.dirname(path.dirname(fileURLToPath(mainUrl))); // strip dist/index.js
   return path.join(pkgRoot, subpath);
 }
 
