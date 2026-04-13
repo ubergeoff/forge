@@ -1,20 +1,20 @@
 // =============================================================================
-// @forge/cli — forge build
-// Runs a one-shot Rolldown production build with the Forge plugin.
+// @vorra/cli — vorra build
+// Runs a one-shot Rolldown production build with the Vorra plugin.
 // =============================================================================
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { rolldown } from 'rolldown';
 import type { RolldownPlugin } from 'rolldown';
-import { forgePlugin } from '@forge/compiler';
+import { vorraPlugin } from '@vorra/compiler';
 import { loadConfig } from '../utils/config.js';
-import { forgeDedupePlugin } from '../utils/forge-dedupe-plugin.js';
+import { vorraDedupePlugin } from '../utils/vorra-dedupe-plugin.js';
 
 /**
  * Runs a production build.
  *
- * CLI flags (override forge.config.js):
+ * CLI flags (override vorra.config.js):
  *   --entry <path>   Entry file (default: src/main.ts)
  *   --outDir <path>  Output directory (default: dist)
  */
@@ -22,7 +22,7 @@ export async function runBuild(args: string[]): Promise<void> {
   const cwd = process.cwd();
   const config = await loadConfig(cwd);
 
-  // Parse CLI flags — these override forge.config values.
+  // Parse CLI flags — these override vorra.config values.
   const entryIdx = args.indexOf('--entry');
   const outDirIdx = args.indexOf('--outDir');
 
@@ -36,15 +36,15 @@ export async function runBuild(args: string[]): Promise<void> {
   const entryName = path.basename(entry, path.extname(entry));
   const userPlugins = (config.plugins ?? []) as RolldownPlugin[];
   const plugins: RolldownPlugin[] = [
-    forgeDedupePlugin as RolldownPlugin,
-    forgePlugin({
+    vorraDedupePlugin as RolldownPlugin,
+    vorraPlugin({
       ...(config.css ? { css: path.join(cwd, config.css) } : {}),
       ...(config.postcss ? { postcss: config.postcss } : {}),
     }) as RolldownPlugin,
     ...userPlugins,
   ];
 
-  console.log(`[forge build] ${entry} → ${outDir}/`);
+  console.log(`[vorra build] ${entry} → ${outDir}/`);
 
   const build = await rolldown({
     input: entryAbs,
@@ -83,12 +83,12 @@ export async function runBuild(args: string[]): Promise<void> {
       html = html.includes('</body>') ? html.replace('</body>', `${tag}\n</body>`) : html + tag;
     }
     fs.writeFileSync(path.join(outDirAbs, 'index.html'), html, 'utf8');
-    console.log(`[forge build] Copied index.html → ${outDir}/index.html`);
+    console.log(`[vorra build] Copied index.html → ${outDir}/index.html`);
   } else {
-    console.warn('[forge build] No index.html found in project root — skipping HTML copy.');
+    console.warn('[vorra build] No index.html found in project root — skipping HTML copy.');
   }
 
-  console.log('[forge build] Done.');
+  console.log('[vorra build] Done.');
 }
 
 /** Escapes special regex characters in a literal string. */

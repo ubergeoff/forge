@@ -2,9 +2,9 @@
 
 ## Single File Components
 
-A Forge Single File Component (SFC) is a `.forge` file that contains up to three blocks:
+A Vorra Single File Component (SFC) is a `.vorra` file that contains up to three blocks:
 
-```forge
+```vorra
 <script lang="ts">
 // Component logic
 </script>
@@ -29,10 +29,10 @@ All three blocks are optional. A component with only a `<template>` is perfectly
 
 The script block is plain TypeScript (or JavaScript). Variables, functions, and classes declared here are available to the template. The compiler wraps everything into an exported factory function.
 
-```forge
+```vorra
 <script lang="ts">
-import { signal, computed, effect } from '@forge/core'
-import { inject } from '@forge/core'
+import { signal, computed, effect } from '@vorra/core'
+import { inject } from '@vorra/core'
 import { UserService } from './user.service'
 
 // DI resolution — runs once when the component is mounted
@@ -59,9 +59,9 @@ Use `lang="ts"` to enable TypeScript. The compiler uses `oxc-transform` to strip
 
 ## The Template Block
 
-Templates use an HTML-like syntax with Forge directives. See [Template Syntax](/guide/templates) for the full reference.
+Templates use an HTML-like syntax with Vorra directives. See [Template Syntax](/guide/templates) for the full reference.
 
-```forge
+```vorra
 <template>
   <div class="card">
     <h2>{title()}</h2>
@@ -77,7 +77,7 @@ Templates use an HTML-like syntax with Forge directives. See [Template Syntax](/
 
 ### Global styles
 
-```forge
+```vorra
 <style>
 /* applies globally */
 .button { background: #6366f1; }
@@ -88,7 +88,7 @@ Templates use an HTML-like syntax with Forge directives. See [Template Syntax](/
 
 With `scoped`, styles only apply to elements in this component. The compiler adds a unique `data-v-{scopeId}` attribute to every element and rewrites CSS selectors to match.
 
-```forge
+```vorra
 <style scoped>
 /* only applies to .button elements in THIS component */
 .button { background: #6366f1; }
@@ -97,7 +97,7 @@ With `scoped`, styles only apply to elements in this component. The compiler add
 
 ### SCSS
 
-```forge
+```vorra
 <style lang="scss" scoped>
 $brand: #6366f1;
 
@@ -110,7 +110,7 @@ $brand: #6366f1;
 
 ## Component Lifecycle
 
-Forge components are created by the DOM runtime's `mountComponent` / `mountChild` functions. The lifecycle is:
+Vorra components are created by the DOM runtime's `mountComponent` / `mountChild` functions. The lifecycle is:
 
 1. **Create** — `createComponent(injector)` creates a `ComponentContext` with a child injector
 2. **Mount** — the factory function runs, building the DOM tree and setting up reactive effects
@@ -122,7 +122,7 @@ Forge components are created by the DOM runtime's `mountComponent` / `mountChild
 Register cleanup callbacks inside a service or component that's instantiated within a DI context:
 
 ```ts
-import { onDestroy } from '@forge/core'
+import { onDestroy } from '@vorra/core'
 
 // Inside a service constructor or component script
 onDestroy(() => {
@@ -136,8 +136,8 @@ Props are passed as getter functions so both static and reactive values share a 
 
 ### Defining a child component that accepts props
 
-```forge
-<!-- src/Greeting.forge -->
+```vorra
+<!-- src/Greeting.vorra -->
 <script lang="ts">
 // Props are injected as a second argument to the compiled factory.
 // Declare them using a typed interface and access via the runtime props object.
@@ -153,11 +153,11 @@ declare const props: { name: () => string }
 
 ### Using a child component
 
-```forge
-<!-- src/App.forge -->
+```vorra
+<!-- src/App.vorra -->
 <script lang="ts">
-import { signal } from '@forge/core'
-import Greeting from './Greeting.forge'
+import { signal } from '@vorra/core'
+import Greeting from './Greeting.vorra'
 
 const username = signal('Alice')
 </script>
@@ -184,7 +184,7 @@ interface ComponentContext {
 }
 ```
 
-The context is automatically managed by `mountComponent` and `mountChild`. You only need to interact with it directly if you're building low-level utilities or integrating Forge with other frameworks.
+The context is automatically managed by `mountComponent` and `mountChild`. You only need to interact with it directly if you're building low-level utilities or integrating Vorra with other frameworks.
 
 ## Nested Components
 

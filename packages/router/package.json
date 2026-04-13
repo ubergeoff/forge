@@ -1,16 +1,16 @@
 {
-  "name": "@forge/router",
+  "name": "@vorra/router",
   "version": "0.3.0",
-  "description": "Forge router — signal-driven client-side routing",
+  "description": "Vorra router — signal-driven client-side routing",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ubergeoff/forge.git",
+    "url": "https://github.com/ubergeoff/vorra.git",
     "directory": "packages/router"
   },
-  "homepage": "https://github.com/ubergeoff/forge/tree/main/packages/router#readme",
+  "homepage": "https://github.com/ubergeoff/vorra/tree/main/packages/router#readme",
   "keywords": [
-    "forge",
+    "vorra",
     "router",
     "signals",
     "client-side-routing",
@@ -40,7 +40,7 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@forge/core": "*"
+    "@vorra/core": "*"
   },
   "devDependencies": {
     "rolldown": "*",

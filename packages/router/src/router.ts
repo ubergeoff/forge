@@ -1,11 +1,11 @@
 // =============================================================================
-// @forge/router — Router service
+// @vorra/router — Router service
 // Signal-driven client-side router backed by the History API.
 // =============================================================================
 
-import { signal, computed } from '@forge/core';
-import { InjectionToken } from '@forge/core';
-import type { ReadonlySignal, ComputedSignal, Provider } from '@forge/core';
+import { signal, computed } from '@vorra/core';
+import { InjectionToken } from '@vorra/core';
+import type { ReadonlySignal, ComputedSignal, Provider } from '@vorra/core';
 import type {
   RouteConfig,
   ResolvedRoute,

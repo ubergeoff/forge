@@ -2,19 +2,19 @@
   "name": "hello-world",
   "version": "0.0.1",
   "private": true,
-  "description": "Minimal Forge hello-world app — demonstrates forge dev with HMR",
+  "description": "Minimal Vorra hello-world app — demonstrates vorra dev with HMR",
   "type": "module",
   "scripts": {
-    "dev": "forge dev",
-    "build": "forge build"
+    "dev": "vorra dev",
+    "build": "vorra build"
   },
   "dependencies": {
-    "@forge/core": "*",
-    "@forge/router": "*"
+    "@vorra/core": "*",
+    "@vorra/router": "*"
   },
   "devDependencies": {
-    "@forge/cli": "*",
-    "@forge/compiler": "*",
+    "@vorra/cli": "*",
+    "@vorra/compiler": "*",
     "@tailwindcss/postcss": "^4.0.0",
     "postcss": "^8.0.0",
     "tailwindcss": "^4.0.0",

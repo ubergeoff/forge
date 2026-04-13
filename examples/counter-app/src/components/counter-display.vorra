@@ -1,5 +1,5 @@
 <script>
-import { inject } from '@forge/core';
+import { inject } from '@vorra/core';
 import { CounterService } from '../services/counter.service.js';
 
 const svc = inject(CounterService);

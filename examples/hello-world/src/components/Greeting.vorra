@@ -1,5 +1,5 @@
 <script lang="ts">
-import { signal, computed } from '@forge/core';
+import { signal, computed } from '@vorra/core';
 
 const name = signal('World');
 const greeting = computed(() => `Hello, ${name()}!`);

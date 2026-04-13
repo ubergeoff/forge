@@ -1,6 +1,6 @@
 # Dependency Injection
 
-Forge's DI system provides a hierarchical, type-safe way to share services across your application. It is modelled after Angular's DI but simplified for the Forge component model.
+Vorra's DI system provides a hierarchical, type-safe way to share services across your application. It is modelled after Angular's DI but simplified for the Vorra component model.
 
 ## Core Concepts
 
@@ -14,8 +14,8 @@ Forge's DI system provides a hierarchical, type-safe way to share services acros
 Mark a class as injectable to register it in the DI system:
 
 ```ts
-import { Injectable } from '@forge/core'
-import { signal } from '@forge/core'
+import { Injectable } from '@vorra/core'
+import { signal } from '@vorra/core'
 
 @Injectable({ providedIn: 'root' })
 class CounterService {
@@ -43,10 +43,10 @@ class CounterService {
 
 ## @Inject
 
-When a class has constructor dependencies, declare them with `@Inject`. This is required because Forge does not rely on `emitDecoratorMetadata`:
+When a class has constructor dependencies, declare them with `@Inject`. This is required because Vorra does not rely on `emitDecoratorMetadata`:
 
 ```ts
-import { Injectable, Inject, inject } from '@forge/core'
+import { Injectable, Inject, inject } from '@vorra/core'
 
 @Injectable({ providedIn: 'root' })
 class UserService {
@@ -66,7 +66,7 @@ class UserService {
 `inject()` resolves a token from the active injection context. Call it inside a component script or service constructor:
 
 ```ts
-import { inject } from '@forge/core'
+import { inject } from '@vorra/core'
 
 // In a component's <script> block:
 const counter = inject(CounterService)
@@ -85,7 +85,7 @@ const optional = inject(OPTIONAL_TOKEN, { optional: true })
 Use `InjectionToken` for non-class values — configuration, primitives, or interfaces:
 
 ```ts
-import { InjectionToken } from '@forge/core'
+import { InjectionToken } from '@vorra/core'
 
 // A typed token with a default factory
 export const API_URL = new InjectionToken<string>('API_URL', {
@@ -153,8 +153,8 @@ bootstrapApp([
 `bootstrapApp()` creates the root injector with the given providers and returns it. Call this once at application startup:
 
 ```ts
-import { bootstrapApp } from '@forge/core'
-import { provideRouter } from '@forge/router'
+import { bootstrapApp } from '@vorra/core'
+import { provideRouter } from '@vorra/router'
 
 const injector = bootstrapApp([
   { provide: API_URL, useValue: 'https://api.example.com' },
@@ -196,7 +196,7 @@ const real = rootInjector.get(UserService) // → real UserService
 Register cleanup callbacks to run when an injector is destroyed:
 
 ```ts
-import { Injectable, onDestroy } from '@forge/core'
+import { Injectable, onDestroy } from '@vorra/core'
 
 @Injectable({ providedIn: 'root' })
 class WebSocketService {
@@ -214,7 +214,7 @@ class WebSocketService {
 Run a function within a specific injector context, enabling `inject()` calls inside it:
 
 ```ts
-import { runInContext } from '@forge/core'
+import { runInContext } from '@vorra/core'
 
 const instance = runInContext(injector, () => {
   const service = inject(SomeService)
@@ -226,9 +226,9 @@ const instance = runInContext(injector, () => {
 
 ```ts
 // services/todo.service.ts
-import { Injectable, inject } from '@forge/core'
-import { signal, computed } from '@forge/core'
-import { InjectionToken } from '@forge/core'
+import { Injectable, inject } from '@vorra/core'
+import { signal, computed } from '@vorra/core'
+import { InjectionToken } from '@vorra/core'
 
 export interface Todo {
   id: number
@@ -238,7 +238,7 @@ export interface Todo {
 
 export const STORAGE_KEY = new InjectionToken<string>('STORAGE_KEY', {
   providedIn: 'root',
-  factory: () => 'forge-todos',
+  factory: () => 'vorra-todos',
 })
 
 @Injectable({ providedIn: 'root' })
@@ -277,11 +277,11 @@ export class TodoService {
 }
 ```
 
-```forge
-<!-- components/TodoList.forge -->
+```vorra
+<!-- components/TodoList.vorra -->
 <script lang="ts">
-import { inject } from '@forge/core'
-import { signal } from '@forge/core'
+import { inject } from '@vorra/core'
+import { signal } from '@vorra/core'
 import { TodoService } from '../services/todo.service'
 
 const todos = inject(TodoService)

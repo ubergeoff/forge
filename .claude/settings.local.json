@@ -2,19 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(npm run:*)",
-      "Bash(grep -r '\"\"build\"\"' packages/*/package.json examples/*/package.json)",
       "Bash(cd:*)",
       "Bash(npm test:*)",
-      "Bash(node C:/dev/js/forge/packages/cli/dist/bin.js --help)",
-      "Bash(node C:/dev/js/forge/packages/cli/dist/bin.js --version)",
-      "Bash(node C:/dev/js/forge/packages/cli/dist/bin.js new test-project)",
       "Bash(node:*)",
       "Bash(npx vite-node:*)",
       "Bash(npx tsc:*)",
       "Bash(npm list:*)",
       "Bash(npm install:*)",
-      "Bash(grep -E \"\\\\.\\(forge|ts\\)$\")",
-      "Bash(grep -E \"\\\\.\\(forge|ts|js|scss\\)$\")",
       "Bash(npx nx:*)",
       "Bash(xargs grep:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
@@ -26,7 +20,8 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(xargs sed:*)"
     ]
   }
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { signal, computed } from '@forge/core';
+import { signal, computed } from '@vorra/core';
 
 interface Task {
   id: number;
@@ -10,8 +10,8 @@ interface Task {
 let nextId = 1;
 
 const tasks = signal<Task[]>([
-  { id: nextId++, text: 'Learn Forge signals', done: true },
-  { id: nextId++, text: 'Build a .forge component', done: true },
+  { id: nextId++, text: 'Learn Vorra signals', done: true },
+  { id: nextId++, text: 'Build a .vorra component', done: true },
   { id: nextId++, text: 'Try the @for directive', done: false },
   { id: nextId++, text: 'Ship something great', done: false },
 ]);

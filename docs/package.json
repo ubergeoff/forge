@@ -1,5 +1,5 @@
 {
-  "name": "@forge/docs",
+  "name": "@vorra/docs",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,10 +9,10 @@
     "preview": "vitepress preview"
   },
   "dependencies": {
-    "@forge/compiler": "*",
-    "@forge/core": "*",
-    "@forge/forms": "*",
-    "@forge/router": "*"
+    "@vorra/compiler": "*",
+    "@vorra/core": "*",
+    "@vorra/forms": "*",
+    "@vorra/router": "*"
   },
   "devDependencies": {
     "vitepress": "^1.6.0",

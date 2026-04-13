@@ -1,5 +1,5 @@
 // =============================================================================
-// @forge/compiler — Shared compiler internals (browser-safe, no Node.js deps)
+// @vorra/compiler — Shared compiler internals (browser-safe, no Node.js deps)
 // Contains all types, the template parser, code generator, and compileSFC.
 // Both compiler.ts (Node.js) and browser.ts import from here.
 // =============================================================================
@@ -125,7 +125,7 @@ export function generateScopeId(filename: string): string {
   for (let i = 0; i < filename.length; i++) {
     h = Math.imul(33, h) ^ filename.charCodeAt(i);
   }
-  return `forge-${(h >>> 0).toString(16).padStart(8, '0').slice(-6)}`;
+  return `vorra-${(h >>> 0).toString(16).padStart(8, '0').slice(-6)}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -179,7 +179,7 @@ class TemplateParser {
 
     if (!tag) {
       throw new Error(
-        `[Forge Compiler] Expected tag name at position ${this.pos} in "${this.filename}"`,
+        `[Vorra Compiler] Expected tag name at position ${this.pos} in "${this.filename}"`,
       );
     }
 
@@ -361,7 +361,7 @@ class TemplateParser {
   private expect(char: string): void {
     if (this.src[this.pos] !== char) {
       throw new Error(
-        `[Forge Compiler] Expected '${char}' but got '${this.src[this.pos] ?? 'EOF'}' ` +
+        `[Vorra Compiler] Expected '${char}' but got '${this.src[this.pos] ?? 'EOF'}' ` +
           `at position ${this.pos} in "${this.filename}"`,
       );
     }
@@ -512,7 +512,7 @@ class CodeGenerator {
     // Supports: "item of items()" or "item of items(); track item.id"
     const match = /^\s*(\w+)\s+of\s+([\s\S]+?)(?:\s*;\s*track\s+[\s\S]+)?\s*$/.exec(expr);
     if (!match) {
-      throw new Error(`[Forge Compiler] Invalid @for expression: "${expr}". Expected: "item of items()"`);
+      throw new Error(`[Vorra Compiler] Invalid @for expression: "${expr}". Expected: "item of items()"`);
     }
     return { itemVar: match[1]!, iterableExpr: match[2]!.trim() };
   }
@@ -631,7 +631,7 @@ export function extractScriptParts(content: string): {
   const bodyLines: string[] = [];
   const componentMap = new Map<string, string>();
 
-  const forgeImportRe = /^\s*import\s+(\w+)\s+from\s+['"][^'"]*\.forge['"]/;
+  const vorraImportRe = /^\s*import\s+(\w+)\s+from\s+['"][^'"]*\.vorra['"]/;
   const namedImportRe = /^\s*import\s*\{([^}]+)\}\s*from\s+/;
   const defaultImportRe = /^\s*import\s+([A-Z]\w*)\s+from\s+/;
 
@@ -641,9 +641,9 @@ export function extractScriptParts(content: string): {
 
       if (/^\s*import\s+type[\s{]/.test(line)) continue;
 
-      const forgeMatch = forgeImportRe.exec(line);
-      if (forgeMatch?.[1] !== undefined) {
-        componentMap.set(forgeMatch[1], forgeMatch[1]);
+      const vorraMatch = vorraImportRe.exec(line);
+      if (vorraMatch?.[1] !== undefined) {
+        componentMap.set(vorraMatch[1], vorraMatch[1]);
         continue;
       }
 
@@ -685,7 +685,7 @@ export interface CompileSFCOptions {
 }
 
 /**
- * Compiles a parsed `.forge` SFCDescriptor into a JavaScript module string.
+ * Compiles a parsed `.vorra` SFCDescriptor into a JavaScript module string.
  * Requires a `stripTypeScript` implementation — Node.js callers use
  * `oxcStripTypeScript` (from compiler.ts); browser callers use
  * `regexStripTypeScript` (exported from this file).
@@ -713,7 +713,7 @@ export function compileSFC(
       code: descriptor.script?.content.trim() ?? '',
       errors,
       warnings: [{
-        message: '[Forge Compiler] No <template> block found; component will have no DOM output.',
+        message: '[Vorra Compiler] No <template> block found; component will have no DOM output.',
       }],
       styles,
     };
@@ -732,7 +732,7 @@ export function compileSFC(
   if (elementRoots.length === 0) {
     return {
       code: '',
-      errors: [{ message: '[Forge Compiler] <template> must contain at least one root element.' }],
+      errors: [{ message: '[Vorra Compiler] <template> must contain at least one root element.' }],
       warnings,
       styles,
     };
@@ -740,7 +740,7 @@ export function compileSFC(
 
   if (elementRoots.length > 1) {
     warnings.push({
-      message: '[Forge Compiler] <template> has multiple root elements; only the first will be used.',
+      message: '[Vorra Compiler] <template> has multiple root elements; only the first will be used.',
     });
   }
 
@@ -759,7 +759,7 @@ export function compileSFC(
   const rootVar = gen.walkNode(elementRoots[0]!);
 
   const domFns = [...gen.usedDomFns].sort().join(', ');
-  const domImportLine = domFns ? `import { ${domFns} } from '@forge/core/dom';` : '';
+  const domImportLine = domFns ? `import { ${domFns} } from '@vorra/core/dom';` : '';
 
   const factoryLines: string[] = [];
   if (bodyContent) {
@@ -774,15 +774,15 @@ export function compileSFC(
   const innerLines = factoryLines.map(l => `  ${l}`);
 
   const parts: string[] = [];
-  parts.push(`// Forge compiled component: ${descriptor.filename}`);
-  parts.push(`import { runInContext } from '@forge/core';`);
+  parts.push(`// Vorra compiled component: ${descriptor.filename}`);
+  parts.push(`import { runInContext } from '@vorra/core';`);
   if (domImportLine) parts.push(domImportLine);
   for (const imp of hoistedImports) parts.push(imp);
   parts.push('');
 
   if (options?.hmr) {
     // Named factory so we can attach __hmrId and reference it below.
-    parts.push('export default function _ForgeComponent(ctx, props = {}) {');
+    parts.push('export default function _VorraComponent(ctx, props = {}) {');
   } else {
     parts.push('export default function(ctx, props = {}) {');
   }
@@ -792,12 +792,12 @@ export function compileSFC(
   parts.push('}');
 
   if (options?.hmr) {
-    parts.push(`_ForgeComponent.__hmrId = '${scopeId}';`);
+    parts.push(`_VorraComponent.__hmrId = '${scopeId}';`);
     parts.push(
-      `if (typeof __forge_dev !== 'undefined' && __forge_dev &&` +
-      ` typeof window !== 'undefined' && window.__forge_hmr?.accept) {`,
+      `if (typeof __vorra_dev !== 'undefined' && __vorra_dev &&` +
+      ` typeof window !== 'undefined' && window.__vorra_hmr?.accept) {`,
     );
-    parts.push(`  window.__forge_hmr.accept('${scopeId}', _ForgeComponent);`);
+    parts.push(`  window.__vorra_hmr.accept('${scopeId}', _VorraComponent);`);
     parts.push(`}`);
   }
 

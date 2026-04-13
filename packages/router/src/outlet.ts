@@ -1,23 +1,23 @@
 // =============================================================================
-// @forge/router — RouterOutlet
+// @vorra/router — RouterOutlet
 // Reactively mounts / unmounts the active route's component into a container.
 // =============================================================================
 
-import { effect } from '@forge/core';
-import type { ComponentContext } from '@forge/core';
+import { effect } from '@vorra/core';
+import type { ComponentContext } from '@vorra/core';
 import {
   createElement,
   insert,
   remove,
   createComponent,
   destroyComponent,
-} from '@forge/core/dom';
+} from '@vorra/core/dom';
 import type { Router } from './router.js';
 import type { ComponentFactory, LazyComponentLoader } from './types.js';
 import { isLazyComponent } from './types.js';
 
 /**
- * Creates a `<div data-forge-outlet>` container element and reactively
+ * Creates a `<div data-vorra-outlet>` container element and reactively
  * mounts the current route's component inside it.  When the route changes
  * the previous component is torn down and the new one is mounted.
  *
@@ -36,7 +36,7 @@ export function createRouterOutlet(
   parentCtx: ComponentContext
 ): Element {
   const container = createElement('div');
-  container.setAttribute('data-forge-outlet', '');
+  container.setAttribute('data-vorra-outlet', '');
 
   // Shared object reference so that hmrAccept's in-place updates to .node/.ctx
   // are immediately visible when destroyCurrent reads from currentInst.
@@ -58,7 +58,7 @@ export function createRouterOutlet(
       // concurrent hot-swap cannot fire on an instance we are about to destroy.
       if (currentHmrId !== undefined && typeof window !== 'undefined') {
         const w = window as unknown as Record<string, unknown>;
-        const hmr = w['__forge_hmr'] as { instances?: Map<string, MountedInstance[]> } | undefined;
+        const hmr = w['__vorra_hmr'] as { instances?: Map<string, MountedInstance[]> } | undefined;
         const list = hmr?.instances?.get(currentHmrId);
         if (list) {
           const i = list.indexOf(currentInst);
@@ -110,7 +110,7 @@ export function createRouterOutlet(
     const hmrId = (factory as unknown as Record<string, unknown>)['__hmrId'] as string | undefined;
     if (hmrId !== undefined && typeof window !== 'undefined') {
       const w = window as unknown as Record<string, unknown>;
-      const hmr = w['__forge_hmr'] as { instances?: Map<string, MountedInstance[]> } | undefined;
+      const hmr = w['__vorra_hmr'] as { instances?: Map<string, MountedInstance[]> } | undefined;
       if (hmr?.instances) {
         const list = hmr.instances.get(hmrId) ?? [];
         list.push(inst);

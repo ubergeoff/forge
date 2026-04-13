@@ -1,5 +1,5 @@
 // =============================================================================
-// @forge/cli — Test Suite (Vitest)
+// @vorra/cli — Test Suite (Vitest)
 // =============================================================================
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -54,7 +54,7 @@ describe('runNew()', () => {
   it('exits with error when no project name is given', async () => {
     const { runNew } = await import('../src/commands/new.js');
     runNew([]);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Usage: forge new'));
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Usage: vorra new'));
     expect(exitSpy).toHaveBeenCalledWith(1);
   });
 

@@ -1,6 +1,6 @@
 // =============================================================================
-// @forge/compiler — SFC Parser (Step 4)
-// Splits a raw .forge source file into typed block descriptors.
+// @vorra/compiler — SFC Parser (Step 4)
+// Splits a raw .vorra source file into typed block descriptors.
 // =============================================================================
 
 // ---------------------------------------------------------------------------
@@ -63,13 +63,13 @@ function parseAttrs(raw: string): Record<string, string | true> {
 // ---------------------------------------------------------------------------
 
 /**
- * Parses a raw `.forge` SFC source string into a structured descriptor.
+ * Parses a raw `.vorra` SFC source string into a structured descriptor.
  *
- * A `.forge` file may contain up to one `<script>` block, one `<template>`
+ * A `.vorra` file may contain up to one `<script>` block, one `<template>`
  * block, and any number of `<style>` blocks, in any order. Blocks that are
  * absent produce `null` (script/template) or an empty array (styles).
  *
- * @param source   - The full text of a `.forge` file.
+ * @param source   - The full text of a `.vorra` file.
  * @param filename - The file path / name (stored on the descriptor for
  *                   downstream error reporting).
  *
@@ -101,7 +101,7 @@ export function parseSFC(source: string, filename: string): SFCDescriptor {
 
     if (closeIdx === -1) {
       throw new Error(
-        `[Forge Parser] Unclosed <${tagName}> block in "${filename}". ` +
+        `[Vorra Parser] Unclosed <${tagName}> block in "${filename}". ` +
           `Add a closing </${tagName}> tag.`,
       );
     }

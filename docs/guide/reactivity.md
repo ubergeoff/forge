@@ -1,13 +1,13 @@
 # Reactivity
 
-Forge's reactivity system is the engine that makes your UI respond to state changes without a Virtual DOM. It is implemented in `@forge/core` as a push-pull system built on three primitives: `signal`, `computed`, and `effect`.
+Vorra's reactivity system is the engine that makes your UI respond to state changes without a Virtual DOM. It is implemented in `@vorra/core` as a push-pull system built on three primitives: `signal`, `computed`, and `effect`.
 
 ## signal()
 
 A signal holds a value and notifies subscribers when it changes. Call it like a function to read; use `.set()` or `.update()` to write.
 
 ```ts
-import { signal } from '@forge/core'
+import { signal } from '@vorra/core'
 
 const count = signal(0)
 
@@ -52,7 +52,7 @@ export const count = _count.asReadonly()
 `computed` creates a derived value that re-evaluates lazily when its dependencies change. It is **memoized** — reading it multiple times before a dependency changes returns the cached value without re-running the computation.
 
 ```ts
-import { signal, computed } from '@forge/core'
+import { signal, computed } from '@vorra/core'
 
 const firstName = signal('Jane')
 const lastName = signal('Doe')
@@ -98,7 +98,7 @@ const sorted = computed(
 `effect` runs a side-effect function immediately and re-runs it whenever any signal read inside it changes. It returns an `EffectHandle` with a `destroy()` method to stop the effect.
 
 ```ts
-import { signal, effect } from '@forge/core'
+import { signal, effect } from '@vorra/core'
 
 const count = signal(0)
 
@@ -135,7 +135,7 @@ effect(() => {
 
 ### Effects and the DOM
 
-The Forge DOM runtime uses effects internally to keep DOM nodes in sync with signals. When you write `{count()}` in a template, the compiler generates a `bindText` call that creates an effect watching `count`. You usually do not need to write effects for DOM updates — the template compiler handles that.
+The Vorra DOM runtime uses effects internally to keep DOM nodes in sync with signals. When you write `{count()}` in a template, the compiler generates a `bindText` call that creates an effect watching `count`. You usually do not need to write effects for DOM updates — the template compiler handles that.
 
 Use effects for non-DOM side effects: logging, network requests, WebSocket subscriptions, localStorage sync, etc.
 
@@ -144,7 +144,7 @@ Use effects for non-DOM side effects: logging, network requests, WebSocket subsc
 Multiple signal writes inside a `batch()` call are grouped into a single flush. Effects run once after the outermost batch completes, not after each write:
 
 ```ts
-import { signal, effect, batch } from '@forge/core'
+import { signal, effect, batch } from '@vorra/core'
 
 const x = signal(0)
 const y = signal(0)
@@ -169,7 +169,7 @@ Batching is especially useful in form handlers and animations where you update s
 `untrack` lets you read signals inside a reactive context without creating a dependency on them:
 
 ```ts
-import { signal, effect, untrack } from '@forge/core'
+import { signal, effect, untrack } from '@vorra/core'
 
 const trigger = signal(0)
 const data = signal('hello')
@@ -191,7 +191,7 @@ data.set('world')            // → does NOT re-run the effect
 A type guard to check whether a value is a signal:
 
 ```ts
-import { signal, computed, isSignal } from '@forge/core'
+import { signal, computed, isSignal } from '@vorra/core'
 
 const count = signal(0)
 const doubled = computed(() => count() * 2)

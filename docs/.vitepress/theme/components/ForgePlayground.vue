@@ -8,7 +8,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   defaultCode: `<script lang="ts">
-import { signal } from '@forge/core';
+import { signal } from '@vorra/core';
 
 const count = signal(0);
 const doubled = () => count() * 2;
@@ -86,9 +86,9 @@ async function loadMonaco() {
   const loader = await import('@monaco-editor/loader')
   const monaco = await loader.default.init()
 
-  // Register 'forge' as a language with HTML-like syntax highlighting
-  monaco.languages.register({ id: 'forge' })
-  monaco.languages.setMonarchTokensProvider('forge', {
+  // Register 'vorra' as a language with HTML-like syntax highlighting
+  monaco.languages.register({ id: 'vorra' })
+  monaco.languages.setMonarchTokensProvider('vorra', {
     defaultToken: '',
     tokenizer: {
       root: [
@@ -120,7 +120,7 @@ async function loadMonaco() {
 
   editorInstance = monaco.editor.create(editorContainer.value, {
     value: editorCode.value,
-    language: 'forge',
+    language: 'vorra',
     theme: document.documentElement.classList.contains('dark') ? 'vs-dark' : 'vs',
     fontSize: 13,
     minimap: { enabled: false },
@@ -141,7 +141,7 @@ async function loadMonaco() {
 
 // ---------------------------------------------------------------------------
 // Compilation
-// Forge runtime is pre-bundled to /forge/{core,core-dom,forms}.js by
+// Vorra runtime is pre-bundled to /vorra/{core,core-dom,forms}.js by
 // docs/scripts/build-runtime.mjs and served as static assets. The iframe
 // uses an import map pointing to those local files.
 // ---------------------------------------------------------------------------
@@ -152,9 +152,9 @@ async function compile() {
   compileError.value = ''
 
   try {
-    const { parseSFC, compileSFC } = await import('@forge/compiler/browser')
+    const { parseSFC, compileSFC } = await import('@vorra/compiler/browser')
     const source = editorCode.value
-    const descriptor = parseSFC(source, 'playground.forge')
+    const descriptor = parseSFC(source, 'playground.vorra')
     const result = compileSFC(descriptor)
 
     if (result.errors.length > 0) {
@@ -183,9 +183,9 @@ async function compile() {
   <script type="importmap">
   {
     "imports": {
-      "@forge/core": "${origin}/forge/forge.js",
-      "@forge/core/dom": "${origin}/forge/forge.js",
-      "@forge/forms": "${origin}/forge/forms.js"
+      "@vorra/core": "${origin}/vorra/vorra.js",
+      "@vorra/core/dom": "${origin}/vorra/vorra.js",
+      "@vorra/forms": "${origin}/vorra/forms.js"
     }
   }
   <\/script>
@@ -198,8 +198,8 @@ async function compile() {
   <div id="app"></div>
   <script type="module">
     import factory from '${componentUrl}';
-    import { bootstrapApp } from '@forge/core';
-    import { createComponent, mountComponent } from '@forge/core/dom';
+    import { bootstrapApp } from '@vorra/core';
+    import { createComponent, mountComponent } from '@vorra/core/dom';
 
     window.addEventListener('error', (e) => {
       document.body.innerHTML = '<pre style="color:red;padding:16px;">' + e.message + '</pre>';
@@ -247,10 +247,10 @@ function reset() {
 </script>
 
 <template>
-  <div class="forge-playground" :style="{ height: props.height }">
+  <div class="vorra-playground" :style="{ height: props.height }">
     <!-- Toolbar -->
     <div class="playground-toolbar">
-      <span class="playground-label">Forge Playground</span>
+      <span class="playground-label">Vorra Playground</span>
       <div class="toolbar-actions">
         <button class="toolbar-btn" @click="compile" :disabled="isCompiling">
           {{ isCompiling ? 'Running…' : '▶ Run' }}
@@ -281,7 +281,7 @@ function reset() {
 </template>
 
 <style scoped>
-.forge-playground {
+.vorra-playground {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--vp-c-divider);

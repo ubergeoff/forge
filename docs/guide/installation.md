@@ -2,13 +2,13 @@
 
 ## Prerequisites
 
-- **Node.js >= 20.0.0** — Forge uses native ES modules and requires a modern Node.js runtime
+- **Node.js >= 20.0.0** — Vorra uses native ES modules and requires a modern Node.js runtime
 - **npm >= 10** (or pnpm / yarn) — any package manager that supports workspaces works
 
 ## Automatic Setup (Recommended)
 
 ::: info Coming Soon
-`npm create forge-app` is planned for a future release. Until then, use the manual setup below.
+`npm create vorra-app` is planned for a future release. Until then, use the manual setup below.
 :::
 
 ## Manual Setup
@@ -16,23 +16,23 @@
 ### 1. Create a new project directory
 
 ```bash
-mkdir my-forge-app
-cd my-forge-app
+mkdir my-vorra-app
+cd my-vorra-app
 npm init -y
 ```
 
 ### 2. Install the packages
 
 ```bash
-npm install @forge/core @forge/compiler @forge/router @forge/forms
-npm install --save-dev @forge/cli typescript
+npm install @vorra/core @vorra/compiler @vorra/router @vorra/forms
+npm install --save-dev @vorra/cli typescript
 ```
 
-### 3. Create `forge.config.ts`
+### 3. Create `vorra.config.ts`
 
 ```ts
-// forge.config.ts
-import { defineConfig } from '@forge/cli'
+// vorra.config.ts
+import { defineConfig } from '@vorra/cli'
 
 export default defineConfig({
   entry: 'src/main.ts',
@@ -62,9 +62,9 @@ export default defineConfig({
 
 ```ts
 // src/main.ts
-import { bootstrapApp } from '@forge/core'
-import { createComponent, mountComponent } from '@forge/core/dom'
-import App from './App.forge'
+import { bootstrapApp } from '@vorra/core'
+import { createComponent, mountComponent } from '@vorra/core/dom'
+import App from './App.vorra'
 
 const injector = bootstrapApp([])
 const ctx = createComponent(injector)
@@ -73,12 +73,12 @@ mountComponent(App, document.getElementById('app')!, ctx)
 
 ### 6. Create your first component
 
-```forge
-<!-- src/App.forge -->
+```vorra
+<!-- src/App.vorra -->
 <script lang="ts">
-import { signal } from '@forge/core'
+import { signal } from '@vorra/core'
 
-const message = signal('Hello from Forge!')
+const message = signal('Hello from Vorra!')
 </script>
 
 <template>
@@ -96,7 +96,7 @@ const message = signal('Hello from Forge!')
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Forge App</title>
+  <title>My Vorra App</title>
 </head>
 <body>
   <div id="app"></div>
@@ -110,9 +110,9 @@ const message = signal('Hello from Forge!')
 ```json
 {
   "scripts": {
-    "dev": "forge dev",
-    "build": "forge build",
-    "typecheck": "forge typecheck"
+    "dev": "vorra dev",
+    "build": "vorra build",
+    "typecheck": "vorra typecheck"
   }
 }
 ```
@@ -123,24 +123,24 @@ const message = signal('Hello from Forge!')
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser. The dev server watches your `.forge` files and reloads on changes.
+Open [http://localhost:3000](http://localhost:3000) in your browser. The dev server watches your `.vorra` files and reloads on changes.
 
 ## Project Structure
 
-A typical Forge project looks like this:
+A typical Vorra project looks like this:
 
 ```
-my-forge-app/
+my-vorra-app/
 ├── src/
 │   ├── main.ts          # Application entry point
-│   ├── App.forge        # Root component
+│   ├── App.vorra        # Root component
 │   ├── components/      # Reusable components
-│   │   └── Button.forge
+│   │   └── Button.vorra
 │   └── services/        # Injectable services
 │       └── auth.ts
 ├── public/              # Static assets
 ├── index.html
-├── forge.config.ts
+├── vorra.config.ts
 ├── tsconfig.json
 └── package.json
 ```
@@ -148,17 +148,17 @@ my-forge-app/
 ## Adding the Router
 
 ```bash
-npm install @forge/router
+npm install @vorra/router
 ```
 
 ```ts
 // src/main.ts
-import { bootstrapApp } from '@forge/core'
-import { provideRouter } from '@forge/router'
-import { createComponent, mountComponent } from '@forge/core/dom'
-import App from './App.forge'
-import Home from './pages/Home.forge'
-import About from './pages/About.forge'
+import { bootstrapApp } from '@vorra/core'
+import { provideRouter } from '@vorra/router'
+import { createComponent, mountComponent } from '@vorra/core/dom'
+import App from './App.vorra'
+import Home from './pages/Home.vorra'
+import About from './pages/About.vorra'
 
 const injector = bootstrapApp([
   ...provideRouter([

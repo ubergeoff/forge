@@ -1,11 +1,11 @@
 # Router
 
-`@forge/router` is a signal-driven client-side router backed by the History API. Route state is exposed as reactive signals, so your components automatically respond to navigation.
+`@vorra/router` is a signal-driven client-side router backed by the History API. Route state is exposed as reactive signals, so your components automatically respond to navigation.
 
 ## Installation
 
 ```bash
-npm install @forge/router
+npm install @vorra/router
 ```
 
 ## Setup
@@ -14,22 +14,22 @@ npm install @forge/router
 
 ```ts
 // src/routes.ts
-import { lazy } from '@forge/router'
-import HomeComponent from './pages/Home.forge'
-import AboutComponent from './pages/About.forge'
+import { lazy } from '@vorra/router'
+import HomeComponent from './pages/Home.vorra'
+import AboutComponent from './pages/About.vorra'
 
 export const routes = [
   { path: '/', component: HomeComponent, title: 'Home' },
   { path: '/about', component: AboutComponent, title: 'About' },
 
   // Named params
-  { path: '/users/:id', component: lazy(() => import('./pages/UserDetail.forge')) },
+  { path: '/users/:id', component: lazy(() => import('./pages/UserDetail.vorra')) },
 
   // Redirect
   { path: '/home', redirectTo: '/' },
 
   // Wildcard (404)
-  { path: '**', component: lazy(() => import('./pages/NotFound.forge')) },
+  { path: '**', component: lazy(() => import('./pages/NotFound.vorra')) },
 ]
 ```
 
@@ -37,10 +37,10 @@ export const routes = [
 
 ```ts
 // src/main.ts
-import { bootstrapApp } from '@forge/core'
-import { provideRouter } from '@forge/router'
-import { createComponent, mountComponent } from '@forge/core/dom'
-import App from './App.forge'
+import { bootstrapApp } from '@vorra/core'
+import { provideRouter } from '@vorra/router'
+import { createComponent, mountComponent } from '@vorra/core/dom'
+import App from './App.vorra'
 import { routes } from './routes'
 
 const injector = bootstrapApp([
@@ -53,13 +53,13 @@ mountComponent(App, document.getElementById('app')!, ctx)
 
 ### 3. Add a RouterOutlet to your App component
 
-```forge
-<!-- src/App.forge -->
+```vorra
+<!-- src/App.vorra -->
 <script lang="ts">
-import { inject } from '@forge/core'
-import { ROUTER } from '@forge/router'
+import { inject } from '@vorra/core'
+import { ROUTER } from '@vorra/router'
 // RouterOutlet is used as a child component reference
-import RouterOutlet from '@forge/router/outlet'
+import RouterOutlet from '@vorra/router/outlet'
 </script>
 
 <template>
@@ -103,10 +103,10 @@ interface RouteConfig {
 
 Inject the `ROUTER` token to navigate programmatically and read route state:
 
-```forge
+```vorra
 <script lang="ts">
-import { inject } from '@forge/core'
-import { ROUTER } from '@forge/router'
+import { inject } from '@vorra/core'
+import { ROUTER } from '@vorra/router'
 
 const router = inject(ROUTER)
 
@@ -148,9 +148,9 @@ router.forward()  // equivalent to window.history.forward()
 
 Use `RouterLink` for declarative navigation. It renders an `<a>` tag and handles clicks with `history.pushState` (no full page reload):
 
-```forge
+```vorra
 <script lang="ts">
-import RouterLink from '@forge/router/link'
+import RouterLink from '@vorra/router/link'
 </script>
 
 <template>
@@ -167,17 +167,17 @@ import RouterLink from '@forge/router/link'
 Use `lazy()` to code-split routes. The chunk is only fetched when the route is first activated:
 
 ```ts
-import { lazy } from '@forge/router'
+import { lazy } from '@vorra/router'
 
 const routes = [
   { path: '/', component: HomeComponent },
   {
     path: '/dashboard',
-    component: lazy(() => import('./pages/Dashboard.forge')),
+    component: lazy(() => import('./pages/Dashboard.vorra')),
   },
   {
     path: '/admin',
-    component: lazy(() => import('./pages/Admin.forge')),
+    component: lazy(() => import('./pages/Admin.vorra')),
   },
 ]
 ```
@@ -188,10 +188,10 @@ The `lazy()` helper marks the loader function with a `__lazy: true` symbol so `R
 
 The `Router` exposes reactive signals you can read in any component:
 
-```forge
+```vorra
 <script lang="ts">
-import { inject, computed } from '@forge/core'
-import { ROUTER } from '@forge/router'
+import { inject, computed } from '@vorra/core'
+import { ROUTER } from '@vorra/router'
 
 const router = inject(ROUTER)
 
@@ -249,12 +249,12 @@ const requiredRoles = computed(() => {
 
 ## Programmatic Guard Pattern
 
-Forge's router does not have built-in guards, but you can implement them with effects:
+Vorra's router does not have built-in guards, but you can implement them with effects:
 
 ```ts
-import { effect } from '@forge/core'
-import { inject } from '@forge/core'
-import { ROUTER } from '@forge/router'
+import { effect } from '@vorra/core'
+import { inject } from '@vorra/core'
+import { ROUTER } from '@vorra/router'
 import { AuthService } from './auth.service'
 
 const router = inject(ROUTER)

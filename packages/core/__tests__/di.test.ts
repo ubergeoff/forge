@@ -1,5 +1,5 @@
 // =============================================================================
-// Forge DI System — Test Suite (Vitest)
+// Vorra DI System — Test Suite (Vitest)
 // =============================================================================
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -236,7 +236,7 @@ describe('Injector hierarchy', () => {
 describe('inject() context guards', () => {
   it('throws when called outside injection context', () => {
     const TOKEN = new InjectionToken<string>('TOKEN');
-    expect(() => inject(TOKEN)).toThrow('[Forge DI] inject() called outside');
+    expect(() => inject(TOKEN)).toThrow('[Vorra DI] inject() called outside');
   });
 
   it('returns null for optional missing token', () => {
@@ -251,7 +251,7 @@ describe('inject() context guards', () => {
     const injector = bootstrapApp();
     expect(() =>
       runInContext(injector, () => inject(TOKEN))
-    ).toThrow('[Forge DI] No provider found');
+    ).toThrow('[Vorra DI] No provider found');
   });
 });
 
@@ -334,7 +334,7 @@ describe('onDestroy()', () => {
 
   it('throws when called outside injection context', () => {
     expect(() => onDestroy(() => {})).toThrow(
-      '[Forge DI] onDestroy() must be called within an injection context.'
+      '[Vorra DI] onDestroy() must be called within an injection context.'
     );
   });
 });

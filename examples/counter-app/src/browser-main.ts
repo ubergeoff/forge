@@ -1,8 +1,8 @@
-import 'forge:css';
-import { bootstrapApp } from '@forge/core';
-import { createComponent, mountComponent } from '@forge/core/dom';
-import { provideRouter } from '@forge/router';
-import AppShell from './app-shell.forge';
+import 'vorra:css';
+import { bootstrapApp } from '@vorra/core';
+import { createComponent, mountComponent } from '@vorra/core/dom';
+import { provideRouter } from '@vorra/router';
+import AppShell from './app-shell.vorra';
 
 // ---------------------------------------------------------------------------
 // Lazy-loaded page factories
@@ -10,14 +10,14 @@ import AppShell from './app-shell.forge';
 // Each route uses a dynamic import so the page code is split into its own
 // chunk and only downloaded when the user first visits that route.
 
-import { lazy } from '@forge/router';
+import { lazy } from '@vorra/router';
 
-const HomePage        = lazy(() => import('./pages/home-page.forge'));
-const CounterPage     = lazy(() => import('./pages/counter-page.forge'));
-const AboutPage       = lazy(() => import('./pages/about-page.forge'));
-const ReactivityPage  = lazy(() => import('./pages/reactivity-page.forge'));
-const FormsPage       = lazy(() => import('./pages/forms-page.forge'));
-const ForPage         = lazy(() => import('./pages/for-page.forge'));
+const HomePage        = lazy(() => import('./pages/home-page.vorra'));
+const CounterPage     = lazy(() => import('./pages/counter-page.vorra'));
+const AboutPage       = lazy(() => import('./pages/about-page.vorra'));
+const ReactivityPage  = lazy(() => import('./pages/reactivity-page.vorra'));
+const FormsPage       = lazy(() => import('./pages/forms-page.vorra'));
+const ForPage         = lazy(() => import('./pages/for-page.vorra'));
 
 // ---------------------------------------------------------------------------
 // Bootstrap
@@ -25,12 +25,12 @@ const ForPage         = lazy(() => import('./pages/for-page.forge'));
 
 const app = bootstrapApp([
   ...provideRouter([
-    { path: '/',        component: HomePage,    title: 'Home — Forge Demo' },
-    { path: '/counter', component: CounterPage, title: 'Counter — Forge Demo' },
-    { path: '/about',       component: AboutPage,       title: 'About — Forge Demo' },
-    { path: '/reactivity',  component: ReactivityPage,  title: 'Reactivity — Forge Demo' },
-    { path: '/forms',       component: FormsPage,       title: 'Forms — Forge Demo' },
-    { path: '/for',         component: ForPage,         title: '@for — Forge Demo' },
+    { path: '/',        component: HomePage,    title: 'Home — Vorra Demo' },
+    { path: '/counter', component: CounterPage, title: 'Counter — Vorra Demo' },
+    { path: '/about',       component: AboutPage,       title: 'About — Vorra Demo' },
+    { path: '/reactivity',  component: ReactivityPage,  title: 'Reactivity — Vorra Demo' },
+    { path: '/forms',       component: FormsPage,       title: 'Forms — Vorra Demo' },
+    { path: '/for',         component: ForPage,         title: '@for — Vorra Demo' },
     { path: '**',       redirectTo: '/' },
   ]),
 ]);
@@ -38,6 +38,6 @@ const app = bootstrapApp([
 const ctx = createComponent(app);
 
 const container = document.getElementById('app');
-if (!container) throw new Error('[Forge] No #app element found in the document');
+if (!container) throw new Error('[Vorra] No #app element found in the document');
 
 mountComponent(AppShell, container, ctx);

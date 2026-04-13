@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Why Forge?</title>
+  <title>Why Vorra?</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -271,7 +271,7 @@
     }
     .compare-section .keep-using ul { margin: 0; }
     .compare-section .keep-using li { color: var(--muted); }
-    .choose-forge {
+    .choose-vorra {
       background: var(--accent-light);
       border-radius: 8px;
       padding: 0.8rem 1.1rem;
@@ -280,7 +280,7 @@
       font-weight: 500;
       margin-top: 1rem;
     }
-    .choose-forge::before {
+    .choose-vorra::before {
       content: "✓  ";
       font-weight: 700;
     }
@@ -290,9 +290,9 @@
 
 <header>
   <div class="header-inner">
-    <span class="logo">⚡ <span>Forge</span></span>
+    <span class="logo">⚡ <span>Vorra</span></span>
     <span class="header-sep">/</span>
-    <span class="header-title">Why Forge?</span>
+    <span class="header-title">Why Vorra?</span>
   </div>
 </header>
 
@@ -300,8 +300,8 @@
 
   <!-- Hero -->
   <section class="hero">
-    <h1>Why Forge?</h1>
-    <p>There are already great JavaScript frameworks. Here's an honest look at what Forge does differently — and when it's the right choice.</p>
+    <h1>Why Vorra?</h1>
+    <p>There are already great JavaScript frameworks. Here's an honest look at what Vorra does differently — and when it's the right choice.</p>
   </section>
 
   <!-- Quick comparison table -->
@@ -314,7 +314,7 @@
           <th>React</th>
           <th>Vue</th>
           <th>Angular</th>
-          <th>Forge</th>
+          <th>Vorra</th>
         </tr>
       </thead>
       <tbody>
@@ -330,7 +330,7 @@
           <td>JSX in <code>.tsx</code></td>
           <td>SFC in <code>.vue</code></td>
           <td>Class + template in separate files</td>
-          <td>SFC in <code>.forge</code></td>
+          <td>SFC in <code>.vorra</code></td>
         </tr>
         <tr>
           <td>Dependency injection</td>
@@ -397,24 +397,24 @@
         <li>Your team is already proficient and productive in React</li>
       </ul>
     </div>
-    <h3>Where Forge is different</h3>
+    <h3>Where Vorra is different</h3>
     <p>React's mental model is built around re-renders. When state changes, components re-render and the virtual DOM reconciler figures out what changed. This works well, but it has costs: you manage <code>useMemo</code>, <code>useCallback</code>, and <code>useEffect</code> to avoid unnecessary work.</p>
-    <p>Forge uses fine-grained signals. When <code>count</code> changes, only the exact DOM node displaying <code>count</code> updates — nothing else runs. There's no reconciler, no re-render cycle, and no dependency arrays to manage.</p>
+    <p>Vorra uses fine-grained signals. When <code>count</code> changes, only the exact DOM node displaying <code>count</code> updates — nothing else runs. There's no reconciler, no re-render cycle, and no dependency arrays to manage.</p>
     <pre><span class="comment">// React — you manage memoisation</span>
 <span class="keyword">const</span> doubled = <span class="fn">useMemo</span>(() => count * 2, [count]);
 <span class="fn">useEffect</span>(() => { document.title = `Count: ${count}`; }, [count]);
 
-<span class="comment">// Forge — reactivity is automatic</span>
+<span class="comment">// Vorra — reactivity is automatic</span>
 <span class="keyword">const</span> doubled = <span class="fn">computed</span>(() => <span class="fn">count</span>() * 2);
 <span class="fn">effect</span>(() => { document.title = `Count: ${<span class="fn">count</span>()}`; });</pre>
-    <p>Forge also has a first-class dependency injection system. In React, cross-cutting concerns like auth, logging, and feature flags typically rely on a mix of context, prop drilling, and third-party state libraries. In Forge, services are injectable singletons by default, testable in isolation, and scoped precisely.</p>
-    <div class="choose-forge">Choose Forge over React when you want predictable reactivity without memoisation overhead, or when your app has complex service-layer requirements that feel awkward in React's component-centric model.</div>
+    <p>Vorra also has a first-class dependency injection system. In React, cross-cutting concerns like auth, logging, and feature flags typically rely on a mix of context, prop drilling, and third-party state libraries. In Vorra, services are injectable singletons by default, testable in isolation, and scoped precisely.</p>
+    <div class="choose-vorra">Choose Vorra over React when you want predictable reactivity without memoisation overhead, or when your app has complex service-layer requirements that feel awkward in React's component-centric model.</div>
   </div>
 
   <!-- Vue -->
   <div class="compare-section">
     <h2>Compared to Vue</h2>
-    <p>Vue is the friendliest of the major frameworks. Vue 3's Composition API and <code>&lt;script setup&gt;</code> SFCs are genuinely excellent. If you love Vue, you will feel at home in Forge — the SFC format is directly inspired by it.</p>
+    <p>Vue is the friendliest of the major frameworks. Vue 3's Composition API and <code>&lt;script setup&gt;</code> SFCs are genuinely excellent. If you love Vue, you will feel at home in Vorra — the SFC format is directly inspired by it.</p>
     <div class="keep-using">
       <strong>Keep using Vue if</strong>
       <ul>
@@ -423,24 +423,24 @@
         <li>You're building a public-facing product where SSR matters today</li>
       </ul>
     </div>
-    <h3>Where Forge is different</h3>
-    <p>Vue's reactivity uses <code>ref()</code> and <code>reactive()</code> — objects tracked via Proxy. Forge's signals are plain functions. This is a subtle difference but it matters:</p>
+    <h3>Where Vorra is different</h3>
+    <p>Vue's reactivity uses <code>ref()</code> and <code>reactive()</code> — objects tracked via Proxy. Vorra's signals are plain functions. This is a subtle difference but it matters:</p>
     <pre><span class="comment">// Vue — refs and reactive objects, .value in script</span>
 <span class="keyword">const</span> count = <span class="fn">ref</span>(0);
 <span class="keyword">const</span> doubled = <span class="fn">computed</span>(() => count.value * 2);
 
-<span class="comment">// Forge — signals as functions, consistent in template and script</span>
+<span class="comment">// Vorra — signals as functions, consistent in template and script</span>
 <span class="keyword">const</span> count = <span class="fn">signal</span>(0);
 <span class="keyword">const</span> doubled = <span class="fn">computed</span>(() => <span class="fn">count</span>() * 2);</pre>
     <p>More significantly, Vue does not have a built-in DI system designed for services. <code>provide/inject</code> works for passing values down a component tree, but it's not built for singleton application services — things like auth services, HTTP clients, or feature flag managers with their own internal state.</p>
-    <p>Forge's DI system is designed for exactly this. Services are decorated, lazily instantiated, and can be scoped globally, to a component subtree, or to a custom injector. Forge also uses <strong>Rolldown</strong> — a Rust-based bundler — instead of Vite, giving measurably faster build times at enterprise scale.</p>
-    <div class="choose-forge">Choose Forge over Vue when your app has a substantial service layer, you prefer a pure signal model over refs/reactive, or build performance is a priority at scale.</div>
+    <p>Vorra's DI system is designed for exactly this. Services are decorated, lazily instantiated, and can be scoped globally, to a component subtree, or to a custom injector. Vorra also uses <strong>Rolldown</strong> — a Rust-based bundler — instead of Vite, giving measurably faster build times at enterprise scale.</p>
+    <div class="choose-vorra">Choose Vorra over Vue when your app has a substantial service layer, you prefer a pure signal model over refs/reactive, or build performance is a priority at scale.</div>
   </div>
 
   <!-- Angular -->
   <div class="compare-section">
     <h2>Compared to Angular</h2>
-    <p>Angular is the most structurally similar framework to Forge. Both have a real DI system, both are TypeScript-first, and both target enterprise applications. If your team knows Angular, you will recognise many of Forge's patterns immediately.</p>
+    <p>Angular is the most structurally similar framework to Vorra. Both have a real DI system, both are TypeScript-first, and both target enterprise applications. If your team knows Angular, you will recognise many of Vorra's patterns immediately.</p>
     <div class="keep-using">
       <strong>Keep using Angular if</strong>
       <ul>
@@ -449,9 +449,9 @@
         <li>Your team relies on Angular's opinions about forms, HTTP, and i18n</li>
       </ul>
     </div>
-    <h3>Where Forge is different</h3>
+    <h3>Where Vorra is different</h3>
     <p>Angular's change detection is based on Zone.js, which monkey-patches browser APIs to detect when anything might have changed. Angular 17 introduced signals as an opt-in alternative, but Zone.js remains the default and the mental model is still largely class-based with lifecycle hooks.</p>
-    <p>Forge is signals all the way down from day one. There's no Zone.js, no <code>OnPush</code> strategy to opt into, no <code>markForCheck()</code> calls, no <code>ngZone.run()</code> workarounds. Reactivity is the default, not an addition.</p>
+    <p>Vorra is signals all the way down from day one. There's no Zone.js, no <code>OnPush</code> strategy to opt into, no <code>markForCheck()</code> calls, no <code>ngZone.run()</code> workarounds. Reactivity is the default, not an addition.</p>
     <pre><span class="comment">// Angular — class component, zone-based, lifecycle hooks</span>
 <span class="label">@Component</span>({ template: `{{ doubled }}` })
 <span class="keyword">export class</span> <span class="fn">CounterComponent</span> <span class="keyword">implements</span> OnInit {
@@ -461,16 +461,16 @@
   <span class="fn">increment</span>() { <span class="keyword">this</span>.count++; <span class="keyword">this</span>.doubled = <span class="keyword">this</span>.count * 2; }
 }
 
-<span class="comment">// Forge — signals, no lifecycle hooks needed</span>
+<span class="comment">// Vorra — signals, no lifecycle hooks needed</span>
 <span class="keyword">const</span> count = <span class="fn">signal</span>(0);
 <span class="keyword">const</span> doubled = <span class="fn">computed</span>(() => <span class="fn">count</span>() * 2);
 <span class="keyword">function</span> <span class="fn">increment</span>() { count.<span class="fn">update</span>(n => n + 1); }</pre>
-    <p>Angular is also a large framework with a large bundle. Its opinions are comprehensive — a strength when you need them and friction when you don't. Forge takes Angular's best idea (dependency injection) and leaves behind the rest of the complexity.</p>
-    <div class="choose-forge">Choose Forge over Angular when you want Angular's structural discipline without its runtime weight, or you're starting a new project and don't need the full Angular platform.</div>
+    <p>Angular is also a large framework with a large bundle. Its opinions are comprehensive — a strength when you need them and friction when you don't. Vorra takes Angular's best idea (dependency injection) and leaves behind the rest of the complexity.</p>
+    <div class="choose-vorra">Choose Vorra over Angular when you want Angular's structural discipline without its runtime weight, or you're starting a new project and don't need the full Angular platform.</div>
   </div>
 
   <!-- When to use / not use -->
-  <h2>Is Forge right for you?</h2>
+  <h2>Is Vorra right for you?</h2>
   <div class="card-grid">
     <div class="card good">
       <h4>Good fit</h4>
@@ -485,10 +485,10 @@
     <div class="card bad">
       <h4>Not a good fit</h4>
       <ul>
-        <li><strong>SSR / SSG today</strong> — Forge has no server-rendering story yet</li>
+        <li><strong>SSR / SSG today</strong> — Vorra has no server-rendering story yet</li>
         <li><strong>Ecosystem depth</strong> — React, Vue, Angular have years of libraries and tutorials</li>
         <li><strong>React-only teams</strong> — onboarding to signals + DI has a real cost</li>
-        <li><strong>Mobile apps</strong> — there's no React Native equivalent for Forge</li>
+        <li><strong>Mobile apps</strong> — there's no React Native equivalent for Vorra</li>
       </ul>
     </div>
   </div>
@@ -496,7 +496,7 @@
   <!-- Pitch -->
   <div class="pitch">
     <h2>The one-paragraph pitch</h2>
-    <p>Forge combines the reactivity model of SolidJS, the component ergonomics of Vue, and the application structure of Angular — compiled to minimal, fast output using a Rust-based bundler. It's for teams who have outgrown the DIY architecture of React or the runtime weight of Angular, and want a framework that makes the right patterns the easy patterns.</p>
+    <p>Vorra combines the reactivity model of SolidJS, the component ergonomics of Vue, and the application structure of Angular — compiled to minimal, fast output using a Rust-based bundler. It's for teams who have outgrown the DIY architecture of React or the runtime weight of Angular, and want a framework that makes the right patterns the easy patterns.</p>
     <p style="margin-top: 1rem;">If that sounds like your situation, <a href="../README.md">get started here →</a></p>
   </div>
 

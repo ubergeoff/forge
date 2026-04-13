@@ -1,4 +1,4 @@
-# Forge
+# Vorra
 
 > A compiled, signal-first JavaScript framework for enterprise applications.
 > Angular's structure. SolidJS's speed. Vue's elegance.
@@ -9,31 +9,31 @@
 
 | Package | Description | Status |
 |---|---|---|
-| [`@forge/core`](./packages/core) | Reactivity primitives + dependency injection + DOM runtime | ✅ Complete |
-| [`@forge/compiler`](./packages/compiler) | `.forge` SFC parser + template compiler + Rolldown plugin | ✅ Complete |
-| [`@forge/router`](./packages/router) | Signal-driven client-side router with lazy loading | ✅ Complete |
-| [`@forge/forms`](./packages/forms) | Reactive form controls, validation, and `[formControl]` binding | ✅ Complete |
-| [`@forge/cli`](./packages/cli) | `forge new` / `forge dev` / `forge build` | ✅ Complete |
+| [`@vorra/core`](./packages/core) | Reactivity primitives + dependency injection + DOM runtime | ✅ Complete |
+| [`@vorra/compiler`](./packages/compiler) | `.vorra` SFC parser + template compiler + Rolldown plugin | ✅ Complete |
+| [`@vorra/router`](./packages/router) | Signal-driven client-side router with lazy loading | ✅ Complete |
+| [`@vorra/forms`](./packages/forms) | Reactive form controls, validation, and `[formControl]` binding | ✅ Complete |
+| [`@vorra/cli`](./packages/cli) | `vorra new` / `vorra dev` / `vorra build` | ✅ Complete |
 
 ---
 
 ## Architecture
 
 ```
-.forge SFC file
+.vorra SFC file
       │
       ▼
-[@forge/compiler]  parseSFC() → AST → compileSFC() → JS module
+[@vorra/compiler]  parseSFC() → AST → compileSFC() → JS module
       │
       ▼
-[@forge/core]      signal() / computed() / effect() / inject()
+[@vorra/core]      signal() / computed() / effect() / inject()
       │
-      ├── [@forge/router]   Router / RouterOutlet / RouterLink
+      ├── [@vorra/router]   Router / RouterOutlet / RouterLink
       │
-      ├── [@forge/forms]    formControl() / formGroup() / formArray()
+      ├── [@vorra/forms]    formControl() / formGroup() / formArray()
       │
       ▼
-[Rolldown]         forgePlugin() bundles everything → optimised output
+[Rolldown]         vorraPlugin() bundles everything → optimised output
 ```
 
 ---
@@ -85,7 +85,7 @@ npm run dev
 ### Signals
 
 ```ts
-import { signal, computed, effect, batch } from '@forge/core';
+import { signal, computed, effect, batch } from '@vorra/core';
 
 const count = signal(0);
 const doubled = computed(() => count() * 2);
@@ -100,7 +100,7 @@ batch(() => {
 ### Dependency Injection
 
 ```ts
-import { Injectable, inject, bootstrapApp, runInContext } from '@forge/core';
+import { Injectable, inject, bootstrapApp, runInContext } from '@vorra/core';
 
 @Injectable({ providedIn: 'root' })
 class UserService {
@@ -115,7 +115,7 @@ const users = runInContext(app, () => inject(UserService));
 ### Injection Tokens
 
 ```ts
-import { InjectionToken, inject } from '@forge/core';
+import { InjectionToken, inject } from '@vorra/core';
 
 const API_URL = new InjectionToken<string>('API_URL', {
   providedIn: 'root',
@@ -128,9 +128,9 @@ const url = inject(API_URL); // → 'https://api.example.com'
 ### Single File Components
 
 ```html
-<!-- counter.forge -->
+<!-- counter.vorra -->
 <script lang="ts">
-  import { signal } from '@forge/core';
+  import { signal } from '@vorra/core';
 
   const count = signal(0);
   const increment = () => count.set(count() + 1);
@@ -151,13 +151,13 @@ const url = inject(API_URL); // → 'https://api.example.com'
 ### Router
 
 ```ts
-import { provideRouter, lazy } from '@forge/router';
-import { bootstrapApp } from '@forge/core';
+import { provideRouter, lazy } from '@vorra/router';
+import { bootstrapApp } from '@vorra/core';
 
 const routes = [
-  { path: '/',        component: () => import('./pages/home.forge') },
-  { path: '/about',   component: lazy(() => import('./pages/about.forge')) },
-  { path: '/item/:id', component: lazy(() => import('./pages/item.forge')) },
+  { path: '/',        component: () => import('./pages/home.vorra') },
+  { path: '/about',   component: lazy(() => import('./pages/about.vorra')) },
+  { path: '/item/:id', component: lazy(() => import('./pages/item.vorra')) },
   { path: '**',       redirectTo: '/' },
 ];
 
@@ -165,7 +165,7 @@ const app = bootstrapApp([provideRouter(routes)]);
 ```
 
 ```html
-<!-- app-shell.forge -->
+<!-- app-shell.vorra -->
 <template>
   <nav>
     <router-link to="/">Home</router-link>
@@ -178,7 +178,7 @@ const app = bootstrapApp([provideRouter(routes)]);
 ### Reactive Forms
 
 ```ts
-import { formControl, formGroup, Validators } from '@forge/forms';
+import { formControl, formGroup, Validators } from '@vorra/forms';
 
 const loginForm = formGroup({
   email:    formControl('', [Validators.required, Validators.email]),
@@ -192,7 +192,7 @@ loginForm.errors();  // aggregated errors
 ```
 
 ```html
-<!-- login.forge -->
+<!-- login.vorra -->
 <template>
   <form>
     <input [formControl]={loginForm.controls.email} type="email" />
@@ -219,27 +219,27 @@ loginForm.errors();  // aggregated errors
 ## Project Structure
 
 ```
-forge/
+vorra/
 ├── package.json            ← monorepo root (npm workspaces)
 ├── tsconfig.json           ← root TS config with project references
 ├── vitest.config.ts        ← unified test runner
 │
 ├── packages/
-│   ├── core/               ← @forge/core
+│   ├── core/               ← @vorra/core
 │   │   └── src/
 │   │       ├── reactivity.ts  ← signal / computed / effect / batch / untrack
 │   │       ├── di.ts          ← @Injectable / inject / Injector / InjectionToken
 │   │       ├── dom.ts         ← DOM runtime (createElement, bind*, createComponent)
 │   │       └── index.ts
 │   │
-│   ├── compiler/           ← @forge/compiler
+│   ├── compiler/           ← @vorra/compiler
 │   │   └── src/
 │   │       ├── parser.ts   ← parseSFC()
 │   │       ├── compiler.ts ← compileSFC()
-│   │       ├── plugin.ts   ← forgePlugin() for Rolldown
+│   │       ├── plugin.ts   ← vorraPlugin() for Rolldown
 │   │       └── index.ts
 │   │
-│   ├── router/             ← @forge/router
+│   ├── router/             ← @vorra/router
 │   │   └── src/
 │   │       ├── router.ts        ← Router service + ROUTER token
 │   │       ├── route-matcher.ts ← parameterized URL matching
@@ -249,7 +249,7 @@ forge/
 │   │       ├── types.ts
 │   │       └── index.ts
 │   │
-│   ├── forms/              ← @forge/forms
+│   ├── forms/              ← @vorra/forms
 │   │   └── src/
 │   │       ├── control.ts    ← formControl()
 │   │       ├── group.ts      ← formGroup()
@@ -258,9 +258,9 @@ forge/
 │   │       ├── types.ts
 │   │       └── index.ts
 │   │
-│   └── cli/                ← @forge/cli
+│   └── cli/                ← @vorra/cli
 │       └── src/
-│           ├── bin.ts              ← forge <command>
+│           ├── bin.ts              ← vorra <command>
 │           ├── commands/
 │           │   ├── dev.ts
 │           │   ├── build.ts
@@ -272,9 +272,9 @@ forge/
 └── examples/
     └── counter-app/        ← full SPA demo using all packages
         └── src/
-            ├── app-shell.forge
+            ├── app-shell.vorra
             ├── browser-main.ts
-            ├── components/         ← counter.forge, counter-display.forge, …
+            ├── components/         ← counter.vorra, counter-display.vorra, …
             ├── pages/              ← home, counter, forms, about, reactivity
             └── services/           ← counter.service.ts
 ```
@@ -283,7 +283,7 @@ forge/
 
 ## Build System
 
-Forge uses [Rolldown](https://rolldown.rs) — a Rust-based Rollup-compatible bundler. Each package produces ESM (`.js`) and CJS (`.cjs`) with `.d.ts` declarations and source maps under `dist/`.
+Vorra uses [Rolldown](https://rolldown.rs) — a Rust-based Rollup-compatible bundler. Each package produces ESM (`.js`) and CJS (`.cjs`) with `.d.ts` declarations and source maps under `dist/`.
 
 [Nx](https://nx.dev) orchestrates the monorepo build graph with caching. Build dependency order:
 
@@ -300,13 +300,13 @@ compiler + router + forms → cli
 
 ```bash
 # Scaffold a new project
-forge new my-app
+vorra new my-app
 
 # Start dev server (default port 3000)
-forge dev
+vorra dev
 
 # Production build
-forge build
+vorra build
 ```
 
 ## License

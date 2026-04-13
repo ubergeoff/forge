@@ -1,5 +1,5 @@
 // =============================================================================
-// @forge/compiler — Node.js compiler entry point
+// @vorra/compiler — Node.js compiler entry point
 // Adds oxc-transform-based TypeScript stripping on top of compiler-shared.ts.
 // NOT browser-safe: imports node:module for createRequire.
 // =============================================================================
@@ -43,13 +43,13 @@ export const oxcStripTypeScript: StripTypeScriptFn = (source, filename) => {
       _oxcTransformSync = mod.transformSync;
     } catch {
       throw new Error(
-        `[Forge Compiler] TypeScript stripping requires the 'oxc-transform' package.\n` +
+        `[Vorra Compiler] TypeScript stripping requires the 'oxc-transform' package.\n` +
         `Run: npm install oxc-transform`,
       );
     }
   }
 
-  const tsFilename = filename.replace(/\.forge$/i, '') + '.ts';
+  const tsFilename = filename.replace(/\.vorra$/i, '') + '.ts';
   const result = _oxcTransformSync!(tsFilename, source, {
     typescript: { onlyRemoveTypeImports: true },
   });
@@ -72,9 +72,9 @@ export const oxcStripTypeScript: StripTypeScriptFn = (source, filename) => {
 // ---------------------------------------------------------------------------
 
 /**
- * Compiles a parsed `.forge` SFCDescriptor into a JavaScript module string.
+ * Compiles a parsed `.vorra` SFCDescriptor into a JavaScript module string.
  * Uses oxc-transform for TypeScript stripping by default (Node.js only).
- * For browser use, import from `@forge/compiler/browser` instead.
+ * For browser use, import from `@vorra/compiler/browser` instead.
  */
 export function compileSFC(
   descriptor: SFCDescriptor,

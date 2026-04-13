@@ -2,9 +2,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createRouterOutlet } from '../src/outlet.js';
 import { Router, provideRouter } from '../src/router.js';
-import { bootstrapApp, resetRootInjector } from '@forge/core';
-import { createComponent, destroyComponent } from '@forge/core/dom';
-import type { ComponentContext } from '@forge/core';
+import { bootstrapApp, resetRootInjector } from '@vorra/core';
+import { createComponent, destroyComponent } from '@vorra/core/dom';
+import type { ComponentContext } from '@vorra/core';
 import type { RouteConfig } from '../src/types.js';
 
 function makeSetup(routes: RouteConfig[]) {
@@ -29,11 +29,11 @@ describe('createRouterOutlet', () => {
     resetRootInjector();
   });
 
-  it('returns a div with data-forge-outlet attribute', () => {
+  it('returns a div with data-vorra-outlet attribute', () => {
     ({ router, parentCtx } = makeSetup([{ path: '/home' }]));
     const outlet = createRouterOutlet(router, parentCtx);
     expect(outlet.tagName).toBe('DIV');
-    expect(outlet.hasAttribute('data-forge-outlet')).toBe(true);
+    expect(outlet.hasAttribute('data-vorra-outlet')).toBe(true);
   });
 
   it('mounts a component when a matching route is active', async () => {

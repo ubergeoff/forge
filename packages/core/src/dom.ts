@@ -1,5 +1,5 @@
 // =============================================================================
-// Forge Runtime DOM Layer
+// Vorra Runtime DOM Layer
 // Direct DOM operations + reactive bindings that compiled templates call into.
 // =============================================================================
 
@@ -20,7 +20,7 @@ export interface ComponentContext {
 
 // Injected as a compile-time constant by Rolldown `define` in dev mode.
 // `typeof` check is intentional — the variable may not be defined at runtime.
-declare const __forge_dev: boolean | undefined;
+declare const __vorra_dev: boolean | undefined;
 
 /** Internal record of a mounted component instance, used by HMR swapping. */
 interface HMRInstance {
@@ -357,7 +357,7 @@ export function mountChild(
   const hmrId = (factory as unknown as Record<string, unknown>)['__hmrId'] as string | undefined;
   if (hmrId) {
     const w = typeof window !== 'undefined' ? (window as unknown as Record<string, unknown>) : null;
-    const hmr = w?.['__forge_hmr'] as { instances?: Map<string, HMRInstance[]> } | undefined;
+    const hmr = w?.['__vorra_hmr'] as { instances?: Map<string, HMRInstance[]> } | undefined;
     if (hmr?.instances) {
       const list = hmr.instances.get(hmrId) ?? [];
       list.push({ node, ctx: childCtx, props, parentCtx });
@@ -370,7 +370,7 @@ export function mountChild(
 
 /**
  * Replaces all mounted instances of the component identified by `id` with
- * the output of `newFactory`. Called by the HMR client when a `.forge` chunk
+ * the output of `newFactory`. Called by the HMR client when a `.vorra` chunk
  * is hot-updated. Not intended for use in application code.
  */
 export function hmrAccept(
@@ -378,7 +378,7 @@ export function hmrAccept(
   newFactory: (ctx: ComponentContext, props: Record<string, () => unknown>) => Node,
 ): void {
   const w = typeof window !== 'undefined' ? (window as unknown as Record<string, unknown>) : null;
-  const hmr = w?.['__forge_hmr'] as { instances?: Map<string, HMRInstance[]> } | undefined;
+  const hmr = w?.['__vorra_hmr'] as { instances?: Map<string, HMRInstance[]> } | undefined;
   if (!hmr?.instances) return;
 
   const instances = hmr.instances.get(id) ?? [];
@@ -406,14 +406,14 @@ export function hmrAccept(
   }
 }
 
-// Wire up the HMR runtime on the global `window.__forge_hmr` object so that
-// dynamically-imported component chunks can call `window.__forge_hmr.accept`.
+// Wire up the HMR runtime on the global `window.__vorra_hmr` object so that
+// dynamically-imported component chunks can call `window.__vorra_hmr.accept`.
 // This block is compiled away in production builds (Rolldown replaces
-// `__forge_dev` with `false` and tree-shakes the dead code).
-if (typeof __forge_dev !== 'undefined' && __forge_dev && typeof window !== 'undefined') {
+// `__vorra_dev` with `false` and tree-shakes the dead code).
+if (typeof __vorra_dev !== 'undefined' && __vorra_dev && typeof window !== 'undefined') {
   const w = window as unknown as Record<string, unknown>;
-  if (!w['__forge_hmr']) w['__forge_hmr'] = {};
-  const hmr = w['__forge_hmr'] as Record<string, unknown>;
+  if (!w['__vorra_hmr']) w['__vorra_hmr'] = {};
+  const hmr = w['__vorra_hmr'] as Record<string, unknown>;
   if (!hmr['instances']) hmr['instances'] = new Map<string, HMRInstance[]>();
   hmr['accept'] = hmrAccept;
 }

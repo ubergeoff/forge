@@ -56,6 +56,6 @@ test.describe('Counter Page', () => {
     await page.goto('/');
     await page.getByRole('link', { name: 'Counter' }).click();
     await expect(page).toHaveURL('/counter');
-    await expect(page.getByText('Forge Counter')).toBeVisible();
+    await expect(page.getByText('Vorra Counter')).toBeVisible();
   });
 });

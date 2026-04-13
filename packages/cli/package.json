@@ -1,16 +1,16 @@
 {
-  "name": "@forge/cli",
+  "name": "@vorra/cli",
   "version": "0.3.0",
-  "description": "Forge CLI — forge new / forge dev / forge build",
+  "description": "Vorra CLI — vorra new / vorra dev / vorra build",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ubergeoff/forge.git",
+    "url": "https://github.com/ubergeoff/vorra.git",
     "directory": "packages/cli"
   },
-  "homepage": "https://github.com/ubergeoff/forge/tree/main/packages/cli#readme",
+  "homepage": "https://github.com/ubergeoff/vorra/tree/main/packages/cli#readme",
   "keywords": [
-    "forge",
+    "vorra",
     "cli",
     "dev-server",
     "build-tool",
@@ -26,7 +26,7 @@
   ],
   "type": "module",
   "bin": {
-    "forge": "./dist/bin.js"
+    "vorra": "./dist/bin.js"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -43,7 +43,7 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@forge/compiler": "*",
+    "@vorra/compiler": "*",
     "rolldown": "*"
   },
   "devDependencies": {

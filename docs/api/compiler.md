@@ -1,39 +1,39 @@
-# @forge/compiler
+# @vorra/compiler
 
-The Forge SFC compiler. Parses `.forge` Single File Components and compiles them to JavaScript modules.
+The Vorra SFC compiler. Parses `.vorra` Single File Components and compiles them to JavaScript modules.
 
 ```bash
-npm install @forge/compiler
+npm install @vorra/compiler
 ```
 
 ## Subpath Exports
 
 | Import path | Environment | Description |
 |-------------|-------------|-------------|
-| `@forge/compiler` | Node.js | Full compiler with `oxc-transform` and `node:*` modules |
-| `@forge/compiler/browser` | Browser / Vite | Parser + compiler without any Node.js-specific code |
+| `@vorra/compiler` | Node.js | Full compiler with `oxc-transform` and `node:*` modules |
+| `@vorra/compiler/browser` | Browser / Vite | Parser + compiler without any Node.js-specific code |
 
-The browser subpath is used by the Forge Playground and any browser-based tooling.
+The browser subpath is used by the Vorra Playground and any browser-based tooling.
 
 ## parseSFC()
 
-Splits a raw `.forge` source string into typed block descriptors.
+Splits a raw `.vorra` source string into typed block descriptors.
 
 ```ts
 function parseSFC(source: string, filename: string): SFCDescriptor
 ```
 
 **Parameters:**
-- `source` — The raw `.forge` file content
+- `source` — The raw `.vorra` file content
 - `filename` — The filename (used for scope IDs and error messages)
 
 **Returns:** An `SFCDescriptor` with the parsed blocks.
 
 **Example:**
 ```ts
-import { parseSFC } from '@forge/compiler'
+import { parseSFC } from '@vorra/compiler'
 // or in a browser context:
-import { parseSFC } from '@forge/compiler/browser'
+import { parseSFC } from '@vorra/compiler/browser'
 
 const descriptor = parseSFC(`
 <script lang="ts">
@@ -45,12 +45,12 @@ const count = signal(0)
 <style scoped>
 div { color: red; }
 </style>
-`, 'Counter.forge')
+`, 'Counter.vorra')
 
 descriptor.script    // → SFCBlock | null
 descriptor.template  // → SFCBlock | null
 descriptor.styles    // → SFCBlock[]
-descriptor.filename  // → 'Counter.forge'
+descriptor.filename  // → 'Counter.vorra'
 ```
 
 ---
@@ -70,9 +70,9 @@ function compileSFC(descriptor: SFCDescriptor): CompileResult
 
 **Example:**
 ```ts
-import { parseSFC, compileSFC } from '@forge/compiler'
+import { parseSFC, compileSFC } from '@vorra/compiler'
 
-const descriptor = parseSFC(source, 'Counter.forge')
+const descriptor = parseSFC(source, 'Counter.vorra')
 const result = compileSFC(descriptor)
 
 if (result.errors.length > 0) {
@@ -84,21 +84,21 @@ if (result.errors.length > 0) {
 
 ---
 
-## forgePlugin()
+## vorraPlugin()
 
 The Rolldown plugin that integrates the compiler into the build pipeline.
 
 ```ts
-function forgePlugin(options?: ForgePluginOptions): Plugin
+function vorraPlugin(options?: VorraPluginOptions): Plugin
 ```
 
 **Parameters:**
 
 ```ts
-interface ForgePluginOptions {
+interface VorraPluginOptions {
   /**
    * Path to a CSS entry file (e.g. Tailwind CSS).
-   * Import 'forge:css' in your entry to inject it.
+   * Import 'vorra:css' in your entry to inject it.
    */
   cssEntry?: string
 
@@ -119,18 +119,18 @@ interface ForgePluginOptions {
 **Example:**
 ```ts
 // rolldown.config.mjs
-import { forgePlugin } from '@forge/compiler'
+import { vorraPlugin } from '@vorra/compiler'
 
 export default {
   input: 'src/main.ts',
-  plugins: [forgePlugin()],
+  plugins: [vorraPlugin()],
 }
 ```
 
 The plugin handles:
-- `.forge` files — parsed, compiled, and returned as JavaScript modules
+- `.vorra` files — parsed, compiled, and returned as JavaScript modules
 - `.scss` files — compiled to CSS
-- `forge:css` virtual module — injects the configured CSS entry at runtime
+- `vorra:css` virtual module — injects the configured CSS entry at runtime
 - Scoped style ID stamping via `data-v-{scopeId}` attributes
 
 ---
@@ -202,7 +202,7 @@ interface CompileError {
 
 ## Generated Output
 
-The compiler generates a JavaScript ESM module for each `.forge` file. The default export is a **component factory function**:
+The compiler generates a JavaScript ESM module for each `.vorra` file. The default export is a **component factory function**:
 
 ```ts
 export default function (ctx: ComponentContext, props?: Record<string, () => unknown>): Node
@@ -210,14 +210,14 @@ export default function (ctx: ComponentContext, props?: Record<string, () => unk
 
 The factory:
 1. Runs the script block code in module scope
-2. Calls `createElement`, `bindText`, `listen`, etc. from `@forge/core/dom`
+2. Calls `createElement`, `bindText`, `listen`, etc. from `@vorra/core/dom`
 3. Returns the root DOM node
 
 **Example output** for a simple counter:
 
 ```js
-import { signal } from '@forge/core'
-import { createElement, bindText, listen, insert } from '@forge/core/dom'
+import { signal } from '@vorra/core'
+import { createElement, bindText, listen, insert } from '@vorra/core/dom'
 
 export default function factory(ctx) {
   const count = signal(0)

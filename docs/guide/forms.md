@@ -1,11 +1,11 @@
 # Forms
 
-`@forge/forms` provides a reactive, signal-based forms system. Every aspect of a form field — its value, validation state, touched/dirty status — is a signal that your templates can bind to directly.
+`@vorra/forms` provides a reactive, signal-based forms system. Every aspect of a form field — its value, validation state, touched/dirty status — is a signal that your templates can bind to directly.
 
 ## Installation
 
 ```bash
-npm install @forge/forms
+npm install @vorra/forms
 ```
 
 ## FormControl
@@ -13,7 +13,7 @@ npm install @forge/forms
 `formControl` is the building block. It manages a single field's value and validation:
 
 ```ts
-import { formControl, Validators } from '@forge/forms'
+import { formControl, Validators } from '@vorra/forms'
 
 const name = formControl('', [Validators.required, Validators.minLength(2)])
 
@@ -36,9 +36,9 @@ name.errors()   // → null
 
 Use the `[formControl]` directive for two-way binding:
 
-```forge
+```vorra
 <script lang="ts">
-import { formControl, Validators } from '@forge/forms'
+import { formControl, Validators } from '@vorra/forms'
 
 const name = formControl('', [Validators.required, Validators.minLength(2)])
 </script>
@@ -95,7 +95,7 @@ The `[formControl]` directive:
 `formGroup` aggregates named controls into a logical unit:
 
 ```ts
-import { formControl, formGroup, Validators } from '@forge/forms'
+import { formControl, formGroup, Validators } from '@vorra/forms'
 
 const loginForm = formGroup({
   email: formControl('', [Validators.required, Validators.email]),
@@ -152,7 +152,7 @@ const form = formGroup(
 `formArray` manages a dynamic list of controls:
 
 ```ts
-import { formControl, formArray, Validators } from '@forge/forms'
+import { formControl, formArray, Validators } from '@vorra/forms'
 
 const tags = formArray([
   formControl('typescript'),
@@ -218,7 +218,7 @@ const username = formControl('', [
 Merge multiple validators into one:
 
 ```ts
-import { compose, Validators } from '@forge/forms'
+import { compose, Validators } from '@vorra/forms'
 
 const strongPassword = compose(
   Validators.required,
@@ -235,7 +235,7 @@ const password = formControl('', [strongPassword])
 Async validators return a `Promise<ValidationErrors | null>`. They're passed as the third argument to `formControl`:
 
 ```ts
-import type { AsyncValidatorFn } from '@forge/forms'
+import type { AsyncValidatorFn } from '@vorra/forms'
 
 const uniqueUsername: AsyncValidatorFn = async (value) => {
   if (!value) return null
@@ -256,11 +256,11 @@ username.errors()   // → { usernameTaken: true } or null
 
 ## Complete Login Form Example
 
-```forge
+```vorra
 <script lang="ts">
-import { formControl, formGroup, Validators } from '@forge/forms'
-import { inject } from '@forge/core'
-import { ROUTER } from '@forge/router'
+import { formControl, formGroup, Validators } from '@vorra/forms'
+import { inject } from '@vorra/core'
+import { ROUTER } from '@vorra/router'
 import { AuthService } from '../services/auth.service'
 
 const router = inject(ROUTER)

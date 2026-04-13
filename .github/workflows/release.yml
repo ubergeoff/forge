@@ -3,8 +3,8 @@ name: Release
 on:
   push:
     tags:
-      # Matches independent project tags: @forge/core@1.2.3, @forge/cli@1.2.3, etc.
-      - '@forge/*@[0-9]*.[0-9]*.[0-9]*'
+      # Matches independent project tags: @vorra/core@1.2.3, @vorra/cli@1.2.3, etc.
+      - '@vorra/*@[0-9]*.[0-9]*.[0-9]*'
 
 jobs:
   release:

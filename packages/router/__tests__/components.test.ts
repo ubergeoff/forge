@@ -2,9 +2,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { RouterLink, RouterOutlet } from '../src/components.js';
 import { Router, provideRouter, ROUTER } from '../src/router.js';
-import { bootstrapApp, resetRootInjector } from '@forge/core';
-import { createComponent, destroyComponent } from '@forge/core/dom';
-import type { ComponentContext } from '@forge/core';
+import { bootstrapApp, resetRootInjector } from '@vorra/core';
+import { createComponent, destroyComponent } from '@vorra/core/dom';
+import type { ComponentContext } from '@vorra/core';
 
 function makeSetup() {
   const routes = [{ path: '/home' }, { path: '/about' }];
@@ -77,9 +77,9 @@ describe('RouterOutlet component factory', () => {
     resetRootInjector();
   });
 
-  it('returns a div with data-forge-outlet attribute', () => {
+  it('returns a div with data-vorra-outlet attribute', () => {
     const outlet = RouterOutlet(parentCtx, {}) as HTMLElement;
     expect(outlet.tagName).toBe('DIV');
-    expect(outlet.hasAttribute('data-forge-outlet')).toBe(true);
+    expect(outlet.hasAttribute('data-vorra-outlet')).toBe(true);
   });
 });

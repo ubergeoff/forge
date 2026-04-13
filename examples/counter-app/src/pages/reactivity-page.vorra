@@ -1,5 +1,5 @@
 <script lang="ts">
-import { signal, computed, effect, batch } from '@forge/core';
+import { signal, computed, effect, batch } from '@vorra/core';
 
 // Demo 1: Derived Chain
 const base = signal(4);
