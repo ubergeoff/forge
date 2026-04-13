@@ -8,27 +8,13 @@ const inputs = {
   validators: 'src/validators.ts',
 };
 
-export default defineConfig([
-  // ESM build
-  {
-    input: inputs,
-    output: {
-      dir: 'dist',
-      format: 'esm',
-      entryFileNames: '[name].js',
-      sourcemap: true,
-    },
-    external: ['@vorra/core'],
+export default defineConfig({
+  input: inputs,
+  output: {
+    dir: 'dist',
+    format: 'esm',
+    entryFileNames: '[name].js',
+    sourcemap: true,
   },
-  // CJS build
-  {
-    input: inputs,
-    output: {
-      dir: 'dist',
-      format: 'cjs',
-      entryFileNames: '[name].cjs',
-      sourcemap: true,
-    },
-    external: ['@vorra/core'],
-  },
-]);
+  external: ['@vorra/core'],
+});
