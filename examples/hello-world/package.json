@@ -9,12 +9,12 @@
     "build": "forge build"
   },
   "dependencies": {
-    "@forge/core": "*",
-    "@forge/router": "*"
+    "@vorra/core": "*",
+    "@vorra/router": "*"
   },
   "devDependencies": {
-    "@forge/cli": "*",
-    "@forge/compiler": "*",
+    "@vorra/cli": "*",
+    "@vorra/compiler": "*",
     "@tailwindcss/postcss": "^4.0.0",
     "postcss": "^8.0.0",
     "tailwindcss": "^4.0.0",

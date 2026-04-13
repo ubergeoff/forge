@@ -26,7 +26,10 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(find /c/dev/js/forgeJs -type f '\\(' -name '*.ts' -o -name '*.mjs' -o -name '*.md' -o -name '*.json' -o -name '*.ts' '\\)' ! -path '*/.nx/*' ! -path '*/node_modules/*' ! -path '*/dist/*' ! -path '*/package-lock.json' -exec sed -i 's/@forge\\\\//@vorra\\\\//g' '{}' +)",
+      "Bash(sed -i \"s|node_modules', '@forge'|node_modules', '@vorra'|g\" /c/dev/js/forgeJs/packages/cli/src/commands/dev.ts)",
+      "Bash(sed -i \"s/non-@forge/non-@vorra/g; s/@forge specifiers/@vorra specifiers/g\" /c/dev/js/forgeJs/packages/cli/__tests__/forge-dedupe-plugin.test.ts)"
     ]
   }
 }

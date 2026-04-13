@@ -2,7 +2,7 @@
   "name": "counter-app",
   "version": "0.0.1",
   "private": true,
-  "description": "Minimal Forge example — counter app using @forge/core directly",
+  "description": "Minimal Forge example — counter app using @vorra/core directly",
   "type": "module",
   "scripts": {
     "dev": "forge dev",
@@ -11,13 +11,13 @@
     "e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@forge/core": "*",
-    "@forge/forms": "*",
-    "@forge/router": "*"
+    "@vorra/core": "*",
+    "@vorra/forms": "*",
+    "@vorra/router": "*"
   },
   "devDependencies": {
-    "@forge/cli": "*",
-    "@forge/compiler": "*",
+    "@vorra/cli": "*",
+    "@vorra/compiler": "*",
     "@playwright/test": "^1.52.0",
     "@tailwindcss/postcss": "^4.0.0",
     "postcss": "^8.0.0",

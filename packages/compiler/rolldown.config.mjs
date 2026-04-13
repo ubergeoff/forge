@@ -12,7 +12,7 @@ export default defineConfig([
       browser: 'src/browser.ts',
     },
     output: { dir: 'dist', format: 'esm', entryFileNames: '[name].js', sourcemap: true },
-    external: ['@forge/core', 'oxc-transform', /^node:/],
+    external: ['@vorra/core', 'oxc-transform', /^node:/],
   },
   // CJS build — Node.js only (no browser entry needed for CJS)
   {
@@ -23,6 +23,6 @@ export default defineConfig([
       plugin: 'src/plugin.ts',
     },
     output: { dir: 'dist', format: 'cjs', entryFileNames: '[name].cjs', sourcemap: true },
-    external: ['@forge/core', 'oxc-transform', /^node:/],
+    external: ['@vorra/core', 'oxc-transform', /^node:/],
   },
 ]);

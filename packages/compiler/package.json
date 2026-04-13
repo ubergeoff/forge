@@ -1,5 +1,5 @@
 {
-  "name": "@forge/compiler",
+  "name": "@vorra/compiler",
   "version": "0.3.0",
   "description": "Forge compiler — .forge SFC parser and template compiler",
   "license": "MIT",
@@ -44,7 +44,7 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@forge/core": "*",
+    "@vorra/core": "*",
     "oxc-transform": "^0.121.0"
   },
   "peerDependencies": {

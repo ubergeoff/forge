@@ -1,5 +1,5 @@
 // =============================================================================
-// @forge/compiler — Rolldown Plugin (Step 6)
+// @vorra/compiler — Rolldown Plugin (Step 6)
 // Wires the SFC parser + template compiler into the Rolldown build pipeline.
 // CSS and SCSS support:
 //   - <style> and <style lang="scss"> blocks in .forge files are extracted,
@@ -264,7 +264,7 @@ function buildStyleModule(css: string): string {
  * ```ts
  * // rolldown.config.ts — with Tailwind CSS
  * import { defineConfig } from 'rolldown';
- * import { forgePlugin } from '@forge/compiler';
+ * import { forgePlugin } from '@vorra/compiler';
  * import tailwindcss from 'tailwindcss';
  * import autoprefixer from 'autoprefixer';
  *

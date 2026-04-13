@@ -17,7 +17,7 @@ Forge compiles `.forge` SFCs at build time using the Rolldown-powered compiler p
 The Virtual DOM was a clever workaround for the complexity of tracking what changed. Forge takes a different approach: **signals** are the source of truth for reactive state. When a signal changes, only the DOM nodes that read that signal are updated — no diffing, no tree traversal, no component re-renders.
 
 ```ts
-import { signal, computed, effect } from '@forge/core'
+import { signal, computed, effect } from '@vorra/core'
 
 const count = signal(0)
 const doubled = computed(() => count() * 2)
@@ -36,8 +36,8 @@ count.set(5)
 Large applications need a way to share services across the component tree without prop drilling or global singletons. Forge's DI system — inspired by Angular's — lets you declare services with `@Injectable`, resolve them with `inject()`, and scope them to the right level of the injector hierarchy.
 
 ```ts
-import { Injectable, inject } from '@forge/core'
-import { signal } from '@forge/core'
+import { Injectable, inject } from '@vorra/core'
+import { signal } from '@vorra/core'
 
 @Injectable({ providedIn: 'root' })
 class AuthService {
@@ -58,7 +58,7 @@ const auth = inject(AuthService)
 
 ```forge
 <script lang="ts">
-import { signal } from '@forge/core'
+import { signal } from '@vorra/core'
 
 const count = signal(0)
 </script>
@@ -88,7 +88,7 @@ Let's build a simple counter to see how Forge fits together.
 ### 1. Create a signal
 
 ```ts
-import { signal } from '@forge/core'
+import { signal } from '@vorra/core'
 
 const count = signal(0)
 
@@ -100,7 +100,7 @@ count.update(n => n + 1)  // functional update → 2
 ### 2. Derive computed state
 
 ```ts
-import { signal, computed } from '@forge/core'
+import { signal, computed } from '@vorra/core'
 
 const count = signal(0)
 const doubled = computed(() => count() * 2)
@@ -113,7 +113,7 @@ doubled()  // → 0, re-evaluates lazily when count changes
 
 ```forge
 <script lang="ts">
-import { signal, computed } from '@forge/core'
+import { signal, computed } from '@vorra/core'
 
 const count = signal(0)
 const doubled = computed(() => count() * 2)
@@ -155,8 +155,8 @@ button {
 
 ```ts
 // src/main.ts
-import { bootstrapApp } from '@forge/core'
-import { createComponent, mountComponent } from '@forge/core/dom'
+import { bootstrapApp } from '@vorra/core'
+import { createComponent, mountComponent } from '@vorra/core/dom'
 import Counter from './Counter.forge'
 
 const injector = bootstrapApp([])

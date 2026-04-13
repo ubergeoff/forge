@@ -1,11 +1,11 @@
 // =============================================================================
-// @forge/router — RouterLink & RouterOutlet component factories
+// @vorra/router — RouterLink & RouterOutlet component factories
 // Thin wrappers that conform to the (ctx, props) => Node factory contract so
 // they can be used directly in .forge templates as child components.
 // =============================================================================
 
-import { inject, runInContext } from '@forge/core';
-import type { ComponentContext } from '@forge/core';
+import { inject, runInContext } from '@vorra/core';
+import type { ComponentContext } from '@vorra/core';
 import { ROUTER } from './router.js';
 import { createRouterLink } from './link.js';
 import { createRouterOutlet } from './outlet.js';

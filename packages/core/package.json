@@ -1,5 +1,5 @@
 {
-  "name": "@forge/core",
+  "name": "@vorra/core",
   "version": "0.3.0",
   "description": "Forge core — reactivity primitives and dependency injection",
   "license": "MIT",

@@ -1,17 +1,17 @@
-# @forge/compiler
+# @vorra/compiler
 
 The Forge SFC compiler. Parses `.forge` Single File Components and compiles them to JavaScript modules.
 
 ```bash
-npm install @forge/compiler
+npm install @vorra/compiler
 ```
 
 ## Subpath Exports
 
 | Import path | Environment | Description |
 |-------------|-------------|-------------|
-| `@forge/compiler` | Node.js | Full compiler with `oxc-transform` and `node:*` modules |
-| `@forge/compiler/browser` | Browser / Vite | Parser + compiler without any Node.js-specific code |
+| `@vorra/compiler` | Node.js | Full compiler with `oxc-transform` and `node:*` modules |
+| `@vorra/compiler/browser` | Browser / Vite | Parser + compiler without any Node.js-specific code |
 
 The browser subpath is used by the Forge Playground and any browser-based tooling.
 
@@ -31,9 +31,9 @@ function parseSFC(source: string, filename: string): SFCDescriptor
 
 **Example:**
 ```ts
-import { parseSFC } from '@forge/compiler'
+import { parseSFC } from '@vorra/compiler'
 // or in a browser context:
-import { parseSFC } from '@forge/compiler/browser'
+import { parseSFC } from '@vorra/compiler/browser'
 
 const descriptor = parseSFC(`
 <script lang="ts">
@@ -70,7 +70,7 @@ function compileSFC(descriptor: SFCDescriptor): CompileResult
 
 **Example:**
 ```ts
-import { parseSFC, compileSFC } from '@forge/compiler'
+import { parseSFC, compileSFC } from '@vorra/compiler'
 
 const descriptor = parseSFC(source, 'Counter.forge')
 const result = compileSFC(descriptor)
@@ -119,7 +119,7 @@ interface ForgePluginOptions {
 **Example:**
 ```ts
 // rolldown.config.mjs
-import { forgePlugin } from '@forge/compiler'
+import { forgePlugin } from '@vorra/compiler'
 
 export default {
   input: 'src/main.ts',
@@ -210,14 +210,14 @@ export default function (ctx: ComponentContext, props?: Record<string, () => unk
 
 The factory:
 1. Runs the script block code in module scope
-2. Calls `createElement`, `bindText`, `listen`, etc. from `@forge/core/dom`
+2. Calls `createElement`, `bindText`, `listen`, etc. from `@vorra/core/dom`
 3. Returns the root DOM node
 
 **Example output** for a simple counter:
 
 ```js
-import { signal } from '@forge/core'
-import { createElement, bindText, listen, insert } from '@forge/core/dom'
+import { signal } from '@vorra/core'
+import { createElement, bindText, listen, insert } from '@vorra/core/dom'
 
 export default function factory(ctx) {
   const count = signal(0)

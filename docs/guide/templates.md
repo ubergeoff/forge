@@ -55,7 +55,7 @@ Use `@` prefix to attach DOM event listeners. The expression should be a functio
 
 ```forge
 <script lang="ts">
-import { signal } from '@forge/core'
+import { signal } from '@vorra/core'
 
 const count = signal(0)
 
@@ -121,12 +121,12 @@ You can combine static classes (via the `class` attribute) with dynamic `class:n
 
 ## Form Control Binding: `[formControl]={ctrl}`
 
-Bind a `FormControl` from `@forge/forms` to an input element for two-way reactive binding:
+Bind a `FormControl` from `@vorra/forms` to an input element for two-way reactive binding:
 
 ```forge
 <script lang="ts">
-import { formControl } from '@forge/forms'
-import { Validators } from '@forge/forms'
+import { formControl } from '@vorra/forms'
+import { Validators } from '@vorra/forms'
 
 const email = formControl('', [Validators.required, Validators.email])
 </script>

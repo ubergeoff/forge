@@ -1,5 +1,5 @@
 // =============================================================================
-// @forge/compiler — SFC Parser (Step 4)
+// @vorra/compiler — SFC Parser (Step 4)
 // Splits a raw .forge source file into typed block descriptors.
 // =============================================================================
 

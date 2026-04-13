@@ -1,17 +1,17 @@
 # CLI
 
-The `@forge/cli` package provides the `forge` command-line tool for creating, developing, and building Forge applications.
+The `@vorra/cli` package provides the `forge` command-line tool for creating, developing, and building Forge applications.
 
 ## Installation
 
 ```bash
-npm install --save-dev @forge/cli
+npm install --save-dev @vorra/cli
 ```
 
 Or globally:
 
 ```bash
-npm install -g @forge/cli
+npm install -g @vorra/cli
 ```
 
 ## Commands
@@ -95,7 +95,7 @@ Useful in CI to verify types without a full build.
 Create a `forge.config.ts` in your project root to configure the CLI:
 
 ```ts
-import { defineConfig } from '@forge/cli'
+import { defineConfig } from '@vorra/cli'
 
 export default defineConfig({
   entry: 'src/main.ts',    // Application entry file
@@ -117,7 +117,7 @@ export default defineConfig({
 ### Example with PostCSS / Tailwind
 
 ```ts
-import { defineConfig } from '@forge/cli'
+import { defineConfig } from '@vorra/cli'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
@@ -133,7 +133,7 @@ export default defineConfig({
 ### Example with path aliases
 
 ```ts
-import { defineConfig } from '@forge/cli'
+import { defineConfig } from '@vorra/cli'
 import { resolve } from 'path'
 
 export default defineConfig({

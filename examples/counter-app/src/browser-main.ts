@@ -1,7 +1,7 @@
 import 'forge:css';
-import { bootstrapApp } from '@forge/core';
-import { createComponent, mountComponent } from '@forge/core/dom';
-import { provideRouter } from '@forge/router';
+import { bootstrapApp } from '@vorra/core';
+import { createComponent, mountComponent } from '@vorra/core/dom';
+import { provideRouter } from '@vorra/router';
 import AppShell from './app-shell.forge';
 
 // ---------------------------------------------------------------------------
@@ -10,7 +10,7 @@ import AppShell from './app-shell.forge';
 // Each route uses a dynamic import so the page code is split into its own
 // chunk and only downloaded when the user first visits that route.
 
-import { lazy } from '@forge/router';
+import { lazy } from '@vorra/router';
 
 const HomePage        = lazy(() => import('./pages/home-page.forge'));
 const CounterPage     = lazy(() => import('./pages/counter-page.forge'));

@@ -1,5 +1,5 @@
 {
-  "name": "@forge/forms",
+  "name": "@vorra/forms",
   "version": "0.3.0",
   "description": "Forge forms — signal-based reactive forms",
   "license": "MIT",
@@ -40,7 +40,7 @@
     "clean": "rm -rf dist .tsbuildinfo"
   },
   "peerDependencies": {
-    "@forge/core": ">=0.1.0"
+    "@vorra/core": ">=0.1.0"
   },
   "sideEffects": false
 }
