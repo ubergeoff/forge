@@ -3,41 +3,30 @@
 // =============================================================================
 
 import * as path from 'node:path';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 // ---------------------------------------------------------------------------
-// Mock createRequire so _require.resolve() returns predictable fake paths
-// without needing real dist/ files on disk.
-// vi.mock is hoisted before imports by Vitest, so the plugin module picks up
-// the mock when it calls createRequire at module initialisation time.
+// Inject a fake resolver before any module code runs so that
+// resolveVorraPackage() gets predictable paths without needing real dist/
+// files on disk.
 // ---------------------------------------------------------------------------
 
 const FAKE_ROOTS: Record<string, string> = {
-  '@vorra/core':   '/fake/node_modules/@vorra/core/dist/index.cjs',
-  '@vorra/forms':  '/fake/node_modules/@vorra/forms/dist/index.cjs',
-  '@vorra/router': '/fake/node_modules/@vorra/router/dist/index.cjs',
+  '@vorra/core':   '/fake/node_modules/@vorra/core/dist/index.js',
+  '@vorra/forms':  '/fake/node_modules/@vorra/forms/dist/index.js',
+  '@vorra/router': '/fake/node_modules/@vorra/router/dist/index.js',
 };
 
-vi.mock('node:module', async (importOriginal) => {
-  const original = await importOriginal<typeof import('node:module')>();
-  return {
-    ...original,
-    createRequire: () =>
-      Object.assign((id: string) => id, {
-        resolve: (name: string) => {
-          const hit = FAKE_ROOTS[name];
-          if (hit) return hit;
-          throw new Error(`Cannot find module '${name}'`);
-        },
-        cache: {},
-        extensions: {},
-        main: undefined,
-      }),
-  };
-});
+const fakeResolver = (name: string): string => {
+  const hit = FAKE_ROOTS[name];
+  if (hit) return hit;
+  throw new Error(`Cannot find module '${name}'`);
+};
 
-const { resolveVorraPackage, getVorraAliases, vorraDedupePlugin } =
+const { setResolverForTesting, resolveVorraPackage, getVorraAliases, vorraDedupePlugin } =
   await import('../src/utils/vorra-dedupe-plugin.js');
+
+setResolverForTesting(fakeResolver);
 
 // ---------------------------------------------------------------------------
 // resolveVorraPackage()

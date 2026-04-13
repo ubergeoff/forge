@@ -15,20 +15,32 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { RolldownPlugin } from 'rolldown';
 
+// The resolver defaults to import.meta.resolve (stable since Node 20).
+// Tests can swap this out via setResolverForTesting() before importing
+// the module under test.
+let _metaResolve: (id: string) => string = (id) => import.meta.resolve(id);
+
+/** @internal — for test use only */
+export function setResolverForTesting(r: (id: string) => string): void {
+  _metaResolve = r;
+  _aliases = undefined; // bust the alias cache so new paths are computed
+}
+
 /**
  * Resolves an `@vorra/*` package to an absolute path inside its `dist/`
  * directory. Uses import.meta.resolve() (stable since Node 20) to locate
  * the package's ESM main entry, then walks up to the package root.
  */
 export function resolveVorraPackage(name: string, subpath = 'dist/index.js'): string {
-  const mainUrl = import.meta.resolve(name); // → file:///…/dist/index.js
-  const pkgRoot = path.dirname(path.dirname(fileURLToPath(mainUrl))); // strip dist/index.js
+  const resolved = _metaResolve(name); // → file:///…/dist/index.js (or plain path in tests)
+  const mainPath = resolved.startsWith('file://') ? fileURLToPath(resolved) : resolved;
+  const pkgRoot = path.dirname(path.dirname(mainPath)); // strip dist/index.js
   return path.join(pkgRoot, subpath);
 }
 
 /**
  * Lazily-built alias map. Populated on first use inside `resolveId` so that
- * importing this module never triggers `_require.resolve()` at load time.
+ * importing this module never triggers resolution at load time.
  * This keeps the module safe to import in test environments where `dist/`
  * files may not exist yet.
  */
