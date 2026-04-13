@@ -11,27 +11,13 @@ const nodeBuiltins = [
 
 const external = ['@vorra/compiler', '@vorra/core', 'rolldown', ...nodeBuiltins];
 
-export default defineConfig([
-  // ESM build — includes the bin entrypoint
-  {
-    input: { index: 'src/index.ts', bin: 'src/bin.ts' },
-    output: {
-      dir: 'dist',
-      format: 'esm',
-      entryFileNames: '[name].js',
-      sourcemap: true,
-    },
-    external,
+export default defineConfig({
+  input: { index: 'src/index.ts', bin: 'src/bin.ts' },
+  output: {
+    dir: 'dist',
+    format: 'esm',
+    entryFileNames: '[name].js',
+    sourcemap: true,
   },
-  // CJS build — library consumers (index only, not bin)
-  {
-    input: { index: 'src/index.ts' },
-    output: {
-      dir: 'dist',
-      format: 'cjs',
-      entryFileNames: '[name].cjs',
-      sourcemap: true,
-    },
-    external,
-  },
-]);
+  external,
+});

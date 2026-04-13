@@ -12,26 +12,35 @@
 // =============================================================================
 
 import * as path from 'node:path';
-import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import type { RolldownPlugin } from 'rolldown';
 
-const _require = createRequire(import.meta.url);
+// The resolver defaults to import.meta.resolve (stable since Node 20).
+// Tests can swap this out via setResolverForTesting() before importing
+// the module under test.
+let _metaResolve: (id: string) => string = (id) => import.meta.resolve(id);
+
+/** @internal — for test use only */
+export function setResolverForTesting(r: (id: string) => string): void {
+  _metaResolve = r;
+  _aliases = undefined; // bust the alias cache so new paths are computed
+}
 
 /**
  * Resolves an `@vorra/*` package to an absolute path inside its `dist/`
- * directory. Uses the CJS main entry as an anchor so we never need to access
- * `pkg/package.json` directly (which would require the package's `exports`
- * field to allow that subpath).
+ * directory. Uses import.meta.resolve() (stable since Node 20) to locate
+ * the package's ESM main entry, then walks up to the package root.
  */
 export function resolveVorraPackage(name: string, subpath = 'dist/index.js'): string {
-  const mainCjs = _require.resolve(name); // → packages/*/dist/index.cjs
-  const pkgRoot = path.dirname(path.dirname(mainCjs)); // strip dist/index.cjs
+  const resolved = _metaResolve(name); // → file:///…/dist/index.js (or plain path in tests)
+  const mainPath = resolved.startsWith('file://') ? fileURLToPath(resolved) : resolved;
+  const pkgRoot = path.dirname(path.dirname(mainPath)); // strip dist/index.js
   return path.join(pkgRoot, subpath);
 }
 
 /**
  * Lazily-built alias map. Populated on first use inside `resolveId` so that
- * importing this module never triggers `_require.resolve()` at load time.
+ * importing this module never triggers resolution at load time.
  * This keeps the module safe to import in test environments where `dist/`
  * files may not exist yet.
  */
