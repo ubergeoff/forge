@@ -2,19 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(npm run:*)",
-      "Bash(grep -r '\"\"build\"\"' packages/*/package.json examples/*/package.json)",
       "Bash(cd:*)",
       "Bash(npm test:*)",
-      "Bash(node C:/dev/js/forge/packages/cli/dist/bin.js --help)",
-      "Bash(node C:/dev/js/forge/packages/cli/dist/bin.js --version)",
-      "Bash(node C:/dev/js/forge/packages/cli/dist/bin.js new test-project)",
       "Bash(node:*)",
       "Bash(npx vite-node:*)",
       "Bash(npx tsc:*)",
       "Bash(npm list:*)",
       "Bash(npm install:*)",
-      "Bash(grep -E \"\\\\.\\(forge|ts\\)$\")",
-      "Bash(grep -E \"\\\\.\\(forge|ts|js|scss\\)$\")",
       "Bash(npx nx:*)",
       "Bash(xargs grep:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
@@ -27,9 +21,7 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(grep:*)",
-      "Bash(find /c/dev/js/forgeJs -type f '\\(' -name '*.ts' -o -name '*.mjs' -o -name '*.json' -o -name '*.md' '\\)' ! -path '*/.nx/*' ! -path '*/node_modules/*' ! -path '*/dist/*' ! -path '*/package-lock.json' -exec sed -i 's/@forge\\\\//@vorra\\\\//g' '{}' +)",
-      "Bash(sed -i \"s|node_modules', '@forge'|node_modules', '@vorra'|g\" /c/dev/js/forgeJs/packages/cli/src/commands/dev.ts)",
-      "Bash(sed -i \"s/non-@forge/non-@vorra/g; s/@forge specifiers/@vorra specifiers/g\" /c/dev/js/forgeJs/packages/cli/__tests__/forge-dedupe-plugin.test.ts)"
+      "Bash(xargs sed:*)"
     ]
   }
 }

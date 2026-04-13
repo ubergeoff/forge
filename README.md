@@ -1,4 +1,4 @@
-# Forge
+# Vorra
 
 > A compiled, signal-first JavaScript framework for enterprise applications.
 > Angular's structure. SolidJS's speed. Vue's elegance.
@@ -10,17 +10,17 @@
 | Package | Description | Status |
 |---|---|---|
 | [`@vorra/core`](./packages/core) | Reactivity primitives + dependency injection + DOM runtime | ✅ Complete |
-| [`@vorra/compiler`](./packages/compiler) | `.forge` SFC parser + template compiler + Rolldown plugin | ✅ Complete |
+| [`@vorra/compiler`](./packages/compiler) | `.vorra` SFC parser + template compiler + Rolldown plugin | ✅ Complete |
 | [`@vorra/router`](./packages/router) | Signal-driven client-side router with lazy loading | ✅ Complete |
 | [`@vorra/forms`](./packages/forms) | Reactive form controls, validation, and `[formControl]` binding | ✅ Complete |
-| [`@vorra/cli`](./packages/cli) | `forge new` / `forge dev` / `forge build` | ✅ Complete |
+| [`@vorra/cli`](./packages/cli) | `vorra new` / `vorra dev` / `vorra build` | ✅ Complete |
 
 ---
 
 ## Architecture
 
 ```
-.forge SFC file
+.vorra SFC file
       │
       ▼
 [@vorra/compiler]  parseSFC() → AST → compileSFC() → JS module
@@ -33,7 +33,7 @@
       ├── [@vorra/forms]    formControl() / formGroup() / formArray()
       │
       ▼
-[Rolldown]         forgePlugin() bundles everything → optimised output
+[Rolldown]         vorraPlugin() bundles everything → optimised output
 ```
 
 ---
@@ -128,7 +128,7 @@ const url = inject(API_URL); // → 'https://api.example.com'
 ### Single File Components
 
 ```html
-<!-- counter.forge -->
+<!-- counter.vorra -->
 <script lang="ts">
   import { signal } from '@vorra/core';
 
@@ -155,9 +155,9 @@ import { provideRouter, lazy } from '@vorra/router';
 import { bootstrapApp } from '@vorra/core';
 
 const routes = [
-  { path: '/',        component: () => import('./pages/home.forge') },
-  { path: '/about',   component: lazy(() => import('./pages/about.forge')) },
-  { path: '/item/:id', component: lazy(() => import('./pages/item.forge')) },
+  { path: '/',        component: () => import('./pages/home.vorra') },
+  { path: '/about',   component: lazy(() => import('./pages/about.vorra')) },
+  { path: '/item/:id', component: lazy(() => import('./pages/item.vorra')) },
   { path: '**',       redirectTo: '/' },
 ];
 
@@ -165,7 +165,7 @@ const app = bootstrapApp([provideRouter(routes)]);
 ```
 
 ```html
-<!-- app-shell.forge -->
+<!-- app-shell.vorra -->
 <template>
   <nav>
     <router-link to="/">Home</router-link>
@@ -192,7 +192,7 @@ loginForm.errors();  // aggregated errors
 ```
 
 ```html
-<!-- login.forge -->
+<!-- login.vorra -->
 <template>
   <form>
     <input [formControl]={loginForm.controls.email} type="email" />
@@ -219,7 +219,7 @@ loginForm.errors();  // aggregated errors
 ## Project Structure
 
 ```
-forge/
+vorra/
 ├── package.json            ← monorepo root (npm workspaces)
 ├── tsconfig.json           ← root TS config with project references
 ├── vitest.config.ts        ← unified test runner
@@ -236,7 +236,7 @@ forge/
 │   │   └── src/
 │   │       ├── parser.ts   ← parseSFC()
 │   │       ├── compiler.ts ← compileSFC()
-│   │       ├── plugin.ts   ← forgePlugin() for Rolldown
+│   │       ├── plugin.ts   ← vorraPlugin() for Rolldown
 │   │       └── index.ts
 │   │
 │   ├── router/             ← @vorra/router
@@ -260,7 +260,7 @@ forge/
 │   │
 │   └── cli/                ← @vorra/cli
 │       └── src/
-│           ├── bin.ts              ← forge <command>
+│           ├── bin.ts              ← vorra <command>
 │           ├── commands/
 │           │   ├── dev.ts
 │           │   ├── build.ts
@@ -272,9 +272,9 @@ forge/
 └── examples/
     └── counter-app/        ← full SPA demo using all packages
         └── src/
-            ├── app-shell.forge
+            ├── app-shell.vorra
             ├── browser-main.ts
-            ├── components/         ← counter.forge, counter-display.forge, …
+            ├── components/         ← counter.vorra, counter-display.vorra, …
             ├── pages/              ← home, counter, forms, about, reactivity
             └── services/           ← counter.service.ts
 ```
@@ -283,7 +283,7 @@ forge/
 
 ## Build System
 
-Forge uses [Rolldown](https://rolldown.rs) — a Rust-based Rollup-compatible bundler. Each package produces ESM (`.js`) and CJS (`.cjs`) with `.d.ts` declarations and source maps under `dist/`.
+Vorra uses [Rolldown](https://rolldown.rs) — a Rust-based Rollup-compatible bundler. Each package produces ESM (`.js`) and CJS (`.cjs`) with `.d.ts` declarations and source maps under `dist/`.
 
 [Nx](https://nx.dev) orchestrates the monorepo build graph with caching. Build dependency order:
 
@@ -300,13 +300,13 @@ compiler + router + forms → cli
 
 ```bash
 # Scaffold a new project
-forge new my-app
+vorra new my-app
 
 # Start dev server (default port 3000)
-forge dev
+vorra dev
 
 # Production build
-forge build
+vorra build
 ```
 
 ## License

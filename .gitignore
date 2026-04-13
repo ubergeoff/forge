@@ -2,8 +2,8 @@ node_modules/
 dist/
 *.tsbuildinfo
 coverage/
-.forge
-.forge-cache/
+.vorra
+.vorra-cache/
 *.local
 .DS_Store
 .idea
