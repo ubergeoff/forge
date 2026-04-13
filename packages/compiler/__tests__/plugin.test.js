@@ -252,7 +252,7 @@ describe('vorraPlugin() — CSS style blocks', () => {
 describe('vorraPlugin() — error handling', () => {
     it('throws when <template> has no root element', () => {
         const src = '<template>   </template>';
-        expect(() => transform(src, 'Empty.vorra')).toThrow('[Forge Plugin]');
+        expect(() => transform(src, 'Empty.vorra')).toThrow('[Vorra Plugin]');
         expect(() => transform(src, 'Empty.vorra')).toThrow('Compilation failed');
     });
     it('throws when <script> block is unclosed', () => {

@@ -173,7 +173,7 @@ function tplIndexHtml(name: string): string {
   </head>
   <body>
     <div id="app"></div>
-    <!-- entry script injected automatically by vorra dev / forge build -->
+    <!-- entry script injected automatically by vorra dev / vorra build -->
   </body>
 </html>
 `;

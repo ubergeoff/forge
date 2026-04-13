@@ -18,7 +18,7 @@ function goHome() { router.navigate('/'); }
 
     <div class="text-gray-600 leading-relaxed">
       <p>
-        <strong>Forge</strong> is a compiled, signal-first JavaScript framework
+        <strong>Vorra</strong> is a compiled, signal-first JavaScript framework
         for large enterprise applications. It combines Angular's structure,
         SolidJS's fine-grained reactivity, and Vue's ergonomics.
       </p>

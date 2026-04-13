@@ -1,8 +1,8 @@
 {
-  "name": "forge",
+  "name": "vorra",
   "version": "0.1.0",
   "private": true,
-  "description": "Forge — a compiled, signal-first JavaScript framework for enterprise apps",
+  "description": "Vorra — a compiled, signal-first JavaScript framework for enterprise apps",
   "workspaces": [
     "packages/*",
     "examples/*",

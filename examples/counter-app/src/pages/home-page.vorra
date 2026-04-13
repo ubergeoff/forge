@@ -14,7 +14,7 @@ function goToAbout()   { router.navigate('/about'); }
     <p class="italic text-gray-500 mb-6">Angular's structure. SolidJS's speed. Vue's elegance.</p>
     <p class="text-gray-600 leading-relaxed mb-8">
       This app demonstrates <strong>@vorra/router</strong> — a signal-driven
-      client-side router built on the Forge reactivity core.
+      client-side router built on the Vorra reactivity core.
     </p>
     <div class="flex gap-3 justify-center">
       <button class="px-5 py-2 rounded-md bg-gray-900 text-white text-sm cursor-pointer hover:bg-gray-700 transition-colors" @click={goToCounter}>Counter →</button>

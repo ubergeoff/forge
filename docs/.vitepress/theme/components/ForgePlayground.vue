@@ -141,7 +141,7 @@ async function loadMonaco() {
 
 // ---------------------------------------------------------------------------
 // Compilation
-// Vorra runtime is pre-bundled to /forge/{core,core-dom,forms}.js by
+// Vorra runtime is pre-bundled to /vorra/{core,core-dom,forms}.js by
 // docs/scripts/build-runtime.mjs and served as static assets. The iframe
 // uses an import map pointing to those local files.
 // ---------------------------------------------------------------------------

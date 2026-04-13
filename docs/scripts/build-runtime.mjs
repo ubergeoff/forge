@@ -20,7 +20,7 @@ await fs.mkdir(outDir, { recursive: true })
 // @vorra/core/dom both import from reactivity.js. If they're separate bundles
 // they each get their own copy of the scheduler, breaking signal→effect wiring.
 // Mapping both import-map entries to the same file fixes this.
-// forge.js — single bundle containing ALL of @vorra/core (reactivity + di + dom).
+// vorra.js — single bundle containing ALL of @vorra/core (reactivity + di + dom).
 // Both "@vorra/core" and "@vorra/core/dom" map to this file in the import map
 // so signals and effects share one scheduler instance.
 console.log('Bundling vorra…')
@@ -34,7 +34,7 @@ await vorraBundle.write({
   inlineDynamicImports: true,
 })
 
-// forms.js — externals @vorra/core so it shares the same forge.js instance.
+// forms.js — externals @vorra/core so it shares the same vorra.js instance.
 // The `paths` option rewrites "@vorra/core" imports to the correct browser URL.
 console.log('Bundling forms…')
 const formsBundle = await rolldown({
@@ -46,7 +46,7 @@ await formsBundle.write({
   format: 'esm',
   file: path.join(outDir, 'forms.js'),
   inlineDynamicImports: true,
-  paths: { '@vorra/core': '/forge/forge.js' },
+  paths: { '@vorra/core': '/vorra/vorra.js' },
 })
 
 console.log('Forge runtime bundles written to docs/public/vorra/')

@@ -1,6 +1,6 @@
 # CLI
 
-The `@vorra/cli` package provides the `forge` command-line tool for creating, developing, and building Vorra applications.
+The `@vorra/cli` package provides the `vorra` command-line tool for creating, developing, and building Vorra applications.
 
 ## Installation
 

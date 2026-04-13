@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Forge** is a compiled, signal-first JavaScript framework for enterprise applications. Philosophy: "Angular's structure. SolidJS's speed. Vue's elegance."
+**Vorra** is a compiled, signal-first JavaScript framework for enterprise applications. Philosophy: "Angular's structure. SolidJS's speed. Vue's elegance."
 
 This is an **npm workspace monorepo** with four packages and an example app:
 - `@vorra/core` — Reactivity system (signals, computed, effects) + dependency injection
 - `@vorra/compiler` — SFC parser, template compiler, Rolldown plugin
-- `@vorra/cli` — Dev server and build commands (`forge` binary)
+- `@vorra/cli` — Dev server and build commands (`vorra` binary)
 - `@vorra/router` — Signal-driven client-side routing
 
 ## Commands
@@ -49,8 +49,8 @@ The reactive foundation. Key exports:
 - `createElement` / `setAttr` / `setProp` / `listen` / `insert` / `remove` — DOM runtime in `dom.ts`
 
 ### @vorra/compiler
-Transforms `.forge` Single File Components into JavaScript:
-1. `parser.ts` — splits `.forge` files into `<script>`, `<template>`, `<style>` blocks
+Transforms `.vorra` Single File Components into JavaScript:
+1. `parser.ts` — splits `.vorra` files into `<script>`, `<template>`, `<style>` blocks
 2. `compiler.ts` — compiles templates to render functions using the core DOM runtime
 3. `plugin.ts` — Rolldown plugin that hooks into the build pipeline
 
@@ -65,7 +65,7 @@ SFC format:
 Signal-based router using `router.ts` (Router service), `outlet.ts` (RouterOutlet), `link.ts` (RouterLink), and `route-matcher.ts`. Supports lazy-loaded routes.
 
 ### @vorra/cli
-CLI binary (`bin.ts`) with `dev`, `build`, and `new` subcommands. User config via `defineConfig()` in `forge.config.ts`:
+CLI binary (`bin.ts`) with `dev`, `build`, and `new` subcommands. User config via `defineConfig()` in `vorra.config.ts`:
 ```ts
 { entry?, outDir?, port?, plugins? }
 ```

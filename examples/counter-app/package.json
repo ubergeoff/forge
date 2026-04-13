@@ -2,7 +2,7 @@
   "name": "counter-app",
   "version": "0.0.1",
   "private": true,
-  "description": "Minimal Forge example — counter app using @vorra/core directly",
+  "description": "Minimal Vorra example — counter app using @vorra/core directly",
   "type": "module",
   "scripts": {
     "dev": "vorra dev",
