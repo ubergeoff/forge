@@ -69,7 +69,7 @@ describe('compileSFC — createElement', () => {
 
   it('exports a default factory function', () => {
     const result = compile(sfc({ template: '<div></div>' }));
-    expect(result.code).toContain('export default function(ctx, props = {})');
+    expect(result.code).toContain('export default function(ctx, props = {}, slots = {})');
   });
 
   it('returns the root variable', () => {
@@ -626,9 +626,9 @@ describe('compileSFC — child components (.vorra imports)', () => {
     expect(result.code).toMatch(/insert\(_e0,\s*_e1\)/);
   });
 
-  it('factory accepts props as second argument', () => {
+  it('factory accepts props and slots as second and third arguments', () => {
     const result = compile(sfc({ template: '<div></div>' }));
-    expect(result.code).toContain('export default function(ctx, props = {})');
+    expect(result.code).toContain('export default function(ctx, props = {}, slots = {})');
   });
 });
 
@@ -857,12 +857,12 @@ describe('compileSFC — HMR output', () => {
   it('names the factory function _VorraComponent when hmr: true', () => {
     const result = compileHmr(sfc({ template: '<div></div>' }));
     expect(result.errors).toHaveLength(0);
-    expect(result.code).toContain('export default function _VorraComponent(ctx, props = {})');
+    expect(result.code).toContain('export default function _VorraComponent(ctx, props = {}, slots = {})');
   });
 
   it('does NOT name the factory when hmr is not set', () => {
     const result = compile(sfc({ template: '<div></div>' }));
-    expect(result.code).toContain('export default function(ctx, props = {})');
+    expect(result.code).toContain('export default function(ctx, props = {}, slots = {})');
     expect(result.code).not.toContain('_VorraComponent');
   });
 
@@ -898,5 +898,133 @@ describe('compileSFC — HMR output', () => {
     const result = compileHmr(sfc({ template: '<span></span>' }));
     expect(result.code).toContain("typeof __vorra_dev !== 'undefined'");
     expect(result.code).toContain('__vorra_dev');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Slots — content projection
+// ---------------------------------------------------------------------------
+
+describe('compileSFC — slots', () => {
+  // --- <slot> outlet in host component ---
+
+  it('<slot> compiles to renderSlot(slots, "default", ctx)', () => {
+    const source = sfc({ template: '<div><slot></slot></div>' });
+    const result = compile(source);
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain(`renderSlot(slots, 'default', ctx)`);
+  });
+
+  it('<slot name="header"> compiles to renderSlot with that name', () => {
+    const source = sfc({ template: '<div><slot name="header"></slot></div>' });
+    const result = compile(source);
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain(`renderSlot(slots, 'header', ctx)`);
+  });
+
+  it('renderSlot is added to the DOM import when <slot> is used', () => {
+    const source = sfc({ template: '<div><slot></slot></div>' });
+    const result = compile(source);
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain('renderSlot');
+    expect(result.code).toMatch(/import \{[^}]*renderSlot[^}]*\} from '@vorra\/core\/dom'/);
+  });
+
+  it('<slot> result is inserted into parent element', () => {
+    const source = sfc({ template: '<section><slot></slot></section>' });
+    const result = compile(source);
+    expect(result.errors).toHaveLength(0);
+    // The slot node variable must be inserted into the parent
+    expect(result.code).toMatch(/insert\(_e\d+,\s*_e\d+\)/);
+  });
+
+  // --- default slot passed from parent ---
+
+  it('static text child of component compiles into a default slot function', () => {
+    const source = sfc({
+      script: "import Card from './card.vorra'",
+      template: '<div><Card>Hello</Card></div>',
+    });
+    const result = compile(source);
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain(`'default':`);
+    expect(result.code).toContain('_slotCtx');
+    expect(result.code).toContain('_frag');
+    expect(result.code).toContain(`mountChild(Card, ctx, {}, _slots`);
+  });
+
+  it('reactive interpolation in default slot uses _slotCtx for effects', () => {
+    const source = sfc({
+      script: [
+        "import Card from './card.vorra'",
+        "import { signal } from '@vorra/core'",
+        "const title = signal('Hi');",
+      ].join('\n'),
+      template: '<div><Card>{title()}</Card></div>',
+    });
+    const result = compile(source);
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain('_slotCtx.effects.push');
+    expect(result.code).toContain('title()');
+  });
+
+  it('element child of component compiles into default slot', () => {
+    const source = sfc({
+      script: "import Modal from './modal.vorra'",
+      template: '<div><Modal><p>Body</p></Modal></div>',
+    });
+    const result = compile(source);
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain(`'default':`);
+    expect(result.code).toContain(`createElement('p')`);
+  });
+
+  // --- named slots ---
+
+  it('<template slot="header"> compiles into a named slot entry', () => {
+    const source = sfc({
+      script: "import Modal from './modal.vorra'",
+      template: '<div><Modal><template slot="header"><h1>Title</h1></template></Modal></div>',
+    });
+    const result = compile(source);
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain(`'header':`);
+    expect(result.code).toContain(`createElement('h1')`);
+  });
+
+  it('named slot does not appear in default slot content', () => {
+    const source = sfc({
+      script: "import Modal from './modal.vorra'",
+      template: '<div><Modal><template slot="header"><h1>T</h1></template><p>Body</p></Modal></div>',
+    });
+    const result = compile(source);
+    expect(result.errors).toHaveLength(0);
+    // Both slots present
+    expect(result.code).toContain(`'header':`);
+    expect(result.code).toContain(`'default':`);
+  });
+
+  it('component with no children emits no _slots variable and no 4th arg', () => {
+    const source = sfc({
+      script: "import Icon from './icon.vorra'",
+      template: '<div><Icon /></div>',
+    });
+    const result = compile(source);
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).not.toContain('_slots');
+    expect(result.code).toContain('mountChild(Icon, ctx)');
+  });
+
+  it('component with props and slots passes both to mountChild', () => {
+    const source = sfc({
+      script: "import Card from './card.vorra'",
+      template: '<div><Card title="Hi"><p>Body</p></Card></div>',
+    });
+    const result = compile(source);
+    expect(result.errors).toHaveLength(0);
+    expect(result.code).toContain(`'title': () => 'Hi'`);
+    expect(result.code).toContain(`'default':`);
+    // 4-arg mountChild: mountChild(Card, ctx, _propsN, _slotsN)
+    expect(result.code).toMatch(/mountChild\(Card,\s*ctx,\s*_props\d+,\s*_slots\d+\)/);
   });
 });

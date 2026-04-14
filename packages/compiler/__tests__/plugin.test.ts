@@ -126,7 +126,7 @@ describe('vorraPlugin() — generated code', () => {
 
   it('exports a default factory function', async () => {
     const result = await transform(SIMPLE_FORGE, 'src/Counter.vorra') as { code: string };
-    expect(result.code).toContain('export default function(ctx, props = {})');
+    expect(result.code).toContain('export default function(ctx, props = {}, slots = {})');
   });
 
   it('emits createElement for the root element', async () => {

@@ -11,7 +11,8 @@ import type { ComponentContext } from '@vorra/core';
 /** A synchronous compiled component factory — matches the DOM runtime's contract. */
 export type ComponentFactory = (
   ctx: ComponentContext,
-  props?: Record<string, () => unknown>
+  props?: Record<string, () => unknown>,
+  slots?: Record<string, (ctx: ComponentContext) => Node>,
 ) => Node;
 
 /** A lazy component loader — returns a Promise<{ default: ComponentFactory }>. */
