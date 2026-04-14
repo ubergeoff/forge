@@ -1,3 +1,19 @@
+## 0.5.0 (2026-04-14)
+
+### 🚀 Features
+
+- **cli:** replace fs.watch + build() with Rolldown DevEngine ([#18](https://github.com/ubergeoff/forge/pull/18))
+
+### 🧱 Updated Dependencies
+
+- Updated compiler to 0.5.0
+
+### ❤️ Thank You
+
+- Claude Sonnet 4.6
+- Geoffrey Le Roux
+- ubergeoff @ubergeoff
+
 ## 0.4.0 (2026-04-13)
 
 ### 🧱 Updated Dependencies
