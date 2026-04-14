@@ -1,16 +1,16 @@
 // =============================================================================
 // @vorra/cli — vorra dev
-// Development server: Rolldown one-shot builds + fs.watch for source changes +
+// Development server: Rolldown DevEngine (watch + incremental build) +
 // Server-Sent Events (SSE) for component-level HMR.
 //
-// We intentionally do NOT use Rolldown's watch() API because its native
-// file-watcher does not reliably exclude the output directory on Windows,
-// causing every build write to trigger another rebuild (infinite loop).
-// Instead we use Node's built-in fs.watch() restricted to source files only.
+// We use Rolldown's experimental DevEngine instead of a manual fs.watch +
+// build() loop. DevEngine runs Rolldown's own Rust file-watcher internally,
+// which correctly excludes the output directory and avoids the
+// infinite-rebuild bug that affected the old fs.watch approach on Windows.
 //
 // HMR strategy:
 //   - Each .vorra file is split into its own output chunk (stable name).
-//   - fs.watch tracks which .vorra files changed during a quiet period.
+//   - DevEngine calls onHmrUpdates with changedFiles after every change.
 //   - If ONLY .vorra files changed, an 'hmr-update' SSE event is sent so the
 //     browser can hot-swap individual components without a full page reload.
 //   - If any non-.vorra source file also changed, a full 'reload' is sent
@@ -20,7 +20,7 @@
 import * as http from 'node:http';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { build } from 'rolldown';
+import { dev } from 'rolldown/experimental';
 import type { RolldownPlugin, OutputOptions } from 'rolldown';
 import { vorraPlugin, generateScopeId } from '@vorra/compiler';
 import { loadConfig } from '../utils/config.js';
@@ -120,9 +120,6 @@ export async function runDev(args: string[]): Promise<void> {
 
   const entryAbs = path.join(cwd, entry);
   const outDirAbs = path.join(cwd, outDir);
-  // Normalise to forward-slash for reliable prefix checks on Windows.
-  const outDirNorm = outDirAbs.replace(/\\/g, '/') + '/';
-  const outDirRel = path.relative(cwd, outDirAbs).replace(/\\/g, '/');
 
   const userPlugins = (config.plugins ?? []) as RolldownPlugin[];
   // Replace the __vorra_dev compile-time constant with `true` so the HMR
@@ -175,24 +172,8 @@ export async function runDev(args: string[]): Promise<void> {
   }
 
   // -------------------------------------------------------------------------
-  // HMR change tracking
-  //
-  // The fs.watch callback populates these sets as files change. runBuild()
-  // drains them at the start of each build to decide whether to send a
-  // component-level HMR update or a full page reload.
+  // Rolldown DevEngine output configuration
   // -------------------------------------------------------------------------
-
-  /** Absolute paths of .vorra files that changed since the last build. */
-  const changedVorraFiles = new Set<string>();
-  /** True if any non-.vorra source file changed since the last build. */
-  let hasNonVorraChanges = false;
-
-  // -------------------------------------------------------------------------
-  // One-shot Rolldown build
-  // -------------------------------------------------------------------------
-
-  let isBuilding = false;
-  let pendingRebuild = false;
 
   // Each .vorra component gets its own output chunk (stable name so the
   // browser can cache-bust with ?t=timestamp on HMR update).
@@ -221,114 +202,107 @@ export async function runDev(args: string[]): Promise<void> {
     }) as unknown as Partial<OutputOptions>),
   };
 
-  async function runBuild(): Promise<void> {
-    if (isBuilding) {
-      // A build is already in flight; schedule a follow-up instead of stacking.
-      pendingRebuild = true;
-      return;
-    }
-    isBuilding = true;
-    pendingRebuild = false;
-
-    // Snapshot and clear the change sets before the async build starts so
-    // any edits made during the build are captured in the next cycle.
-    const currentVorraChanges = new Set(changedVorraFiles);
-    const currentHasNonVorra = hasNonVorraChanges;
-    changedVorraFiles.clear();
-    hasNonVorraChanges = false;
-
-    try {
-      await build({
-        input: entryAbs,
-        plugins,
-        output: devOutput,
-      });
-
-      if (currentVorraChanges.size > 0 && !currentHasNonVorra) {
-        // Only .vorra files changed — perform component-level HMR.
-        const updates = Array.from(currentVorraChanges).map((filePath) => {
-          const id = generateScopeId(filePath);
-          const rel = path.relative(cwd, filePath).replace(/\\/g, '/').replace('.vorra', '');
-          // URL the browser will request; the static server resolves it from outDirAbs.
-          const url = `/${path.join(outDir, rel).replace(/\\/g, '/')}.js`;
-          return { id, url };
-        });
-        console.log(`[vorra hmr] Hot-updating ${updates.length} component(s)...`);
-        broadcast('hmr-update', JSON.stringify({ updates }));
-      } else {
-        // Non-.vorra source changed (service, utility, config, etc.) — full reload.
-        console.log('[vorra dev] Rebuilt — notifying clients...');
-        broadcast('reload', '{}');
-      }
-    } catch {
-      console.error('[vorra dev] Build error — check the terminal above for details.');
-    } finally {
-      isBuilding = false;
-      if (pendingRebuild) {
-        void runBuild();
-      }
-    }
-  }
-
   // -------------------------------------------------------------------------
-  // Source file watcher (fs.watch, source files only)
+  // Rolldown DevEngine — watches sources, rebuilds, computes HMR boundaries
   // -------------------------------------------------------------------------
   //
-  // We watch the entire project root but skip anything inside the output
-  // directory and node_modules. This avoids the Rolldown-watcher bug where
-  // the native exclude option does not reliably prevent dist/ writes from
-  // re-triggering a rebuild on Windows.
+  // rebuildStrategy: 'always' — every file change triggers a full incremental
+  // rebuild so that output files on disk stay current and onOutput fires
+  // reliably. We use onHmrUpdates.changedFiles (populated regardless of any
+  // registered browser clients) to decide between HMR and full reload.
 
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-  const fsWatcher = fs.watch(cwd, { recursive: true }, (_event, filename) => {
-    if (!filename) return;
-
-    // Normalise to forward slashes for consistent prefix matching.
-    const rel = filename.replace(/\\/g, '/');
-
-    // Ignore output directory and node_modules.
-    if (rel.startsWith(outDirRel + '/')) return;
-    if (rel.startsWith('node_modules/')) return;
-
-    // Also guard against absolute paths that lie inside outDir (Windows edge case).
-    const abs = path.resolve(cwd, filename).replace(/\\/g, '/') + '/';
-    if (abs.startsWith(outDirNorm)) return;
-
-    // Track file type for HMR decision.
-    // Only recognised source extensions should trigger a rebuild — everything
-    // else (editor temp files, OS metadata, TypeScript build-info, etc.) is
-    // ignored entirely, including the debounce, so it cannot cause a spurious
-    // empty rebuild that falls to the full-reload branch.
-    const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs', '.cjs', '.json', '.html', '.css'];
-    if (filename.endsWith('.vorra')) {
-      changedVorraFiles.add(path.resolve(cwd, filename));
-    } else if (SOURCE_EXTENSIONS.some((ext) => filename.endsWith(ext))) {
-      hasNonVorraChanges = true;
-    } else {
-      // Not a source file we care about — skip debounce entirely.
-      return;
-    }
-
-    if (debounceTimer) clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      debounceTimer = null;
-      void runBuild();
-    }, 80);
+  /** Absolute source paths that changed since the last completed rebuild. */
+  let pendingChangedFiles: string[] = [];
+  /** Resolved when the first onOutput fires (initial build complete). */
+  let resolveInitialBuild!: () => void;
+  const initialBuildDone = new Promise<void>((resolve) => {
+    resolveInitialBuild = resolve;
   });
+  let isInitialBuild = true;
+
+  const engine = await dev(
+    { input: entryAbs, plugins },
+    devOutput,
+    {
+      // Always trigger a rebuild after HMR updates so that output files are
+      // written to disk and onOutput fires — we rely on onOutput to broadcast.
+      rebuildStrategy: 'always',
+      watch: {
+        skipWrite: false,
+        useDebounce: true,
+        debounceDuration: 80,
+      },
+
+      onHmrUpdates(result) {
+        if (result instanceof Error) {
+          console.error('[vorra dev] HMR error:', result.message);
+          return;
+        }
+        // Accumulate changed source files; onOutput drains this list once the
+        // rebuild triggered by rebuildStrategy:'always' completes.
+        pendingChangedFiles.push(...result.changedFiles);
+      },
+
+      onOutput(result) {
+        if (isInitialBuild) {
+          // Signal that the initial build is done so the HTTP server can start.
+          isInitialBuild = false;
+          resolveInitialBuild();
+          if (result instanceof Error) {
+            console.error('[vorra dev] Initial build failed — check errors above.');
+          }
+          return;
+        }
+
+        if (result instanceof Error) {
+          console.error('[vorra dev] Build error — check the terminal above for details.');
+          pendingChangedFiles = [];
+          return;
+        }
+
+        // Drain the change list accumulated by onHmrUpdates.
+        const changedFiles = pendingChangedFiles;
+        pendingChangedFiles = [];
+
+        const vorraChanges = changedFiles.filter((f) => f.endsWith('.vorra'));
+        const hasNonVorra = changedFiles.some((f) => !f.endsWith('.vorra'));
+
+        if (vorraChanges.length > 0 && !hasNonVorra) {
+          // Only .vorra components changed — perform component-level HMR.
+          const updates = vorraChanges.map((filePath) => {
+            const id = generateScopeId(filePath);
+            const rel = path.relative(cwd, filePath).replace(/\\/g, '/').replace('.vorra', '');
+            // URL the browser will request; resolved from outDirAbs by the static server.
+            const url = `/${path.join(outDir, rel).replace(/\\/g, '/')}.js`;
+            return { id, url };
+          });
+          console.log(`[vorra hmr] Hot-updating ${updates.length} component(s)...`);
+          broadcast('hmr-update', JSON.stringify({ updates }));
+        } else {
+          // Non-.vorra source changed (service, utility, config, etc.) — full reload.
+          console.log('[vorra dev] Rebuilt — notifying clients...');
+          broadcast('reload', '{}');
+        }
+      },
+    },
+  );
 
   // Derive the entry script URL so we can auto-inject it into HTML responses
   // when the user's index.html has no <script type="module"> tag.
   const entryName = path.basename(entry, path.extname(entry));
   const devScriptSrc = `/${outDir}/${entryName}.js`;
 
-  // Initial build on startup.
+  // Start the engine (triggers initial build + begins watching).
+  // We do not await run() itself — it resolves once the watcher is started,
+  // not when the initial build completes. Instead we await initialBuildDone
+  // which resolves inside onOutput after the first successful output.
   console.log(`[vorra dev] Server:  http://localhost:${port}`);
   console.log(`[vorra dev] Entry:   ${entry}`);
   console.log(`[vorra dev] Output:  ${outDir}/`);
   console.log('[vorra dev] HMR:     enabled');
   console.log('[vorra dev] Building...');
-  await runBuild();
+  void engine.run();
+  await initialBuildDone;
   console.log('[vorra dev] Watching for changes...\n');
 
   // -------------------------------------------------------------------------
@@ -380,7 +354,7 @@ export async function runDev(args: string[]): Promise<void> {
 
   process.on('SIGINT', () => {
     console.log('\n[vorra dev] Stopping...');
-    fsWatcher.close();
+    void engine.close();
     // Close all open SSE connections so server.close() callback fires immediately.
     for (const client of clients) {
       try { client.destroy(); } catch { /* ignore */ }
