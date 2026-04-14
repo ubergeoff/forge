@@ -1,6 +1,6 @@
 {
   "name": "@vorra/router",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Vorra router — signal-driven client-side routing",
   "license": "MIT",
   "repository": {
