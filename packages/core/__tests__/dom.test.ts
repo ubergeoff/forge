@@ -18,6 +18,7 @@ import {
   destroyComponent,
   mountComponent,
   mountChild,
+  renderSlot,
   hmrAccept,
 } from '../src/dom.js';
 import { bootstrapApp, resetRootInjector } from '../src/di.js';
@@ -639,6 +640,150 @@ describe('bindList', () => {
     expect(children[4]).toBe(footer);
 
     destroyComponent(ctx);
+    app.destroy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// renderSlot
+// ---------------------------------------------------------------------------
+
+describe('renderSlot', () => {
+  it('calls the matching slot function and returns its node', () => {
+    const app = bootstrapApp();
+    const ctx = createComponent(app);
+    const expected = createElement('span');
+    const slots = { default: (_ctx: typeof ctx) => expected as Node };
+
+    const result = renderSlot(slots, 'default', ctx);
+
+    expect(result).toBe(expected);
+    destroyComponent(ctx);
+    app.destroy();
+  });
+
+  it('returns an empty comment node when the slot name is not present', () => {
+    const app = bootstrapApp();
+    const ctx = createComponent(app);
+
+    const result = renderSlot({}, 'default', ctx);
+
+    expect(result.nodeType).toBe(Node.COMMENT_NODE);
+    destroyComponent(ctx);
+    app.destroy();
+  });
+
+  it('passes the provided ctx to the slot function', () => {
+    const app = bootstrapApp();
+    const ctx = createComponent(app);
+    let receivedCtx: typeof ctx | undefined;
+    const slots = {
+      default: (c: typeof ctx) => {
+        receivedCtx = c;
+        return createElement('div') as Node;
+      },
+    };
+
+    renderSlot(slots, 'default', ctx);
+
+    expect(receivedCtx).toBe(ctx);
+    destroyComponent(ctx);
+    app.destroy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// mountChild — slots
+// ---------------------------------------------------------------------------
+
+describe('mountChild — slots', () => {
+  it('passes empty slots by default; existing factories are unaffected', () => {
+    const app = bootstrapApp();
+    const parentCtx = createComponent(app);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let receivedSlots: any;
+
+    const factory = (ctx: typeof parentCtx, _props: Record<string, () => unknown>, slots: Record<string, unknown>) => {
+      receivedSlots = slots;
+      return createElement('div') as Node;
+    };
+
+    mountChild(factory, parentCtx);
+
+    expect(receivedSlots).toEqual({});
+    destroyComponent(parentCtx);
+    app.destroy();
+  });
+
+  it('passes slot functions through to the child factory', () => {
+    const app = bootstrapApp();
+    const parentCtx = createComponent(app);
+    const slotFn = (_ctx: typeof parentCtx) => createElement('p') as Node;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let receivedSlots: any;
+
+    const factory = (ctx: typeof parentCtx, _props: Record<string, () => unknown>, slots: Record<string, unknown>) => {
+      receivedSlots = slots;
+      return createElement('div') as Node;
+    };
+
+    mountChild(factory, parentCtx, {}, { default: slotFn });
+
+    expect(receivedSlots).toHaveProperty('default', slotFn);
+    destroyComponent(parentCtx);
+    app.destroy();
+  });
+
+  it('slot content is rendered inside the host component via renderSlot', () => {
+    const app = bootstrapApp();
+    const parentCtx = createComponent(app);
+    const slotContent = createElement('span');
+    slotContent.textContent = 'injected';
+
+    const factory = (childCtx: typeof parentCtx, _props: Record<string, () => unknown>, slots: Record<string, (c: typeof childCtx) => Node>) => {
+      const wrapper = createElement('div');
+      const slotNode = renderSlot(slots, 'default', childCtx);
+      wrapper.appendChild(slotNode);
+      return wrapper as Node;
+    };
+
+    const root = mountChild(factory, parentCtx, {}, {
+      default: () => slotContent as Node,
+    }) as Element;
+
+    expect(root.querySelector('span')?.textContent).toBe('injected');
+    destroyComponent(parentCtx);
+    app.destroy();
+  });
+
+  it('slot effects are registered on the child ctx and torn down on destroy', () => {
+    const app = bootstrapApp();
+    const parentCtx = createComponent(app);
+    const label = signal('before');
+
+    const factory = (childCtx: typeof parentCtx, _props: Record<string, () => unknown>, slots: Record<string, (c: typeof childCtx) => Node>) => {
+      const wrapper = createElement('div');
+      const slotNode = renderSlot(slots, 'default', childCtx);
+      wrapper.appendChild(slotNode);
+      return wrapper as Node;
+    };
+
+    const root = mountChild(factory, parentCtx, {}, {
+      default: (slotCtx) => {
+        const t = document.createTextNode('');
+        slotCtx.effects.push(bindText(t, () => label()));
+        return t;
+      },
+    }) as Element;
+
+    expect(root.textContent).toBe('before');
+    label.set('after');
+    expect(root.textContent).toBe('after');
+
+    // Destroying the parent also destroys the child ctx, which stops the effect
+    destroyComponent(parentCtx);
+    label.set('changed');
+    expect(root.textContent).toBe('after'); // effect no longer running
     app.destroy();
   });
 });

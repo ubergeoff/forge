@@ -431,6 +431,10 @@ class CodeGenerator {
       return this.genForElement(node, forDir);
     }
 
+    if (node.tag === 'slot') {
+      return this.genSlotElement(node);
+    }
+
     if (this.componentMap.has(node.tag)) {
       return this.genComponentElement(node);
     }
@@ -480,6 +484,14 @@ class CodeGenerator {
     return v;
   }
 
+  private genSlotElement(node: ElementNode): string {
+    const v = `_e${this.elemCount++}`;
+    const slotName = node.staticAttrs.find(a => a.name === 'name')?.value ?? 'default';
+    this.use('renderSlot');
+    this.emit(`const ${v} = renderSlot(slots, ${q(slotName)}, ${this.ctxVar});`);
+    return v;
+  }
+
   private genComponentElement(node: ElementNode): string {
     const idx = this.elemCount++;
     const v = `_e${idx}`;
@@ -498,14 +510,102 @@ class CodeGenerator {
       }
     }
 
-    if (propsEntries.length > 0) {
+    // Compile children as slot content.
+    const { defaultSlotNodes, namedSlots } = this.separateSlots(node.children);
+    const slotsEntries: string[] = [];
+
+    if (defaultSlotNodes.length > 0) {
+      slotsEntries.push(`    'default': ${this.compileSlotContent(defaultSlotNodes)}`);
+    }
+    for (const [name, children] of Object.entries(namedSlots)) {
+      if (children.length > 0) {
+        slotsEntries.push(`    ${q(name)}: ${this.compileSlotContent(children)}`);
+      }
+    }
+
+    const hasProps = propsEntries.length > 0;
+    const hasSlots = slotsEntries.length > 0;
+
+    if (hasProps) {
       this.emit(`const _props${idx} = {\n${propsEntries.join(',\n')}\n  };`);
+    }
+    if (hasSlots) {
+      this.emit(`const _slots${idx} = {\n${slotsEntries.join(',\n')}\n  };`);
+    }
+
+    if (hasSlots) {
+      const propsArg = hasProps ? `_props${idx}` : '{}';
+      this.emit(`const ${v} = mountChild(${factoryName}, ${this.ctxVar}, ${propsArg}, _slots${idx});`);
+    } else if (hasProps) {
       this.emit(`const ${v} = mountChild(${factoryName}, ${this.ctxVar}, _props${idx});`);
     } else {
       this.emit(`const ${v} = mountChild(${factoryName}, ${this.ctxVar});`);
     }
 
     return v;
+  }
+
+  /**
+   * Separates a component element's children into the default slot content
+   * and named slots. Named slots are `<template slot="name">` children;
+   * everything else contributes to the default slot.
+   */
+  private separateSlots(children: TemplateNode[]): {
+    defaultSlotNodes: TemplateNode[];
+    namedSlots: Record<string, TemplateNode[]>;
+  } {
+    const defaultSlotNodes: TemplateNode[] = [];
+    const namedSlots: Record<string, TemplateNode[]> = {};
+
+    for (const child of children) {
+      if (child.type === 'element' && child.tag === 'template') {
+        const slotAttr = child.staticAttrs.find(a => a.name === 'slot');
+        if (slotAttr) {
+          namedSlots[slotAttr.value] = child.children;
+          continue;
+        }
+      }
+      defaultSlotNodes.push(child);
+    }
+
+    return { defaultSlotNodes, namedSlots };
+  }
+
+  /**
+   * Compiles an array of template nodes into a slot function string.
+   * Uses the same sub-buffer pattern as genForElement(): saves the stmts
+   * length, walks the nodes under a temporary `_slotCtx` variable, splices
+   * the emitted statements back out, then wraps them in an arrow function.
+   *
+   * Reactive effects (bindText, bindAttr, …) emitted inside the slot are
+   * registered on `_slotCtx` — the child component's context — so they are
+   * properly torn down when the child is destroyed. The parent's signals are
+   * still accessible via JavaScript closure.
+   */
+  private compileSlotContent(nodes: TemplateNode[]): string {
+    const stmtsBefore = this.stmts.length;
+    const savedCtxVar = this.ctxVar;
+    this.ctxVar = '_slotCtx';
+
+    const nodeVars: string[] = [];
+    for (const child of nodes) {
+      nodeVars.push(this.walkNode(child));
+    }
+
+    this.ctxVar = savedCtxVar;
+    const innerStmts = this.stmts.splice(stmtsBefore);
+
+    const lines: string[] = ['(_slotCtx) => {'];
+    lines.push('      const _frag = document.createDocumentFragment();');
+    for (const s of innerStmts) {
+      lines.push(`      ${s.trimStart()}`);
+    }
+    for (const vn of nodeVars) {
+      lines.push(`      _frag.appendChild(${vn});`);
+    }
+    lines.push('      return _frag;');
+    lines.push('    }');
+    return lines.join('\n');
   }
 
   private parseForExpression(expr: string): { itemVar: string; iterableExpr: string } {
@@ -782,9 +882,9 @@ export function compileSFC(
 
   if (options?.hmr) {
     // Named factory so we can attach __hmrId and reference it below.
-    parts.push('export default function _VorraComponent(ctx, props = {}) {');
+    parts.push('export default function _VorraComponent(ctx, props = {}, slots = {}) {');
   } else {
-    parts.push('export default function(ctx, props = {}) {');
+    parts.push('export default function(ctx, props = {}, slots = {}) {');
   }
   parts.push('  return runInContext(ctx.injector, () => {');
   parts.push(innerLines.join('\n'));

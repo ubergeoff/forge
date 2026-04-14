@@ -97,7 +97,34 @@ export function parseSFC(source: string, filename: string): SFCDescriptor {
     const contentStart = m.index + fullOpenTag.length;
 
     const closeTag = `</${tagName}>`;
-    const closeIdx = source.indexOf(closeTag, contentStart);
+
+    // For <template> blocks, count nesting depth so that inner <template>
+    // elements (e.g. named slot wrappers: <template slot="header">) do not
+    // prematurely terminate the outer SFC block.
+    let closeIdx: number;
+    if (tagName === 'template') {
+      let depth = 1;
+      let pos = contentStart;
+      closeIdx = -1;
+      while (pos < source.length) {
+        const nextOpen = source.indexOf('<template', pos);
+        const nextClose = source.indexOf('</template>', pos);
+        if (nextClose === -1) break;
+        if (nextOpen !== -1 && nextOpen < nextClose) {
+          depth++;
+          pos = nextOpen + '<template'.length;
+        } else {
+          depth--;
+          if (depth === 0) {
+            closeIdx = nextClose;
+            break;
+          }
+          pos = nextClose + '</template>'.length;
+        }
+      }
+    } else {
+      closeIdx = source.indexOf(closeTag, contentStart);
+    }
 
     if (closeIdx === -1) {
       throw new Error(
