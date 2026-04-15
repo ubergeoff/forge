@@ -1,0 +1,217 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Vorra",
+  "scopeName": "source.vorra",
+  "fileTypes": ["vorra"],
+  "patterns": [
+    { "include": "#script-block" },
+    { "include": "#template-block" },
+    { "include": "#style-block" }
+  ],
+  "repository": {
+    "script-block": {
+      "name": "meta.block.script.vorra",
+      "begin": "(<)(script)((?:\\s[^>]*)?)\\s*(>)",
+      "end": "(</)(script)(>)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.vorra" },
+        "2": { "name": "entity.name.tag.script.vorra" },
+        "3": { "name": "meta.tag.attributes.vorra",
+                "patterns": [{ "include": "#tag-attributes-plain" }] },
+        "4": { "name": "punctuation.definition.tag.end.vorra" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.vorra" },
+        "2": { "name": "entity.name.tag.script.vorra" },
+        "3": { "name": "punctuation.definition.tag.end.vorra" }
+      },
+      "contentName": "meta.embedded.block.script.vorra",
+      "patterns": [{ "include": "source.ts" }]
+    },
+
+    "style-block": {
+      "name": "meta.block.style.vorra",
+      "begin": "(<)(style)((?:\\s[^>]*)?)\\s*(>)",
+      "end": "(</)(style)(>)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.vorra" },
+        "2": { "name": "entity.name.tag.style.vorra" },
+        "3": { "name": "meta.tag.attributes.vorra",
+                "patterns": [{ "include": "#tag-attributes-plain" }] },
+        "4": { "name": "punctuation.definition.tag.end.vorra" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.vorra" },
+        "2": { "name": "entity.name.tag.style.vorra" },
+        "3": { "name": "punctuation.definition.tag.end.vorra" }
+      },
+      "contentName": "meta.embedded.block.style.vorra",
+      "patterns": [{ "include": "source.css" }]
+    },
+
+    "template-block": {
+      "name": "meta.block.template.vorra",
+      "begin": "(<)(template)((?:\\s[^>]*)?)\\s*(>)",
+      "end": "(</)(template)(>)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.vorra" },
+        "2": { "name": "entity.name.tag.template.vorra" },
+        "3": { "name": "meta.tag.attributes.vorra",
+                "patterns": [{ "include": "#tag-attributes-plain" }] },
+        "4": { "name": "punctuation.definition.tag.end.vorra" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.vorra" },
+        "2": { "name": "entity.name.tag.template.vorra" },
+        "3": { "name": "punctuation.definition.tag.end.vorra" }
+      },
+      "patterns": [
+        { "include": "#html-comment" },
+        { "include": "#template-element" },
+        { "include": "#template-interpolation" }
+      ]
+    },
+
+    "html-comment": {
+      "name": "comment.block.html.vorra",
+      "begin": "<!--",
+      "end": "-->",
+      "beginCaptures": { "0": { "name": "punctuation.definition.comment.html.vorra" } },
+      "endCaptures":   { "0": { "name": "punctuation.definition.comment.html.vorra" } }
+    },
+
+    "template-interpolation": {
+      "name": "meta.interpolation.vorra",
+      "begin": "\\{",
+      "end": "\\}",
+      "beginCaptures": { "0": { "name": "punctuation.definition.template-expression.begin.vorra" } },
+      "endCaptures":   { "0": { "name": "punctuation.definition.template-expression.end.vorra" } },
+      "contentName": "meta.embedded.expression.vorra",
+      "patterns": [{ "include": "source.ts#expression" }]
+    },
+
+    "template-element": {
+      "name": "meta.tag.vorra",
+      "begin": "(<)([A-Za-z][A-Za-z0-9-]*)",
+      "end": "(/>|>)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.vorra" },
+        "2": { "name": "entity.name.tag.vorra" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.end.vorra" }
+      },
+      "patterns": [{ "include": "#template-tag-attributes" }]
+    },
+
+    "template-tag-attributes": {
+      "patterns": [
+        { "include": "#directive-for" },
+        { "include": "#directive-event" },
+        { "include": "#directive-show" },
+        { "include": "#directive-bind" },
+        { "include": "#directive-prop" },
+        { "include": "#directive-formcontrol" },
+        { "include": "#directive-class" },
+        { "include": "#tag-attributes-plain" }
+      ]
+    },
+
+    "directive-for": {
+      "name": "meta.directive.for.vorra",
+      "match": "(@for)\\s*=\\s*(\\{[^}]*\\})",
+      "captures": {
+        "1": { "name": "keyword.control.for.vorra" },
+        "2": { "name": "meta.embedded.expression.vorra",
+               "patterns": [{ "include": "#expression-braces" }] }
+      }
+    },
+
+    "directive-event": {
+      "name": "meta.directive.event.vorra",
+      "match": "(@[a-z][a-z0-9]*)\\s*=\\s*(\\{[^}]*\\})",
+      "captures": {
+        "1": { "name": "keyword.operator.event.vorra" },
+        "2": { "name": "meta.embedded.expression.vorra",
+               "patterns": [{ "include": "#expression-braces" }] }
+      }
+    },
+
+    "directive-show": {
+      "name": "meta.directive.show.vorra",
+      "match": "(:show)\\s*=\\s*(\\{[^}]*\\})",
+      "captures": {
+        "1": { "name": "keyword.control.show.vorra" },
+        "2": { "name": "meta.embedded.expression.vorra",
+               "patterns": [{ "include": "#expression-braces" }] }
+      }
+    },
+
+    "directive-bind": {
+      "name": "meta.directive.bind.vorra",
+      "match": "(:[a-z][a-z0-9-]*)\\s*=\\s*(\\{[^}]*\\})",
+      "captures": {
+        "1": { "name": "entity.other.attribute-name.bind.vorra" },
+        "2": { "name": "meta.embedded.expression.vorra",
+               "patterns": [{ "include": "#expression-braces" }] }
+      }
+    },
+
+    "directive-prop": {
+      "name": "meta.directive.prop.vorra",
+      "match": "(\\.[a-zA-Z][a-zA-Z0-9]*)\\s*=\\s*(\\{[^}]*\\})",
+      "captures": {
+        "1": { "name": "variable.other.property.vorra" },
+        "2": { "name": "meta.embedded.expression.vorra",
+               "patterns": [{ "include": "#expression-braces" }] }
+      }
+    },
+
+    "directive-formcontrol": {
+      "name": "meta.directive.formcontrol.vorra",
+      "match": "(\\[formControl\\])\\s*=\\s*(\\{[^}]*\\})",
+      "captures": {
+        "1": { "name": "support.function.formControl.vorra" },
+        "2": { "name": "meta.embedded.expression.vorra",
+               "patterns": [{ "include": "#expression-braces" }] }
+      }
+    },
+
+    "directive-class": {
+      "name": "meta.directive.class.vorra",
+      "match": "(class:[a-zA-Z][a-zA-Z0-9-]*)\\s*=\\s*(\\{[^}]*\\})",
+      "captures": {
+        "1": { "name": "entity.other.attribute-name.class.vorra" },
+        "2": { "name": "meta.embedded.expression.vorra",
+               "patterns": [{ "include": "#expression-braces" }] }
+      }
+    },
+
+    "expression-braces": {
+      "begin": "\\{",
+      "end": "\\}",
+      "beginCaptures": { "0": { "name": "punctuation.definition.expression.begin.vorra" } },
+      "endCaptures":   { "0": { "name": "punctuation.definition.expression.end.vorra" } },
+      "contentName": "meta.embedded.expression.vorra",
+      "patterns": [{ "include": "source.ts#expression" }]
+    },
+
+    "tag-attributes-plain": {
+      "patterns": [
+        {
+          "name": "meta.attribute.plain.vorra",
+          "match": "([a-zA-Z_][a-zA-Z0-9_-]*)\\s*=\\s*(?:\"([^\"]*)\"|'([^']*)')",
+          "captures": {
+            "1": { "name": "entity.other.attribute-name.vorra" },
+            "2": { "name": "string.quoted.double.vorra" },
+            "3": { "name": "string.quoted.single.vorra" }
+          }
+        },
+        {
+          "name": "entity.other.attribute-name.boolean.vorra",
+          "match": "[a-zA-Z_][a-zA-Z0-9_-]*"
+        }
+      ]
+    }
+  }
+}

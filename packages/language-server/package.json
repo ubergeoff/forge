@@ -1,0 +1,48 @@
+{
+  "name": "@vorra/language-server",
+  "version": "0.1.0",
+  "description": "Vorra LSP server — language intelligence for .vorra Single File Components",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ubergeoff/vorra.git",
+    "directory": "packages/language-server"
+  },
+  "keywords": [
+    "vorra",
+    "lsp",
+    "language-server",
+    "sfc"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "type": "module",
+  "bin": {
+    "vorra-lsp": "./bin/vorra-lsp.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/server.js",
+      "types": "./dist/server.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "rolldown -c rolldown.config.mjs",
+    "clean": "rm -rf dist .tsbuildinfo"
+  },
+  "dependencies": {
+    "@vorra/compiler": "*",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.11"
+  },
+  "devDependencies": {
+    "rolldown": "*",
+    "typescript": "*"
+  },
+  "sideEffects": ["./dist/server.js", "./bin/vorra-lsp.js"]
+}
