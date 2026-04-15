@@ -1,0 +1,66 @@
+{
+  "name": "vorra-language-support",
+  "displayName": "Vorra Language Support",
+  "description": "Syntax highlighting, diagnostics, completions, and hover for .vorra Single File Components",
+  "version": "0.1.0",
+  "publisher": "vorra",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ubergeoff/vorra.git",
+    "directory": "packages/vscode-extension"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters"
+  ],
+  "keywords": [
+    "vorra",
+    "sfc",
+    "lsp",
+    "language-support"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "vorra",
+        "aliases": ["Vorra", "vorra"],
+        "extensions": [".vorra"],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/vorra-file-icon.svg",
+          "dark": "./icons/vorra-file-icon.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "vorra",
+        "scopeName": "source.vorra",
+        "path": "./syntaxes/vorra.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.script.vorra": "typescript",
+          "meta.embedded.block.style.vorra": "css"
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "package": "vsce package",
+    "clean": "rm -rf out *.vsix"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "*"
+  }
+}
