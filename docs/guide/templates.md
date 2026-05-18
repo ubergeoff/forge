@@ -80,6 +80,69 @@ function handleClick() {
 </template>
 ```
 
+## List Rendering: `@for={item of list()}`
+
+Use `@for` to render an element for each item in a reactive list. The list expression is re-evaluated whenever the signals it reads change — items are added and removed from the DOM without re-rendering the whole list.
+
+```forge
+<script lang="ts">
+import { signal } from '@forge/core'
+
+const items = signal(['Apple', 'Banana', 'Cherry'])
+</script>
+
+<template>
+  <ul>
+    <li @for={item of items()}>{item}</li>
+  </ul>
+</template>
+```
+
+### Accessing the current item
+
+The variable name before `of` is available inside the element and any of its children:
+
+```forge
+<script lang="ts">
+import { signal } from '@forge/core'
+
+interface User { id: number; name: string; email: string }
+
+const users = signal<User[]>([
+  { id: 1, name: 'Alice', email: 'alice@example.com' },
+  { id: 2, name: 'Bob',   email: 'bob@example.com' },
+])
+</script>
+
+<template>
+  <ul>
+    <li @for={user of users()}>
+      <strong>{user.name}</strong> — {user.email}
+    </li>
+  </ul>
+</template>
+```
+
+### Optional `track` hint
+
+Append `; track <expr>` to give each item a stable identity key. This is a hint to the renderer and is parsed by the compiler (the key expression is currently recorded but not yet used for diffing):
+
+```forge
+<template>
+  <li @for={user of users(); track user.id}>
+    {user.name}
+  </li>
+</template>
+```
+
+::: tip
+`@for` inserts a comment anchor node in the DOM as a stable insertion point. Items are inserted after this anchor and removed individually — the parent element is never re-rendered.
+:::
+
+::: warning
+`@for` expects exactly the syntax `item of list()` (or `item of list(); track expr`). The iterable must be a signal call or any expression that returns an array — it is re-read reactively on every change.
+:::
+
 ## Conditional Visibility: `:show={expr}`
 
 `:show` toggles `display: none` on the element based on the expression. The element stays in the DOM — only its visibility changes.
@@ -154,6 +217,7 @@ const email = formControl('', [Validators.required, Validators.email])
 | `:attr={expr}` | Reactive attribute binding | `:disabled={null}` |
 | `.prop={expr}` | DOM property binding | `.value={name()}` |
 | `@event={fn}` | Event listener | `@click={handleClick}` |
+| `@for={item of list()}` | Reactive list rendering | `@for={user of users()}` |
 | `:show={expr}` | Conditional visibility | `:show={isLoggedIn()}` |
 | `class:name={expr}` | Conditional class toggle | `class:active={isOn()}` |
 | `[formControl]={ctrl}` | Two-way form binding | `[formControl]={email}` |
